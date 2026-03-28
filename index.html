@@ -1,0 +1,1503 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0" />
+  <title>Family Hub</title>
+  <style>
+    /* ─── Reset & Base ─── */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:          #f7f6f3;
+      --surface:     #ffffff;
+      --surface-2:   #f0ede8;
+      --border:      #e2ddd7;
+      --text:        #2d2a26;
+      --text-muted:  #8a857e;
+      --accent:      #5c7a6e;   /* sage green */
+      --accent-light:#dce8e3;
+      --warm:        #c4855a;   /* terracotta for highlights */
+      --warm-light:  #f5e8de;
+      --blue:        #4a6fa5;
+      --blue-light:  #dce6f5;
+      --radius:      12px;
+      --radius-sm:   8px;
+      --shadow:      0 1px 3px rgba(0,0,0,.07), 0 4px 12px rgba(0,0,0,.04);
+      --shadow-sm:   0 1px 2px rgba(0,0,0,.06);
+      --font:        'Inter', system-ui, -apple-system, sans-serif;
+      --nav-h:       60px;
+      --tab-h:       64px;
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: var(--font);
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100dvh;
+      overflow-x: hidden;
+    }
+
+    /* ─── Typography ─── */
+    h1 { font-size: 1.25rem; font-weight: 700; letter-spacing: -.3px; }
+    h2 { font-size: 1.1rem; font-weight: 600; letter-spacing: -.2px; }
+    h3 { font-size: .95rem; font-weight: 600; }
+    p, li { font-size: .9rem; line-height: 1.5; }
+
+    /* ─── Layout ─── */
+    #app { display: flex; flex-direction: column; min-height: 100dvh; }
+
+    /* ─── Top Bar ─── */
+    #topbar {
+      position: sticky; top: 0; z-index: 100;
+      height: var(--nav-h);
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 0 16px;
+      box-shadow: var(--shadow-sm);
+    }
+    #topbar .logo { display: flex; align-items: center; gap: 8px; }
+    #topbar .logo svg { color: var(--accent); }
+    #topbar .logo span { font-weight: 700; font-size: 1.05rem; color: var(--text); }
+    #sync-indicator {
+      font-size: .72rem; font-weight: 600; padding: 3px 9px;
+      border-radius: 20px; letter-spacing: .2px;
+      transition: all .3s;
+    }
+    #sync-indicator.live   { background: #d4edda; color: #1e6b35; }
+    #sync-indicator.saving { background: var(--warm-light); color: var(--warm); }
+    #sync-indicator.offline{ background: #f8d7da; color: #842029; }
+
+    /* ─── Week Navigator ─── */
+    #week-nav {
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+      padding: 10px 16px;
+      display: flex; align-items: center; justify-content: space-between;
+      gap: 8px;
+    }
+    #week-nav button {
+      width: 36px; height: 36px; border-radius: 50%;
+      border: 1px solid var(--border);
+      background: var(--surface);
+      color: var(--text);
+      font-size: 1.1rem;
+      cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+      transition: background .15s;
+      flex-shrink: 0;
+    }
+    #week-nav button:hover { background: var(--surface-2); }
+    #week-label {
+      font-size: .85rem; font-weight: 600; color: var(--text-muted);
+      text-align: center; flex: 1;
+    }
+
+    /* ─── Page / Tab content ─── */
+    #content { flex: 1; padding: 16px; padding-bottom: calc(var(--tab-h) + 24px); }
+
+    .page { display: none; }
+    .page.active { display: block; }
+
+    /* ─── Bottom Tab Bar ─── */
+    #tabs {
+      position: fixed; bottom: 0; left: 0; right: 0;
+      height: var(--tab-h);
+      background: var(--surface);
+      border-top: 1px solid var(--border);
+      display: flex;
+      z-index: 100;
+      box-shadow: 0 -2px 12px rgba(0,0,0,.06);
+    }
+    .tab-btn {
+      flex: 1; display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      gap: 3px; cursor: pointer; border: none; background: none;
+      color: var(--text-muted); transition: color .15s;
+      padding: 4px 2px;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .tab-btn svg { transition: transform .15s; }
+    .tab-btn.active { color: var(--accent); }
+    .tab-btn.active svg { transform: scale(1.1); }
+    .tab-btn span { font-size: .68rem; font-weight: 600; letter-spacing: .2px; text-transform: uppercase; }
+
+    /* ─── Cards ─── */
+    .card {
+      background: var(--surface);
+      border-radius: var(--radius);
+      border: 1px solid var(--border);
+      box-shadow: var(--shadow);
+      padding: 16px;
+      margin-bottom: 14px;
+    }
+    .card-header {
+      display: flex; align-items: center; justify-content: space-between;
+      margin-bottom: 12px;
+    }
+    .card-header h2 { display: flex; align-items: center; gap: 7px; }
+    .card-header h2 svg { color: var(--accent); }
+
+    /* ─── Buttons ─── */
+    .btn {
+      display: inline-flex; align-items: center; gap: 5px;
+      padding: 9px 16px; border-radius: var(--radius-sm);
+      border: none; cursor: pointer;
+      font-family: var(--font); font-size: .85rem; font-weight: 600;
+      transition: opacity .15s, transform .1s;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .btn:active { transform: scale(.97); }
+    .btn-primary { background: var(--accent); color: #fff; }
+    .btn-primary:hover { opacity: .9; }
+    .btn-ghost {
+      background: var(--surface-2); color: var(--text);
+      border: 1px solid var(--border);
+    }
+    .btn-ghost:hover { background: var(--border); }
+    .btn-danger { background: #fee2e2; color: #dc2626; }
+    .btn-sm { padding: 6px 12px; font-size: .8rem; }
+    .btn-icon {
+      width: 32px; height: 32px; padding: 0;
+      border-radius: 50%; display: inline-flex;
+      align-items: center; justify-content: center;
+      border: none; cursor: pointer; background: var(--surface-2);
+      color: var(--text-muted); transition: background .15s;
+    }
+    .btn-icon:hover { background: var(--border); color: var(--text); }
+
+    /* ─── Form elements ─── */
+    input[type=text], input[type=date], textarea, select {
+      width: 100%;
+      padding: 10px 12px;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      background: var(--surface);
+      color: var(--text);
+      font-family: var(--font);
+      font-size: .9rem;
+      outline: none;
+      transition: border-color .15s, box-shadow .15s;
+    }
+    input:focus, textarea:focus, select:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px var(--accent-light);
+    }
+    textarea { resize: vertical; min-height: 60px; }
+    label { font-size: .8rem; font-weight: 600; color: var(--text-muted); display: block; margin-bottom: 5px; }
+
+    .form-row { margin-bottom: 12px; }
+    .form-actions { display: flex; gap: 8px; justify-content: flex-end; margin-top: 14px; }
+
+    /* ─── Modal ─── */
+    .modal-overlay {
+      position: fixed; inset: 0; z-index: 200;
+      background: rgba(0,0,0,.4); backdrop-filter: blur(2px);
+      display: flex; align-items: flex-end; justify-content: center;
+      padding: 16px;
+      animation: fadeIn .15s;
+    }
+    @keyframes fadeIn { from { opacity: 0; } }
+    .modal-overlay.hidden { display: none; }
+    .modal {
+      background: var(--surface);
+      border-radius: var(--radius) var(--radius) var(--radius-sm) var(--radius-sm);
+      width: 100%; max-width: 480px; max-height: 85dvh;
+      overflow-y: auto; padding: 20px;
+      animation: slideUp .2s ease;
+    }
+    @keyframes slideUp { from { transform: translateY(30px); opacity: 0; } }
+    .modal h2 { margin-bottom: 16px; font-size: 1rem; }
+    .modal-close {
+      position: absolute; top: 12px; right: 12px;
+      background: var(--surface-2); border: none; border-radius: 50%;
+      width: 30px; height: 30px; cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+      color: var(--text-muted);
+    }
+
+    /* ─── Empty state ─── */
+    .empty-state {
+      text-align: center; padding: 32px 16px;
+      color: var(--text-muted);
+    }
+    .empty-state svg { margin-bottom: 10px; opacity: .4; }
+    .empty-state p { font-size: .85rem; }
+
+    /* ─── Badge ─── */
+    .badge {
+      display: inline-flex; align-items: center;
+      padding: 2px 8px; border-radius: 20px;
+      font-size: .72rem; font-weight: 600; letter-spacing: .2px;
+    }
+    .badge-accent { background: var(--accent-light); color: var(--accent); }
+    .badge-warm   { background: var(--warm-light); color: var(--warm); }
+    .badge-blue   { background: var(--blue-light); color: var(--blue); }
+    .badge-neutral{ background: var(--surface-2); color: var(--text-muted); }
+
+    /* ══════════════════════════════════════════════
+       PAGE: MEAL PLANNER
+    ══════════════════════════════════════════════ */
+    #meal-grid { display: flex; flex-direction: column; gap: 2px; }
+
+    .meal-day-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      overflow: hidden;
+    }
+    .meal-day-header {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 10px 14px;
+      cursor: pointer;
+      user-select: none;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .meal-day-header .day-label {
+      font-weight: 700; font-size: .9rem;
+    }
+    .meal-day-header .day-sub {
+      font-size: .75rem; font-weight: 500;
+    }
+    .meal-day-header .chevron {
+      transition: transform .2s;
+      color: var(--text-muted);
+    }
+    .meal-day-card.open .chevron { transform: rotate(180deg); }
+
+    .meal-day-body { display: none; padding: 0 14px 14px; border-top: 1px solid var(--border); }
+    .meal-day-card.open .meal-day-body { display: block; }
+
+    .meal-slot {
+      display: flex; align-items: flex-start;
+      gap: 10px; padding: 10px 0;
+      border-bottom: 1px solid var(--border);
+    }
+    .meal-slot:last-child { border-bottom: none; }
+    .meal-slot-icon {
+      width: 30px; height: 30px; border-radius: 8px;
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0; font-size: .95rem;
+    }
+    .meal-slot-icon.breakfast { background: #fef9c3; }
+    .meal-slot-icon.lunch     { background: var(--accent-light); }
+    .meal-slot-icon.dinner    { background: var(--warm-light); }
+    .meal-slot-content { flex: 1; }
+    .meal-slot-label { font-size: .72rem; font-weight: 600; color: var(--text-muted); text-transform: uppercase; letter-spacing: .3px; }
+    .meal-slot-value {
+      font-size: .88rem; color: var(--text); margin-top: 2px;
+      cursor: pointer; min-height: 22px;
+    }
+    .meal-slot-value.empty { color: var(--text-muted); font-style: italic; }
+
+    .meal-slot-edit { display: flex; gap: 6px; align-items: center; margin-top: 4px; }
+    .meal-slot-edit input { padding: 6px 10px; font-size: .85rem; }
+    .meal-slot-edit .btn-icon { width: 28px; height: 28px; border-radius: 6px; flex-shrink: 0; }
+
+    .cook-tag {
+      font-size: .7rem; font-weight: 600; padding: 1px 6px;
+      border-radius: 10px; margin-left: 6px;
+    }
+    .cook-wife   { background: #fce7f3; color: #9d174d; }
+    .cook-husband{ background: #dbeafe; color: #1d4ed8; }
+    .cook-flex   { background: var(--surface-2); color: var(--text-muted); }
+
+    .meal-legend {
+      display: flex; flex-wrap: wrap; gap: 6px;
+      margin-bottom: 12px;
+    }
+
+    /* ══════════════════════════════════════════════
+       PAGE: GROCERY
+    ══════════════════════════════════════════════ */
+    .grocery-section { margin-bottom: 18px; }
+    .grocery-section-header {
+      display: flex; align-items: center; gap: 8px;
+      padding: 8px 0; margin-bottom: 6px;
+      border-bottom: 2px solid var(--border);
+    }
+    .grocery-section-header h3 { font-size: .85rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: .5px; }
+    .grocery-section-header .section-icon { font-size: 1rem; }
+
+    .grocery-item {
+      display: flex; align-items: center; gap: 10px;
+      padding: 10px 12px;
+      border-radius: var(--radius-sm);
+      transition: background .12s;
+      margin-bottom: 2px;
+    }
+    .grocery-item:hover { background: var(--surface-2); }
+    .grocery-item.checked { opacity: .5; }
+    .grocery-item.checked .grocery-name { text-decoration: line-through; }
+
+    .grocery-check {
+      width: 22px; height: 22px; border-radius: 6px;
+      border: 2px solid var(--border); background: var(--surface);
+      display: flex; align-items: center; justify-content: center;
+      cursor: pointer; flex-shrink: 0;
+      transition: background .15s, border-color .15s;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .grocery-item.checked .grocery-check {
+      background: var(--accent); border-color: var(--accent);
+    }
+    .grocery-name { flex: 1; font-size: .9rem; }
+    .grocery-qty  { font-size: .8rem; color: var(--text-muted); font-weight: 500; }
+
+    .grocery-delete {
+      width: 28px; height: 28px; border-radius: 50%;
+      border: none; background: none; color: var(--text-muted);
+      cursor: pointer; display: flex; align-items: center; justify-content: center;
+      opacity: 0; transition: opacity .15s;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .grocery-item:hover .grocery-delete,
+    .grocery-item:focus-within .grocery-delete { opacity: 1; }
+
+    .add-grocery-form {
+      display: flex; gap: 8px; margin-top: 12px;
+      padding: 12px; background: var(--surface-2);
+      border-radius: var(--radius-sm);
+    }
+    .add-grocery-form input { flex: 1; }
+    .add-grocery-form input.qty-input { max-width: 70px; }
+
+    /* ─── Grocery clear checked bar ─── */
+    .grocery-toolbar {
+      display: flex; align-items: center; justify-content: space-between;
+      margin-bottom: 12px;
+    }
+    .checked-count { font-size: .8rem; color: var(--text-muted); }
+
+    /* ══════════════════════════════════════════════
+       PAGE: SCHEDULE
+    ══════════════════════════════════════════════ */
+    .schedule-grid { display: flex; flex-direction: column; gap: 8px; }
+    .schedule-day {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      overflow: hidden;
+    }
+    .schedule-day-header {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 12px 14px;
+    }
+    .schedule-day-header .day-info { display: flex; flex-direction: column; gap: 2px; }
+    .schedule-day-header .day-name { font-weight: 700; font-size: .9rem; }
+    .schedule-day-header .day-date { font-size: .75rem; color: var(--text-muted); }
+    .schedule-runs {
+      padding: 0 14px 12px;
+      display: flex; flex-direction: column; gap: 6px;
+    }
+    .run-item {
+      display: flex; align-items: center; gap: 8px;
+      padding: 8px 10px;
+      background: var(--surface-2);
+      border-radius: var(--radius-sm);
+    }
+    .run-item .run-time { font-size: .75rem; color: var(--text-muted); font-weight: 600; min-width: 50px; }
+    .run-item .run-desc { font-size: .85rem; flex: 1; }
+    .run-item .run-who {
+      font-size: .75rem; font-weight: 700;
+      padding: 2px 8px; border-radius: 10px;
+    }
+    .run-who.wife    { background: #fce7f3; color: #9d174d; }
+    .run-who.husband { background: #dbeafe; color: #1d4ed8; }
+    .run-who.both    { background: var(--accent-light); color: var(--accent); }
+
+    .run-add-btn {
+      display: flex; align-items: center; gap: 5px;
+      padding: 7px 14px; font-size: .8rem; font-weight: 600;
+      background: none; border: 1px dashed var(--border);
+      border-radius: var(--radius-sm); cursor: pointer;
+      color: var(--text-muted); width: 100%;
+      transition: background .15s, color .15s;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .run-add-btn:hover { background: var(--surface-2); color: var(--text); }
+
+    /* ══════════════════════════════════════════════
+       PAGE: EVENTS
+    ══════════════════════════════════════════════ */
+    .events-list { display: flex; flex-direction: column; gap: 10px; }
+    .event-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      padding: 14px;
+      display: flex; align-items: flex-start; gap: 12px;
+      box-shadow: var(--shadow-sm);
+    }
+    .event-date-block {
+      background: var(--accent);
+      color: #fff;
+      border-radius: 8px;
+      min-width: 44px; height: 48px;
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      flex-shrink: 0;
+    }
+    .event-date-block .ev-day   { font-size: 1.15rem; font-weight: 800; line-height: 1; }
+    .event-date-block .ev-month { font-size: .62rem; font-weight: 600; text-transform: uppercase; letter-spacing: .5px; opacity: .85; }
+    .event-info { flex: 1; }
+    .event-title { font-weight: 600; font-size: .9rem; margin-bottom: 3px; }
+    .event-meta  { font-size: .78rem; color: var(--text-muted); display: flex; flex-wrap: wrap; gap: 8px; }
+    .event-meta span { display: flex; align-items: center; gap: 3px; }
+    .event-actions { display: flex; gap: 4px; }
+
+    .event-type-badge { }
+    .type-playdate  { background: #fce7f3; color: #9d174d; }
+    .type-activity  { background: var(--blue-light); color: var(--blue); }
+    .type-appointment{ background: var(--warm-light); color: var(--warm); }
+    .type-family    { background: var(--accent-light); color: var(--accent); }
+    .type-other     { background: var(--surface-2); color: var(--text-muted); }
+
+    .past-event { opacity: .55; }
+
+    /* ─── Setup Banner ─── */
+    #setup-banner {
+      background: linear-gradient(135deg, var(--accent) 0%, #3d5c52 100%);
+      color: #fff;
+      border-radius: var(--radius);
+      padding: 18px;
+      margin-bottom: 16px;
+    }
+    #setup-banner h2 { color: #fff; font-size: .95rem; margin-bottom: 6px; }
+    #setup-banner p  { font-size: .82rem; opacity: .85; margin-bottom: 14px; line-height: 1.5; }
+    #setup-banner code {
+      background: rgba(255,255,255,.15); padding: 2px 6px;
+      border-radius: 4px; font-size: .8rem;
+    }
+    #setup-banner .banner-actions { display: flex; gap: 8px; flex-wrap: wrap; }
+    #setup-banner .btn-banner {
+      background: rgba(255,255,255,.2);
+      color: #fff; border: 1px solid rgba(255,255,255,.3);
+      font-size: .82rem;
+    }
+    #setup-banner .btn-banner.primary {
+      background: #fff; color: var(--accent);
+    }
+
+    /* ─── Loader ─── */
+    .spinner {
+      width: 18px; height: 18px;
+      border: 2px solid var(--border);
+      border-top-color: var(--accent);
+      border-radius: 50%;
+      animation: spin .6s linear infinite;
+      display: inline-block;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* ─── Responsive ─── */
+    @media (min-width: 600px) {
+      #content { max-width: 600px; margin: 0 auto; padding: 20px 20px calc(var(--tab-h) + 30px); }
+      .modal-overlay { align-items: center; }
+      .modal { border-radius: var(--radius); }
+    }
+
+    /* ─── Toast ─── */
+    #toast-container {
+      position: fixed; bottom: calc(var(--tab-h) + 12px); left: 0; right: 0;
+      display: flex; flex-direction: column; align-items: center;
+      gap: 8px; z-index: 300; pointer-events: none;
+    }
+    .toast {
+      background: var(--text); color: #fff;
+      padding: 10px 18px; border-radius: 20px;
+      font-size: .82rem; font-weight: 500;
+      animation: toastIn .2s ease, toastOut .2s ease 2.3s forwards;
+    }
+    @keyframes toastIn  { from { transform: translateY(10px); opacity: 0; } }
+    @keyframes toastOut { to   { transform: translateY(-6px); opacity: 0; } }
+
+    /* ─── No Firebase placeholder ─── */
+    .demo-note {
+      background: #fffbeb; border: 1px solid #fcd34d;
+      border-radius: var(--radius-sm);
+      padding: 10px 12px; font-size: .8rem; color: #92400e;
+      margin-bottom: 12px;
+    }
+  </style>
+</head>
+<body>
+<div id="app">
+
+  <!-- Top Bar -->
+  <header id="topbar">
+    <div class="logo">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/>
+      </svg>
+      <span>Family Hub</span>
+    </div>
+    <span id="sync-indicator" class="offline">⚪ Offline</span>
+  </header>
+
+  <!-- Week Navigator -->
+  <div id="week-nav">
+    <button id="prev-week" aria-label="Previous week">‹</button>
+    <div id="week-label">Week of ...</div>
+    <button id="next-week" aria-label="Next week">›</button>
+  </div>
+
+  <!-- Main Content -->
+  <main id="content">
+
+    <!-- ─── MEAL PLANNER ─── -->
+    <section class="page active" id="page-meals">
+      <div class="card" style="padding:12px 16px; margin-bottom:12px;">
+        <div class="meal-legend">
+          <span class="badge"><span class="cook-tag cook-wife">W</span> &nbsp;Wife cooks</span>
+          <span class="badge"><span class="cook-tag cook-husband">H</span> &nbsp;Husband cooks</span>
+          <span class="badge"><span class="cook-tag cook-flex">✦</span> &nbsp;Flexible</span>
+        </div>
+        <p style="font-size:.78rem; color:var(--text-muted);">Tap a meal to edit it. Tap a day to expand/collapse.</p>
+      </div>
+      <div id="meal-grid"></div>
+    </section>
+
+    <!-- ─── GROCERY LIST ─── -->
+    <section class="page" id="page-grocery">
+      <div class="card-header" style="margin-bottom:12px;">
+        <h2>
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
+          Grocery List
+        </h2>
+        <div style="display:flex;gap:6px;align-items:center;">
+          <span id="checked-count" class="checked-count"></span>
+          <button class="btn btn-ghost btn-sm" id="clear-checked-btn">Clear checked</button>
+        </div>
+      </div>
+
+      <div id="grocery-sections"></div>
+
+      <!-- Add item -->
+      <div class="card" style="padding:14px;">
+        <h3 style="margin-bottom:10px; font-size:.85rem;">Add item</h3>
+        <div class="add-grocery-form" style="flex-direction:column; gap:8px;">
+          <div style="display:flex; gap:8px;">
+            <input type="text" id="grocery-name-input" placeholder="Item name…" />
+            <input type="text" id="grocery-qty-input" class="qty-input" placeholder="Qty" style="max-width:70px;" />
+          </div>
+          <div style="display:flex; gap:8px; align-items:center;">
+            <select id="grocery-section-select" style="flex:1;">
+              <option value="produce">🥦 Fruits &amp; Veggies</option>
+              <option value="bakery">🥖 Bakery</option>
+              <option value="deli">🫙 Deli &amp; Charcuterie</option>
+              <option value="meat">🥩 Meat &amp; Poultry</option>
+              <option value="seafood">🐟 Fish &amp; Seafood</option>
+              <option value="dairy">🧀 Dairy &amp; Eggs</option>
+              <option value="frozen">🧊 Frozen</option>
+              <option value="pantry">🥫 Pantry &amp; Dry Goods</option>
+              <option value="snacks">🥣 Snacks &amp; Cereal</option>
+              <option value="beverages">🥤 Beverages</option>
+              <option value="health">🧴 Health &amp; Beauty</option>
+              <option value="household">🧹 Household &amp; Cleaning</option>
+              <option value="other">📦 Other</option>
+            </select>
+            <button class="btn btn-primary" id="add-grocery-btn" style="flex-shrink:0;">Add</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ─── PICKUP/DROP-OFF ─── -->
+    <section class="page" id="page-schedule">
+      <div class="card" style="padding:12px 16px; margin-bottom:12px;">
+        <p style="font-size:.78rem; color:var(--text-muted);">School runs &amp; after-school for this week. Tap the + button on any day to add or edit a run.</p>
+      </div>
+      <div id="schedule-grid" class="schedule-grid"></div>
+    </section>
+
+    <!-- ─── EVENTS ─── -->
+    <section class="page" id="page-events">
+      <div style="display:flex; justify-content:flex-end; margin-bottom:12px;">
+        <button class="btn btn-primary" id="add-event-btn">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+          Add Event
+        </button>
+      </div>
+      <div id="events-list" class="events-list">
+        <div class="empty-state" id="events-empty">
+          <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+          <p>No events yet. Tap "Add Event" to get started.</p>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- Bottom Tab Bar -->
+  <nav id="tabs">
+    <button class="tab-btn active" data-page="meals">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 2v7c0 1.1.9 2 2 2h4a2 2 0 0 0 2-2V2"/><path d="M7 2v20"/><path d="M21 15V2v0a5 5 0 0 0-5 5v6c0 1.1.9 2 2 2h3Zm0 0v7"/></svg>
+      <span>Meals</span>
+    </button>
+    <button class="tab-btn" data-page="grocery">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
+      <span>Grocery</span>
+    </button>
+    <button class="tab-btn" data-page="schedule">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+      <span>Schedule</span>
+    </button>
+    <button class="tab-btn" data-page="events">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+      <span>Events</span>
+    </button>
+  </nav>
+
+</div>
+
+<!-- ─── Modal: Add/Edit Run ─── -->
+<div class="modal-overlay hidden" id="run-modal">
+  <div class="modal">
+    <h2 id="run-modal-title">Add School Run</h2>
+    <div class="form-row">
+      <label>Time</label>
+      <input type="text" id="run-time" placeholder="e.g. 8:15 AM" />
+    </div>
+    <div class="form-row">
+      <label>Description</label>
+      <input type="text" id="run-desc" placeholder="e.g. Drop-off at school" />
+    </div>
+    <div class="form-row">
+      <label>Who</label>
+      <select id="run-who">
+        <option value="wife">Wife</option>
+        <option value="husband">Husband</option>
+        <option value="both">Both</option>
+      </select>
+    </div>
+    <div class="form-row">
+      <label>Notes (optional)</label>
+      <textarea id="run-notes" placeholder="Any extra details…"></textarea>
+    </div>
+    <div class="form-actions">
+      <button class="btn btn-ghost" id="run-modal-cancel">Cancel</button>
+      <button class="btn btn-danger btn-sm" id="run-modal-delete" style="display:none;">Delete</button>
+      <button class="btn btn-primary" id="run-modal-save">Save</button>
+    </div>
+  </div>
+</div>
+
+<!-- ─── Modal: Add/Edit Event ─── -->
+<div class="modal-overlay hidden" id="event-modal">
+  <div class="modal">
+    <h2 id="event-modal-title">Add Event</h2>
+    <div class="form-row">
+      <label>Title</label>
+      <input type="text" id="event-title-input" placeholder="e.g. Playdate with the Smiths" />
+    </div>
+    <div class="form-row" style="display:flex; gap:8px;">
+      <div style="flex:1;">
+        <label>Date</label>
+        <input type="date" id="event-date-input" />
+      </div>
+      <div style="flex:1;">
+        <label>Time (optional)</label>
+        <input type="text" id="event-time-input" placeholder="e.g. 3:00 PM" />
+      </div>
+    </div>
+    <div class="form-row">
+      <label>Type</label>
+      <select id="event-type-input">
+        <option value="playdate">Playdate</option>
+        <option value="activity">Activity / Class</option>
+        <option value="appointment">Appointment</option>
+        <option value="family">Family</option>
+        <option value="other">Other</option>
+      </select>
+    </div>
+    <div class="form-row">
+      <label>Location (optional)</label>
+      <input type="text" id="event-location-input" placeholder="e.g. 123 Oak St" />
+    </div>
+    <div class="form-row">
+      <label>Notes (optional)</label>
+      <textarea id="event-notes-input" placeholder="Any extra details…"></textarea>
+    </div>
+    <div class="form-actions">
+      <button class="btn btn-ghost" id="event-modal-cancel">Cancel</button>
+      <button class="btn btn-danger btn-sm" id="event-modal-delete" style="display:none;">Delete</button>
+      <button class="btn btn-primary" id="event-modal-save">Save</button>
+    </div>
+  </div>
+</div>
+
+<!-- Toast container -->
+<div id="toast-container"></div>
+
+<!-- ─────────────────────────────────────────────
+     FIREBASE CONFIGURATION
+     Replace the firebaseConfig object below with
+     your own project's values from the Firebase console.
+     See README.md for full setup instructions.
+──────────────────────────────────────────────── -->
+<script type="module">
+// ══════════════════════════════════════════════
+// FIREBASE CONFIG — replace with your values
+// ══════════════════════════════════════════════
+const firebaseConfig = {
+  apiKey:            "YOUR_API_KEY",
+  authDomain:        "YOUR_PROJECT.firebaseapp.com",
+  databaseURL:       "https://YOUR_PROJECT-default-rtdb.firebaseio.com",
+  projectId:         "YOUR_PROJECT",
+  storageBucket:     "YOUR_PROJECT.appspot.com",
+  messagingSenderId: "YOUR_SENDER_ID",
+  appId:             "YOUR_APP_ID"
+};
+
+// ══════════════════════════════════════════════
+// IMPORTS
+// ══════════════════════════════════════════════
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import { getDatabase, ref, onValue, set, update, push, remove, serverTimestamp }
+  from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
+
+// ══════════════════════════════════════════════
+// INIT
+// ══════════════════════════════════════════════
+const isConfigured = firebaseConfig.apiKey !== "YOUR_API_KEY";
+let db, app;
+let localData = {}; // fallback when Firebase not configured
+
+if (isConfigured) {
+  app = initializeApp(firebaseConfig);
+  db  = getDatabase(app);
+  setSyncStatus("live");
+} else {
+  setSyncStatus("offline");
+  showDemoNote();
+}
+
+// ══════════════════════════════════════════════
+// WEEK STATE
+// ══════════════════════════════════════════════
+const DAY_NAMES  = ["Sunday","Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"];
+const DAY_SHORT  = ["Sun","Mon","Tue","Wed","Thu","Fri","Sat"];
+const MONTH_SHORT= ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+
+let currentWeekStart = getWeekStart(new Date());
+
+function getWeekStart(d) {
+  const s = new Date(d);
+  s.setHours(0,0,0,0);
+  const day = s.getDay(); // 0=Sun
+  s.setDate(s.getDate() - day);
+  return s;
+}
+function addWeeks(d, n) {
+  const s = new Date(d);
+  s.setDate(s.getDate() + n * 7);
+  return s;
+}
+function weekKey(d) {
+  return `w${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+}
+function formatWeekLabel(d) {
+  const end = new Date(d); end.setDate(d.getDate() + 6);
+  return `${MONTH_SHORT[d.getMonth()]} ${d.getDate()} – ${MONTH_SHORT[end.getMonth()]} ${end.getDate()}, ${end.getFullYear()}`;
+}
+function dayOfWeek(weekStart, offset) {
+  const d = new Date(weekStart);
+  d.setDate(d.getDate() + offset);
+  return d;
+}
+
+// Cook assignment for each day index (0=Sun…6=Sat)
+const COOK_INFO = [
+  { label:"Sunday", sub:"Prep day", cook:"flex"    },
+  { label:"Monday", sub:"Wife cooks", cook:"wife"   },
+  { label:"Tuesday", sub:"Wife cooks", cook:"wife"  },
+  { label:"Wednesday", sub:"Husband cooks", cook:"husband" },
+  { label:"Thursday", sub:"Husband cooks", cook:"husband"  },
+  { label:"Friday", sub:"Flexible", cook:"flex"    },
+  { label:"Saturday", sub:"Flexible", cook:"flex"  },
+];
+
+// ══════════════════════════════════════════════
+// SYNC HELPERS
+// ══════════════════════════════════════════════
+function setSyncStatus(state) {
+  const el = document.getElementById("sync-indicator");
+  el.className = state;
+  el.textContent = state === "live"    ? "🟢 Live"
+                 : state === "saving"  ? "🟡 Saving…"
+                 : "🔴 Offline";
+}
+
+function dbSet(path, value) {
+  if (!isConfigured) { setLocal(path, value); return Promise.resolve(); }
+  setSyncStatus("saving");
+  return set(ref(db, path), value)
+    .then(() => setSyncStatus("live"))
+    .catch(e => { console.error(e); setSyncStatus("offline"); });
+}
+function dbUpdate(path, value) {
+  if (!isConfigured) { updateLocal(path, value); return Promise.resolve(); }
+  setSyncStatus("saving");
+  return update(ref(db, path), value)
+    .then(() => setSyncStatus("live"))
+    .catch(e => { console.error(e); setSyncStatus("offline"); });
+}
+function dbPush(path, value) {
+  if (!isConfigured) { return pushLocal(path, value); }
+  setSyncStatus("saving");
+  return push(ref(db, path), value)
+    .then(() => setSyncStatus("live"))
+    .catch(e => { console.error(e); setSyncStatus("offline"); });
+}
+function dbRemove(path) {
+  if (!isConfigured) { removeLocal(path); return Promise.resolve(); }
+  setSyncStatus("saving");
+  return remove(ref(db, path))
+    .then(() => setSyncStatus("live"))
+    .catch(e => { console.error(e); setSyncStatus("offline"); });
+}
+function dbListen(path, cb) {
+  if (!isConfigured) {
+    // Return a small polling shim for local mode
+    const tick = () => cb(getLocalAt(path));
+    tick();
+    const id = setInterval(tick, 500);
+    return () => clearInterval(id);
+  }
+  const r = ref(db, path);
+  const unsub = onValue(r, snap => cb(snap.val()));
+  return unsub;
+}
+
+// ─── Local storage fallback ───
+function setLocal(path, val) {
+  const parts = path.split("/").filter(Boolean);
+  let cur = localData;
+  for (let i = 0; i < parts.length - 1; i++) { cur[parts[i]] = cur[parts[i]] || {}; cur = cur[parts[i]]; }
+  cur[parts[parts.length-1]] = val;
+}
+function updateLocal(path, val) {
+  const parts = path.split("/").filter(Boolean);
+  let cur = localData;
+  for (const p of parts) { cur[p] = cur[p] || {}; cur = cur[p]; }
+  Object.assign(cur, val);
+}
+function pushLocal(path, val) {
+  const key = "local_" + Date.now() + "_" + Math.random().toString(36).slice(2,6);
+  setLocal(path + "/" + key, val);
+  return Promise.resolve({ key });
+}
+function removeLocal(path) {
+  const parts = path.split("/").filter(Boolean);
+  let cur = localData;
+  for (let i = 0; i < parts.length - 1; i++) { cur = cur[parts[i]] || {}; }
+  delete cur[parts[parts.length-1]];
+}
+function getLocalAt(path) {
+  const parts = path.split("/").filter(Boolean);
+  let cur = localData;
+  for (const p of parts) { cur = (cur || {})[p]; }
+  return cur ?? null;
+}
+
+// ══════════════════════════════════════════════
+// NAVIGATION
+// ══════════════════════════════════════════════
+let currentPage = "meals";
+const tabBtns = document.querySelectorAll(".tab-btn");
+tabBtns.forEach(btn => {
+  btn.addEventListener("click", () => {
+    const page = btn.dataset.page;
+    switchPage(page);
+  });
+});
+
+function switchPage(page) {
+  currentPage = page;
+  tabBtns.forEach(b => b.classList.toggle("active", b.dataset.page === page));
+  document.querySelectorAll(".page").forEach(p => p.classList.toggle("active", p.id === `page-${page}`));
+}
+
+// ── Week nav ──
+document.getElementById("prev-week").addEventListener("click", () => {
+  currentWeekStart = addWeeks(currentWeekStart, -1);
+  onWeekChanged();
+});
+document.getElementById("next-week").addEventListener("click", () => {
+  currentWeekStart = addWeeks(currentWeekStart, 1);
+  onWeekChanged();
+});
+
+let mealUnsub, schedUnsub;
+
+function onWeekChanged() {
+  document.getElementById("week-label").textContent = formatWeekLabel(currentWeekStart);
+  buildMealGrid();
+  buildScheduleGrid();
+  // Re-subscribe listeners
+  if (mealUnsub)  mealUnsub();
+  if (schedUnsub) schedUnsub();
+  subscribeMeals();
+  subscribeSchedule();
+}
+
+// ══════════════════════════════════════════════
+// MEALS
+// ══════════════════════════════════════════════
+const MEAL_SLOTS = [
+  { key:"breakfast", label:"Breakfast", emoji:"☀️", cls:"breakfast" },
+  { key:"lunch",     label:"Lunch",     emoji:"🌿", cls:"lunch"     },
+  { key:"dinner",    label:"Dinner",    emoji:"🍽️", cls:"dinner"    },
+];
+
+let mealsData = {};
+
+function subscribeMeals() {
+  const wk = weekKey(currentWeekStart);
+  mealUnsub = dbListen(`meals/${wk}`, data => {
+    mealsData = data || {};
+    renderMeals();
+  });
+}
+
+function buildMealGrid() {
+  const grid = document.getElementById("meal-grid");
+  grid.innerHTML = "";
+  for (let i = 0; i < 7; i++) {
+    const info = COOK_INFO[i];
+    const card = document.createElement("div");
+    card.className = "meal-day-card" + (i === new Date().getDay() && isCurrentWeek() ? " open" : "");
+    card.dataset.day = i;
+
+    const cookClass  = `cook-${info.cook}`;
+    const cookLetter = info.cook === "wife" ? "W" : info.cook === "husband" ? "H" : "✦";
+    card.innerHTML = `
+      <div class="meal-day-header">
+        <div>
+          <span class="day-label">${info.label}</span>
+          <span class="cook-tag ${cookClass}">${cookLetter}</span>
+        </div>
+        <div style="display:flex; align-items:center; gap:8px;">
+          <span class="day-sub" style="font-size:.75rem; color:var(--text-muted);">${info.sub}</span>
+          <svg class="chevron" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+        </div>
+      </div>
+      <div class="meal-day-body">
+        ${MEAL_SLOTS.map(s => `
+          <div class="meal-slot" data-slot="${s.key}">
+            <div class="meal-slot-icon ${s.cls}">${s.emoji}</div>
+            <div class="meal-slot-content">
+              <div class="meal-slot-label">${s.label}</div>
+              <div class="meal-slot-value empty" data-day="${i}" data-slot="${s.key}">Tap to add…</div>
+            </div>
+          </div>
+        `).join("")}
+      </div>
+    `;
+    card.querySelector(".meal-day-header").addEventListener("click", () => {
+      card.classList.toggle("open");
+    });
+    grid.appendChild(card);
+  }
+  // Attach slot click listeners
+  grid.querySelectorAll(".meal-slot-value").forEach(el => {
+    el.addEventListener("click", () => openMealEdit(el));
+  });
+}
+
+function renderMeals() {
+  document.querySelectorAll(".meal-slot-value").forEach(el => {
+    const day  = el.dataset.day;
+    const slot = el.dataset.slot;
+    const val  = mealsData[`day${day}`]?.[slot] || "";
+    el.textContent = val || "Tap to add…";
+    el.classList.toggle("empty", !val);
+  });
+}
+
+function isCurrentWeek() {
+  return weekKey(currentWeekStart) === weekKey(getWeekStart(new Date()));
+}
+
+let editingMealEl = null;
+
+function openMealEdit(el) {
+  if (el.querySelector("input")) return; // already editing
+  editingMealEl = el;
+  const current = el.classList.contains("empty") ? "" : el.textContent;
+
+  // Inline edit UI
+  el.innerHTML = `
+    <div class="meal-slot-edit">
+      <input type="text" value="${current}" placeholder="What's for this meal?" />
+      <button class="btn-icon" id="meal-save-btn" title="Save">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+      </button>
+      <button class="btn-icon" id="meal-cancel-btn" title="Cancel">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+    </div>
+  `;
+  const input = el.querySelector("input");
+  input.focus(); input.select();
+
+  const save = () => {
+    const val = input.value.trim();
+    const day  = el.dataset.day;
+    const slot = el.dataset.slot;
+    const wk   = weekKey(currentWeekStart);
+    dbUpdate(`meals/${wk}/day${day}`, { [slot]: val });
+    // optimistic render
+    el.textContent = val || "Tap to add…";
+    el.classList.toggle("empty", !val);
+    el.addEventListener("click", () => openMealEdit(el));
+  };
+  const cancel = () => {
+    const val = mealsData[`day${el.dataset.day}`]?.[el.dataset.slot] || "";
+    el.textContent = val || "Tap to add…";
+    el.classList.toggle("empty", !val);
+    el.addEventListener("click", () => openMealEdit(el));
+  };
+
+  el.querySelector("#meal-save-btn").addEventListener("click", e => { e.stopPropagation(); save(); });
+  el.querySelector("#meal-cancel-btn").addEventListener("click", e => { e.stopPropagation(); cancel(); });
+  input.addEventListener("keydown", e => { if (e.key==="Enter") save(); if (e.key==="Escape") cancel(); });
+}
+
+// ══════════════════════════════════════════════
+// GROCERY
+// ══════════════════════════════════════════════
+// Sections ordered to match Metro (Upper Middle & 9th Line, Oakville) store flow
+const GROCERY_SECTIONS = [
+  { key:"produce",    label:"Fruits & Veggies",      icon:"🥦" },
+  { key:"bakery",     label:"Bakery",                icon:"🥖" },
+  { key:"deli",       label:"Deli & Charcuterie",    icon:"🫙" },
+  { key:"meat",       label:"Meat & Poultry",        icon:"🥩" },
+  { key:"seafood",    label:"Fish & Seafood",        icon:"🐟" },
+  { key:"dairy",      label:"Dairy & Eggs",          icon:"🧀" },
+  { key:"frozen",     label:"Frozen",                icon:"🧊" },
+  { key:"pantry",     label:"Pantry & Dry Goods",    icon:"🥫" },
+  { key:"snacks",     label:"Snacks & Cereal",       icon:"🥣" },
+  { key:"beverages",  label:"Beverages",             icon:"🥤" },
+  { key:"health",     label:"Health & Beauty",       icon:"🧴" },
+  { key:"household",  label:"Household & Cleaning",  icon:"🧹" },
+  { key:"other",      label:"Other",                 icon:"📦" },
+];
+
+let groceryData = {};
+let groceryUnsub;
+
+function subscribeGrocery() {
+  groceryUnsub = dbListen("grocery", data => {
+    groceryData = data || {};
+    renderGrocery();
+  });
+}
+
+function renderGrocery() {
+  const container = document.getElementById("grocery-sections");
+  container.innerHTML = "";
+
+  let totalItems = 0, checkedItems = 0;
+
+  GROCERY_SECTIONS.forEach(sec => {
+    const items = Object.entries(groceryData[sec.key] || {})
+      .sort((a,b) => (a[1].createdAt||0) - (b[1].createdAt||0));
+    if (items.length === 0) return;
+
+    totalItems   += items.length;
+    checkedItems += items.filter(([,v]) => v.checked).length;
+
+    const secDiv = document.createElement("div");
+    secDiv.className = "grocery-section";
+    secDiv.innerHTML = `
+      <div class="grocery-section-header">
+        <span class="section-icon">${sec.icon}</span>
+        <h3>${sec.label}</h3>
+        <span style="margin-left:auto; font-size:.75rem; color:var(--text-muted);">${items.length}</span>
+      </div>
+    `;
+    items.forEach(([id, item]) => {
+      const row = document.createElement("div");
+      row.className = "grocery-item" + (item.checked ? " checked" : "");
+      row.innerHTML = `
+        <div class="grocery-check" data-id="${id}" data-sec="${sec.key}">
+          ${item.checked ? `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>` : ""}
+        </div>
+        <span class="grocery-name">${escHtml(item.name)}</span>
+        ${item.qty ? `<span class="grocery-qty">${escHtml(item.qty)}</span>` : ""}
+        <button class="grocery-delete" data-id="${id}" data-sec="${sec.key}" aria-label="Delete">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+        </button>
+      `;
+      row.querySelector(".grocery-check").addEventListener("click", () => toggleGroceryItem(sec.key, id, !item.checked));
+      row.querySelector(".grocery-delete").addEventListener("click", () => deleteGroceryItem(sec.key, id));
+      secDiv.appendChild(row);
+    });
+    container.appendChild(secDiv);
+  });
+
+  // Update checked count
+  const countEl = document.getElementById("checked-count");
+  if (totalItems > 0) {
+    countEl.textContent = `${checkedItems}/${totalItems} checked`;
+  } else {
+    countEl.textContent = "";
+    container.innerHTML = `<div class="empty-state">
+      <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
+      <p>Your list is empty. Add some items below!</p>
+    </div>`;
+  }
+}
+
+function toggleGroceryItem(section, id, checked) {
+  dbUpdate(`grocery/${section}/${id}`, { checked });
+}
+function deleteGroceryItem(section, id) {
+  dbRemove(`grocery/${section}/${id}`);
+  showToast("Item removed");
+}
+
+document.getElementById("add-grocery-btn").addEventListener("click", addGroceryItem);
+document.getElementById("grocery-name-input").addEventListener("keydown", e => {
+  if (e.key === "Enter") addGroceryItem();
+});
+
+function addGroceryItem() {
+  const nameEl    = document.getElementById("grocery-name-input");
+  const qtyEl     = document.getElementById("grocery-qty-input");
+  const sectionEl = document.getElementById("grocery-section-select");
+  const name = nameEl.value.trim();
+  if (!name) { nameEl.focus(); return; }
+  const section = sectionEl.value;
+  dbPush(`grocery/${section}`, {
+    name, qty: qtyEl.value.trim(), checked: false,
+    createdAt: isConfigured ? serverTimestamp() : Date.now()
+  }).then(() => {
+    nameEl.value = ""; qtyEl.value = "";
+    nameEl.focus();
+    showToast("Item added");
+  });
+}
+
+document.getElementById("clear-checked-btn").addEventListener("click", () => {
+  GROCERY_SECTIONS.forEach(sec => {
+    Object.entries(groceryData[sec.key] || {}).forEach(([id, item]) => {
+      if (item.checked) dbRemove(`grocery/${sec.key}/${id}`);
+    });
+  });
+  showToast("Checked items cleared");
+});
+
+// ══════════════════════════════════════════════
+// SCHEDULE
+// ══════════════════════════════════════════════
+let scheduleData = {};
+let editingRun = null; // { dayIndex, runId } or null
+
+function subscribeSchedule() {
+  const wk = weekKey(currentWeekStart);
+  schedUnsub = dbListen(`schedule/${wk}`, data => {
+    scheduleData = data || {};
+    renderSchedule();
+  });
+}
+
+function buildScheduleGrid() {
+  const grid = document.getElementById("schedule-grid");
+  grid.innerHTML = "";
+  for (let i = 0; i < 7; i++) {
+    const d = dayOfWeek(currentWeekStart, i);
+    const isToday = isCurrentWeek() && d.getDay() === new Date().getDay();
+    const div = document.createElement("div");
+    div.className = "schedule-day";
+    div.dataset.day = i;
+    if (isToday) div.style.border = "1.5px solid var(--accent)";
+    div.innerHTML = `
+      <div class="schedule-day-header">
+        <div class="day-info">
+          <span class="day-name">${DAY_NAMES[i]}${isToday ? ' <span class="badge badge-accent" style="font-size:.65rem;">Today</span>' : ""}</span>
+          <span class="day-date">${MONTH_SHORT[d.getMonth()]} ${d.getDate()}</span>
+        </div>
+        <button class="btn btn-ghost btn-sm add-run-btn" data-day="${i}">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+          Add run
+        </button>
+      </div>
+      <div class="schedule-runs" data-day="${i}"></div>
+    `;
+    div.querySelector(".add-run-btn").addEventListener("click", () => openRunModal(i, null));
+    grid.appendChild(div);
+  }
+}
+
+function renderSchedule() {
+  for (let i = 0; i < 7; i++) {
+    const runsContainer = document.querySelector(`.schedule-runs[data-day="${i}"]`);
+    if (!runsContainer) continue;
+    runsContainer.innerHTML = "";
+    const runs = Object.entries(scheduleData[`day${i}`] || {})
+      .sort((a,b) => (a[1].time||"").localeCompare(b[1].time||""));
+    runs.forEach(([id, run]) => {
+      const row = document.createElement("div");
+      row.className = "run-item";
+      row.style.cursor = "pointer";
+      row.innerHTML = `
+        <span class="run-time">${escHtml(run.time||"")}</span>
+        <span class="run-desc">${escHtml(run.desc||"")}</span>
+        <span class="run-who ${run.who||""}">${run.who === "wife" ? "Wife" : run.who === "husband" ? "Husband" : "Both"}</span>
+      `;
+      row.addEventListener("click", () => openRunModal(i, id));
+      runsContainer.appendChild(row);
+    });
+    if (runs.length === 0) {
+      runsContainer.innerHTML = `<p style="font-size:.78rem; color:var(--text-muted); padding:4px 0 6px;">No runs scheduled</p>`;
+    }
+  }
+}
+
+// ─── Run modal ───
+const runModal       = document.getElementById("run-modal");
+const runModalTitle  = document.getElementById("run-modal-title");
+const runModalSave   = document.getElementById("run-modal-save");
+const runModalCancel = document.getElementById("run-modal-cancel");
+const runModalDelete = document.getElementById("run-modal-delete");
+
+function openRunModal(dayIndex, runId) {
+  editingRun = { dayIndex, runId };
+  runModalTitle.textContent = runId ? "Edit School Run" : "Add School Run";
+  runModalDelete.style.display = runId ? "inline-flex" : "none";
+
+  if (runId) {
+    const run = scheduleData[`day${dayIndex}`]?.[runId] || {};
+    document.getElementById("run-time").value  = run.time  || "";
+    document.getElementById("run-desc").value  = run.desc  || "";
+    document.getElementById("run-who").value   = run.who   || "wife";
+    document.getElementById("run-notes").value = run.notes || "";
+  } else {
+    document.getElementById("run-time").value  = "";
+    document.getElementById("run-desc").value  = "";
+    document.getElementById("run-who").value   = "wife";
+    document.getElementById("run-notes").value = "";
+  }
+  runModal.classList.remove("hidden");
+  document.getElementById("run-time").focus();
+}
+
+runModalCancel.addEventListener("click", () => runModal.classList.add("hidden"));
+runModal.addEventListener("click", e => { if (e.target === runModal) runModal.classList.add("hidden"); });
+
+runModalSave.addEventListener("click", () => {
+  const { dayIndex, runId } = editingRun;
+  const data = {
+    time : document.getElementById("run-time").value.trim(),
+    desc : document.getElementById("run-desc").value.trim(),
+    who  : document.getElementById("run-who").value,
+    notes: document.getElementById("run-notes").value.trim(),
+  };
+  if (!data.desc) { document.getElementById("run-desc").focus(); return; }
+  const wk = weekKey(currentWeekStart);
+  if (runId) {
+    dbUpdate(`schedule/${wk}/day${dayIndex}/${runId}`, data).then(() => showToast("Run updated"));
+  } else {
+    dbPush(`schedule/${wk}/day${dayIndex}`, data).then(() => showToast("Run added"));
+  }
+  runModal.classList.add("hidden");
+});
+
+runModalDelete.addEventListener("click", () => {
+  const { dayIndex, runId } = editingRun;
+  const wk = weekKey(currentWeekStart);
+  dbRemove(`schedule/${wk}/day${dayIndex}/${runId}`).then(() => showToast("Run deleted"));
+  runModal.classList.add("hidden");
+});
+
+// ══════════════════════════════════════════════
+// EVENTS
+// ══════════════════════════════════════════════
+const EVENT_TYPE_LABELS = {
+  playdate:    "Playdate",
+  activity:    "Activity",
+  appointment: "Appointment",
+  family:      "Family",
+  other:       "Other",
+};
+const EVENT_TYPE_CLASSES = {
+  playdate:    "type-playdate",
+  activity:    "type-activity",
+  appointment: "type-appointment",
+  family:      "type-family",
+  other:       "type-other",
+};
+
+let eventsData = {};
+let eventsUnsub;
+let editingEventId = null;
+
+function subscribeEvents() {
+  eventsUnsub = dbListen("events", data => {
+    eventsData = data || {};
+    renderEvents();
+  });
+}
+
+function renderEvents() {
+  const list  = document.getElementById("events-list");
+  const empty = document.getElementById("events-empty");
+
+  // Sort by date
+  const entries = Object.entries(eventsData)
+    .sort((a,b) => (a[1].date||"").localeCompare(b[1].date||""));
+
+  list.innerHTML = "";
+
+  if (entries.length === 0) {
+    list.appendChild(empty);
+    return;
+  }
+
+  const today = new Date(); today.setHours(0,0,0,0);
+
+  entries.forEach(([id, ev]) => {
+    const d = ev.date ? new Date(ev.date + "T00:00:00") : null;
+    const isPast = d && d < today;
+    const card = document.createElement("div");
+    card.className = "event-card" + (isPast ? " past-event" : "");
+
+    const dayNum   = d ? d.getDate() : "?";
+    const monthStr = d ? MONTH_SHORT[d.getMonth()] : "?";
+
+    card.innerHTML = `
+      <div class="event-date-block">
+        <span class="ev-day">${dayNum}</span>
+        <span class="ev-month">${monthStr}</span>
+      </div>
+      <div class="event-info">
+        <div class="event-title">${escHtml(ev.title||"Untitled")}</div>
+        <div class="event-meta">
+          ${ev.time ? `<span>🕐 ${escHtml(ev.time)}</span>` : ""}
+          ${ev.location ? `<span>📍 ${escHtml(ev.location)}</span>` : ""}
+          <span><span class="badge ${EVENT_TYPE_CLASSES[ev.type]||'type-other'}">${EVENT_TYPE_LABELS[ev.type]||"Event"}</span></span>
+        </div>
+        ${ev.notes ? `<p style="font-size:.78rem; color:var(--text-muted); margin-top:5px;">${escHtml(ev.notes)}</p>` : ""}
+      </div>
+      <div class="event-actions">
+        <button class="btn-icon edit-event-btn" data-id="${id}" aria-label="Edit">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+        </button>
+      </div>
+    `;
+    card.querySelector(".edit-event-btn").addEventListener("click", () => openEventModal(id));
+    list.appendChild(card);
+  });
+}
+
+// ─── Event modal ───
+const eventModal       = document.getElementById("event-modal");
+const eventModalTitle  = document.getElementById("event-modal-title");
+const eventModalSave   = document.getElementById("event-modal-save");
+const eventModalCancel = document.getElementById("event-modal-cancel");
+const eventModalDelete = document.getElementById("event-modal-delete");
+
+document.getElementById("add-event-btn").addEventListener("click", () => openEventModal(null));
+
+function openEventModal(id) {
+  editingEventId = id;
+  eventModalTitle.textContent = id ? "Edit Event" : "Add Event";
+  eventModalDelete.style.display = id ? "inline-flex" : "none";
+  if (id) {
+    const ev = eventsData[id] || {};
+    document.getElementById("event-title-input").value    = ev.title    || "";
+    document.getElementById("event-date-input").value     = ev.date     || "";
+    document.getElementById("event-time-input").value     = ev.time     || "";
+    document.getElementById("event-type-input").value     = ev.type     || "other";
+    document.getElementById("event-location-input").value = ev.location || "";
+    document.getElementById("event-notes-input").value    = ev.notes    || "";
+  } else {
+    document.getElementById("event-title-input").value    = "";
+    document.getElementById("event-date-input").value     = new Date().toISOString().slice(0,10);
+    document.getElementById("event-time-input").value     = "";
+    document.getElementById("event-type-input").value     = "playdate";
+    document.getElementById("event-location-input").value = "";
+    document.getElementById("event-notes-input").value    = "";
+  }
+  eventModal.classList.remove("hidden");
+  document.getElementById("event-title-input").focus();
+}
+
+eventModalCancel.addEventListener("click", () => eventModal.classList.add("hidden"));
+eventModal.addEventListener("click", e => { if (e.target === eventModal) eventModal.classList.add("hidden"); });
+
+eventModalSave.addEventListener("click", () => {
+  const data = {
+    title:    document.getElementById("event-title-input").value.trim(),
+    date:     document.getElementById("event-date-input").value,
+    time:     document.getElementById("event-time-input").value.trim(),
+    type:     document.getElementById("event-type-input").value,
+    location: document.getElementById("event-location-input").value.trim(),
+    notes:    document.getElementById("event-notes-input").value.trim(),
+    createdAt: isConfigured ? serverTimestamp() : Date.now(),
+  };
+  if (!data.title) { document.getElementById("event-title-input").focus(); return; }
+  if (!data.date)  { document.getElementById("event-date-input").focus();  return; }
+  if (editingEventId) {
+    dbUpdate(`events/${editingEventId}`, data).then(() => showToast("Event updated"));
+  } else {
+    dbPush("events", data).then(() => showToast("Event added"));
+  }
+  eventModal.classList.add("hidden");
+});
+
+eventModalDelete.addEventListener("click", () => {
+  dbRemove(`events/${editingEventId}`).then(() => showToast("Event deleted"));
+  eventModal.classList.add("hidden");
+});
+
+// ══════════════════════════════════════════════
+// UTILITIES
+// ══════════════════════════════════════════════
+function escHtml(str) {
+  return String(str).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");
+}
+
+function showToast(msg) {
+  const container = document.getElementById("toast-container");
+  const t = document.createElement("div");
+  t.className = "toast";
+  t.textContent = msg;
+  container.appendChild(t);
+  setTimeout(() => t.remove(), 2600);
+}
+
+function showDemoNote() {
+  const note = document.createElement("div");
+  note.className = "demo-note";
+  note.innerHTML = `
+    <strong>Demo mode:</strong> Data saves locally in this browser tab only.
+    Add your Firebase config to <code>index.html</code> to enable real-time sync across devices.
+    See <code>README.md</code> for setup instructions.
+  `;
+  document.getElementById("content").prepend(note);
+}
+
+// ══════════════════════════════════════════════
+// BOOT
+// ══════════════════════════════════════════════
+function init() {
+  document.getElementById("week-label").textContent = formatWeekLabel(currentWeekStart);
+  buildMealGrid();
+  buildScheduleGrid();
+  subscribeMeals();
+  subscribeGrocery();
+  subscribeSchedule();
+  subscribeEvents();
+}
+
+init();
+</script>
+</body>
+</html>
