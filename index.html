@@ -1087,15 +1087,33 @@ function setSyncStatus(s) {
 }
 function saving(p) { setSyncStatus("saving"); return p.then(()=>setSyncStatus("live")).catch(e=>{console.error(e);setSyncStatus("offline");}); }
 
-function dbUpdate(path,val)  { if(!isConfigured){updateLocal(path,val);return Promise.resolve();} return saving(update(ref(db,path),val)); }
-function dbPush(path,val)    { if(!isConfigured){return pushLocal(path,val);} return saving(push(ref(db,path),val)); }
-function dbRemove(path)      { if(!isConfigured){removeLocal(path);return Promise.resolve();} return saving(remove(ref(db,path))); }
+function dbUpdate(path,val)  { if(!isConfigured){updateLocal(path,val);localNotify(path);return Promise.resolve();} return saving(update(ref(db,path),val)); }
+function dbPush(path,val)    { if(!isConfigured){const r=pushLocal(path,val);localNotify(path);return r;} return saving(push(ref(db,path),val)); }
+function dbRemove(path)      { if(!isConfigured){removeLocal(path);localNotify(path);return Promise.resolve();} return saving(remove(ref(db,path))); }
 function dbListen(path,cb) {
-  if (!isConfigured) { const t=()=>cb(getLocalAt(path)); t(); const id=setInterval(t,400); return ()=>clearInterval(id); }
+  if (!isConfigured) {
+    // Event-driven local mode: call once now, then re-call when data under this path changes
+    cb(getLocalAt(path));
+    if (!localListeners[path]) localListeners[path] = [];
+    localListeners[path].push(cb);
+    return () => { localListeners[path] = (localListeners[path]||[]).filter(fn=>fn!==cb); };
+  }
   const r=ref(db,path); const u=onValue(r,s=>cb(s.val())); return u;
 }
 
-// Local fallback
+// Local fallback — event-driven (no polling)
+const localListeners = {};
+function localNotify(changedPath) {
+  // Notify all listeners whose path is a prefix of (or matches) the changed path
+  requestAnimationFrame(() => {
+    for (const [listenPath, cbs] of Object.entries(localListeners)) {
+      if (changedPath.startsWith(listenPath) || listenPath.startsWith(changedPath)) {
+        const data = getLocalAt(listenPath);
+        cbs.forEach(cb => cb(data));
+      }
+    }
+  });
+}
 function _nav(path) { const parts=path.split("/").filter(Boolean); let c=localData; for(let i=0;i<parts.length-1;i++){c[parts[i]]=c[parts[i]]||{};c=c[parts[i]];} return [c,parts[parts.length-1]]; }
 function updateLocal(path,val) { const [c,k]=_nav(path); c[k]=c[k]||{}; Object.assign(c[k],val); }
 function pushLocal(path,val)   { const key="loc_"+Date.now()+"_"+Math.random().toString(36).slice(2,5); const [c,k]=_nav(path); c[k]=c[k]||{}; c[k][key]=val; return Promise.resolve({key}); }
