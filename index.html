@@ -5,675 +5,583 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0" />
   <title>Family Hub</title>
   <style>
-    /* ─── Reset & Base ─── */
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
     :root {
-      --bg:          #f7f6f3;
-      --surface:     #ffffff;
-      --surface-2:   #f0ede8;
-      --border:      #e2ddd7;
-      --text:        #2d2a26;
-      --text-muted:  #8a857e;
-      --accent:      #5c7a6e;   /* sage green */
-      --accent-light:#dce8e3;
-      --warm:        #c4855a;   /* terracotta for highlights */
-      --warm-light:  #f5e8de;
-      --blue:        #4a6fa5;
-      --blue-light:  #dce6f5;
-      --radius:      12px;
-      --radius-sm:   8px;
-      --shadow:      0 1px 3px rgba(0,0,0,.07), 0 4px 12px rgba(0,0,0,.04);
-      --shadow-sm:   0 1px 2px rgba(0,0,0,.06);
-      --font:        'Inter', system-ui, -apple-system, sans-serif;
-      --nav-h:       60px;
-      --tab-h:       64px;
+      --bg:           #f7f6f3;
+      --surface:      #ffffff;
+      --surface-2:    #f0ede8;
+      --border:       #e2ddd7;
+      --text:         #2d2a26;
+      --text-muted:   #8a857e;
+      --accent:       #5c7a6e;
+      --accent-light: #dce8e3;
+      --warm:         #c4855a;
+      --warm-light:   #f5e8de;
+      --blue:         #4a6fa5;
+      --blue-light:   #dce6f5;
+      --wife-bg:      #fce7f3; --wife-fg: #9d174d;
+      --husb-bg:      #dbeafe; --husb-fg: #1d4ed8;
+      --flex-bg:      #f0ede8; --flex-fg: #8a857e;
+      --radius:       12px;
+      --radius-sm:    8px;
+      --shadow:       0 1px 3px rgba(0,0,0,.07), 0 4px 12px rgba(0,0,0,.04);
+      --shadow-sm:    0 1px 2px rgba(0,0,0,.06);
+      --font:         'Inter', system-ui, -apple-system, sans-serif;
+      --nav-h:        60px;
+      --subnav-h:     48px;
+      --tab-h:        64px;
     }
 
     html { scroll-behavior: smooth; }
+    body { font-family: var(--font); background: var(--bg); color: var(--text); min-height: 100dvh; overflow-x: hidden; }
 
-    body {
-      font-family: var(--font);
-      background: var(--bg);
-      color: var(--text);
-      min-height: 100dvh;
-      overflow-x: hidden;
-    }
+    /* ── Typography ── */
+    h2 { font-size: 1.05rem; font-weight: 600; letter-spacing: -.2px; }
+    h3 { font-size: .9rem;  font-weight: 600; }
+    p, li { font-size: .88rem; line-height: 1.5; }
 
-    /* ─── Typography ─── */
-    h1 { font-size: 1.25rem; font-weight: 700; letter-spacing: -.3px; }
-    h2 { font-size: 1.1rem; font-weight: 600; letter-spacing: -.2px; }
-    h3 { font-size: .95rem; font-weight: 600; }
-    p, li { font-size: .9rem; line-height: 1.5; }
-
-    /* ─── Layout ─── */
+    /* ── App shell ── */
     #app { display: flex; flex-direction: column; min-height: 100dvh; }
 
-    /* ─── Top Bar ─── */
+    /* ── Top bar ── */
     #topbar {
       position: sticky; top: 0; z-index: 100;
       height: var(--nav-h);
-      background: var(--surface);
-      border-bottom: 1px solid var(--border);
+      background: var(--surface); border-bottom: 1px solid var(--border);
       display: flex; align-items: center; justify-content: space-between;
-      padding: 0 16px;
-      box-shadow: var(--shadow-sm);
+      padding: 0 16px; box-shadow: var(--shadow-sm);
     }
-    #topbar .logo { display: flex; align-items: center; gap: 8px; }
-    #topbar .logo svg { color: var(--accent); }
-    #topbar .logo span { font-weight: 700; font-size: 1.05rem; color: var(--text); }
+    .logo { display: flex; align-items: center; gap: 8px; }
+    .logo svg { color: var(--accent); }
+    .logo span { font-weight: 700; font-size: 1.05rem; }
     #sync-indicator {
       font-size: .72rem; font-weight: 600; padding: 3px 9px;
-      border-radius: 20px; letter-spacing: .2px;
-      transition: all .3s;
+      border-radius: 20px; transition: all .3s;
     }
-    #sync-indicator.live   { background: #d4edda; color: #1e6b35; }
-    #sync-indicator.saving { background: var(--warm-light); color: var(--warm); }
-    #sync-indicator.offline{ background: #f8d7da; color: #842029; }
+    #sync-indicator.live    { background: #d4edda; color: #1e6b35; }
+    #sync-indicator.saving  { background: var(--warm-light); color: var(--warm); }
+    #sync-indicator.offline { background: #f8d7da; color: #842029; }
 
-    /* ─── Week Navigator ─── */
-    #week-nav {
-      background: var(--surface);
-      border-bottom: 1px solid var(--border);
-      padding: 10px 16px;
-      display: flex; align-items: center; justify-content: space-between;
-      gap: 8px;
+    /* ── Period nav (week/month arrows + label) ── */
+    #period-nav {
+      background: var(--surface); border-bottom: 1px solid var(--border);
+      padding: 0 12px;
+      display: flex; align-items: center; gap: 6px; height: var(--subnav-h);
     }
-    #week-nav button {
-      width: 36px; height: 36px; border-radius: 50%;
-      border: 1px solid var(--border);
-      background: var(--surface);
-      color: var(--text);
-      font-size: 1.1rem;
-      cursor: pointer;
+    .period-arrow {
+      width: 34px; height: 34px; border-radius: 50%;
+      border: 1px solid var(--border); background: var(--surface);
+      color: var(--text); font-size: 1.1rem; cursor: pointer;
       display: flex; align-items: center; justify-content: center;
-      transition: background .15s;
-      flex-shrink: 0;
+      flex-shrink: 0; transition: background .15s;
     }
-    #week-nav button:hover { background: var(--surface-2); }
-    #week-label {
-      font-size: .85rem; font-weight: 600; color: var(--text-muted);
-      text-align: center; flex: 1;
+    .period-arrow:hover { background: var(--surface-2); }
+    #period-label { font-size: .83rem; font-weight: 600; color: var(--text-muted); text-align: center; flex: 1; }
+
+    /* ── View toggle (Week | Month) ── */
+    #view-toggle {
+      display: flex; gap: 2px;
+      background: var(--surface-2); border-radius: 8px; padding: 3px;
     }
+    .view-btn {
+      padding: 4px 10px; border-radius: 6px; border: none;
+      font-family: var(--font); font-size: .75rem; font-weight: 600;
+      cursor: pointer; background: none; color: var(--text-muted);
+      transition: all .15s; white-space: nowrap;
+    }
+    .view-btn.active { background: var(--surface); color: var(--text); box-shadow: var(--shadow-sm); }
 
-    /* ─── Page / Tab content ─── */
-    #content { flex: 1; padding: 16px; padding-bottom: calc(var(--tab-h) + 24px); }
-
+    /* ── Page content ── */
+    #content { flex: 1; padding: 14px; padding-bottom: calc(var(--tab-h) + 20px); }
+    @media (min-width: 600px) {
+      #content { max-width: 600px; margin: 0 auto; padding: 18px 18px calc(var(--tab-h) + 28px); }
+    }
     .page { display: none; }
     .page.active { display: block; }
 
-    /* ─── Bottom Tab Bar ─── */
+    /* ── Bottom tabs ── */
     #tabs {
-      position: fixed; bottom: 0; left: 0; right: 0;
-      height: var(--tab-h);
-      background: var(--surface);
-      border-top: 1px solid var(--border);
-      display: flex;
-      z-index: 100;
-      box-shadow: 0 -2px 12px rgba(0,0,0,.06);
+      position: fixed; bottom: 0; left: 0; right: 0; height: var(--tab-h);
+      background: var(--surface); border-top: 1px solid var(--border);
+      display: flex; z-index: 100; box-shadow: 0 -2px 12px rgba(0,0,0,.06);
     }
     .tab-btn {
-      flex: 1; display: flex; flex-direction: column;
-      align-items: center; justify-content: center;
-      gap: 3px; cursor: pointer; border: none; background: none;
-      color: var(--text-muted); transition: color .15s;
-      padding: 4px 2px;
-      -webkit-tap-highlight-color: transparent;
+      flex: 1; display: flex; flex-direction: column; align-items: center;
+      justify-content: center; gap: 3px; cursor: pointer; border: none;
+      background: none; color: var(--text-muted); transition: color .15s;
+      padding: 4px 2px; -webkit-tap-highlight-color: transparent;
     }
-    .tab-btn svg { transition: transform .15s; }
     .tab-btn.active { color: var(--accent); }
-    .tab-btn.active svg { transform: scale(1.1); }
-    .tab-btn span { font-size: .68rem; font-weight: 600; letter-spacing: .2px; text-transform: uppercase; }
+    .tab-btn span { font-size: .65rem; font-weight: 600; letter-spacing: .3px; text-transform: uppercase; }
 
-    /* ─── Cards ─── */
+    /* ── Generic cards ── */
     .card {
-      background: var(--surface);
-      border-radius: var(--radius);
-      border: 1px solid var(--border);
-      box-shadow: var(--shadow);
-      padding: 16px;
-      margin-bottom: 14px;
+      background: var(--surface); border-radius: var(--radius);
+      border: 1px solid var(--border); box-shadow: var(--shadow);
+      padding: 14px; margin-bottom: 12px;
     }
-    .card-header {
-      display: flex; align-items: center; justify-content: space-between;
-      margin-bottom: 12px;
-    }
-    .card-header h2 { display: flex; align-items: center; gap: 7px; }
-    .card-header h2 svg { color: var(--accent); }
 
-    /* ─── Buttons ─── */
+    /* ── Buttons ── */
     .btn {
       display: inline-flex; align-items: center; gap: 5px;
-      padding: 9px 16px; border-radius: var(--radius-sm);
-      border: none; cursor: pointer;
-      font-family: var(--font); font-size: .85rem; font-weight: 600;
-      transition: opacity .15s, transform .1s;
-      -webkit-tap-highlight-color: transparent;
+      padding: 9px 16px; border-radius: var(--radius-sm); border: none;
+      cursor: pointer; font-family: var(--font); font-size: .85rem; font-weight: 600;
+      transition: opacity .15s, transform .1s; -webkit-tap-highlight-color: transparent;
     }
     .btn:active { transform: scale(.97); }
     .btn-primary { background: var(--accent); color: #fff; }
     .btn-primary:hover { opacity: .9; }
-    .btn-ghost {
-      background: var(--surface-2); color: var(--text);
-      border: 1px solid var(--border);
-    }
+    .btn-ghost { background: var(--surface-2); color: var(--text); border: 1px solid var(--border); }
     .btn-ghost:hover { background: var(--border); }
     .btn-danger { background: #fee2e2; color: #dc2626; }
-    .btn-sm { padding: 6px 12px; font-size: .8rem; }
+    .btn-sm { padding: 6px 12px; font-size: .78rem; }
     .btn-icon {
-      width: 32px; height: 32px; padding: 0;
-      border-radius: 50%; display: inline-flex;
-      align-items: center; justify-content: center;
+      width: 30px; height: 30px; padding: 0; border-radius: 50%;
+      display: inline-flex; align-items: center; justify-content: center;
       border: none; cursor: pointer; background: var(--surface-2);
       color: var(--text-muted); transition: background .15s;
     }
-    .btn-icon:hover { background: var(--border); color: var(--text); }
+    .btn-icon:hover { background: var(--border); }
 
-    /* ─── Form elements ─── */
+    /* ── Form elements ── */
     input[type=text], input[type=date], textarea, select {
-      width: 100%;
-      padding: 10px 12px;
-      border: 1px solid var(--border);
-      border-radius: var(--radius-sm);
-      background: var(--surface);
-      color: var(--text);
-      font-family: var(--font);
-      font-size: .9rem;
-      outline: none;
+      width: 100%; padding: 10px 12px;
+      border: 1px solid var(--border); border-radius: var(--radius-sm);
+      background: var(--surface); color: var(--text);
+      font-family: var(--font); font-size: .9rem; outline: none;
       transition: border-color .15s, box-shadow .15s;
     }
     input:focus, textarea:focus, select:focus {
-      border-color: var(--accent);
-      box-shadow: 0 0 0 3px var(--accent-light);
+      border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-light);
     }
-    textarea { resize: vertical; min-height: 60px; }
-    label { font-size: .8rem; font-weight: 600; color: var(--text-muted); display: block; margin-bottom: 5px; }
-
-    .form-row { margin-bottom: 12px; }
+    textarea { resize: vertical; min-height: 58px; }
+    label { font-size: .78rem; font-weight: 600; color: var(--text-muted); display: block; margin-bottom: 4px; }
+    .form-row { margin-bottom: 11px; }
     .form-actions { display: flex; gap: 8px; justify-content: flex-end; margin-top: 14px; }
 
-    /* ─── Modal ─── */
+    /* ── Modal ── */
     .modal-overlay {
       position: fixed; inset: 0; z-index: 200;
       background: rgba(0,0,0,.4); backdrop-filter: blur(2px);
-      display: flex; align-items: flex-end; justify-content: center;
-      padding: 16px;
+      display: flex; align-items: flex-end; justify-content: center; padding: 12px;
       animation: fadeIn .15s;
     }
-    @keyframes fadeIn { from { opacity: 0; } }
     .modal-overlay.hidden { display: none; }
+    @keyframes fadeIn { from { opacity: 0; } }
     .modal {
-      background: var(--surface);
-      border-radius: var(--radius) var(--radius) var(--radius-sm) var(--radius-sm);
-      width: 100%; max-width: 480px; max-height: 85dvh;
-      overflow-y: auto; padding: 20px;
-      animation: slideUp .2s ease;
+      background: var(--surface); border-radius: var(--radius);
+      width: 100%; max-width: 480px; max-height: 88dvh;
+      overflow-y: auto; padding: 20px; animation: slideUp .2s ease;
     }
-    @keyframes slideUp { from { transform: translateY(30px); opacity: 0; } }
-    .modal h2 { margin-bottom: 16px; font-size: 1rem; }
-    .modal-close {
-      position: absolute; top: 12px; right: 12px;
-      background: var(--surface-2); border: none; border-radius: 50%;
-      width: 30px; height: 30px; cursor: pointer;
-      display: flex; align-items: center; justify-content: center;
-      color: var(--text-muted);
-    }
+    @keyframes slideUp { from { transform: translateY(24px); opacity: 0; } }
+    .modal h2 { margin-bottom: 14px; }
+    @media (min-width: 600px) { .modal-overlay { align-items: center; } }
 
-    /* ─── Empty state ─── */
-    .empty-state {
-      text-align: center; padding: 32px 16px;
-      color: var(--text-muted);
-    }
-    .empty-state svg { margin-bottom: 10px; opacity: .4; }
-    .empty-state p { font-size: .85rem; }
-
-    /* ─── Badge ─── */
+    /* ── Badge ── */
     .badge {
-      display: inline-flex; align-items: center;
-      padding: 2px 8px; border-radius: 20px;
-      font-size: .72rem; font-weight: 600; letter-spacing: .2px;
+      display: inline-flex; align-items: center; padding: 2px 8px;
+      border-radius: 20px; font-size: .7rem; font-weight: 600; letter-spacing: .2px;
     }
     .badge-accent { background: var(--accent-light); color: var(--accent); }
     .badge-warm   { background: var(--warm-light); color: var(--warm); }
     .badge-blue   { background: var(--blue-light); color: var(--blue); }
-    .badge-neutral{ background: var(--surface-2); color: var(--text-muted); }
 
-    /* ══════════════════════════════════════════════
-       PAGE: MEAL PLANNER
-    ══════════════════════════════════════════════ */
-    #meal-grid { display: flex; flex-direction: column; gap: 2px; }
+    /* ── Empty state ── */
+    .empty-state { text-align: center; padding: 28px 16px; color: var(--text-muted); }
+    .empty-state svg { margin-bottom: 8px; opacity: .35; }
+    .empty-state p { font-size: .83rem; }
+
+    /* ── Toast ── */
+    #toast-container {
+      position: fixed; bottom: calc(var(--tab-h) + 10px);
+      left: 0; right: 0; display: flex; flex-direction: column;
+      align-items: center; gap: 7px; z-index: 300; pointer-events: none;
+    }
+    .toast {
+      background: var(--text); color: #fff; padding: 9px 18px;
+      border-radius: 20px; font-size: .8rem; font-weight: 500;
+      animation: toastIn .2s ease, toastOut .2s ease 2.3s forwards;
+    }
+    @keyframes toastIn  { from { transform: translateY(8px); opacity: 0; } }
+    @keyframes toastOut { to   { transform: translateY(-6px); opacity: 0; } }
+
+    /* ════════════════════════════════════════
+       MEALS — WEEK VIEW
+    ════════════════════════════════════════ */
+    #week-view { display: block; }
+    #month-view { display: none; }
 
     .meal-day-card {
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: var(--radius-sm);
-      overflow: hidden;
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: var(--radius-sm); margin-bottom: 6px; overflow: hidden;
     }
+    .meal-day-card.today-card { border-color: var(--accent); }
+
     .meal-day-header {
       display: flex; align-items: center; justify-content: space-between;
-      padding: 10px 14px;
-      cursor: pointer;
-      user-select: none;
+      padding: 10px 13px; cursor: pointer; user-select: none;
       -webkit-tap-highlight-color: transparent;
     }
-    .meal-day-header .day-label {
-      font-weight: 700; font-size: .9rem;
+    .meal-day-header .day-left { display: flex; align-items: center; gap: 8px; }
+    .meal-day-header .day-name { font-weight: 700; font-size: .88rem; }
+    .meal-day-header .day-date { font-size: .72rem; color: var(--text-muted); }
+
+    /* Cook toggle pill — clickable */
+    .cook-toggle {
+      display: inline-flex; align-items: center; gap: 3px;
+      padding: 3px 9px; border-radius: 12px; border: none;
+      font-family: var(--font); font-size: .7rem; font-weight: 700;
+      cursor: pointer; transition: all .15s; letter-spacing: .2px;
+      -webkit-tap-highlight-color: transparent;
     }
-    .meal-day-header .day-sub {
-      font-size: .75rem; font-weight: 500;
-    }
-    .meal-day-header .chevron {
-      transition: transform .2s;
-      color: var(--text-muted);
-    }
+    .cook-toggle.cook-wife    { background: var(--wife-bg); color: var(--wife-fg); }
+    .cook-toggle.cook-husband { background: var(--husb-bg); color: var(--husb-fg); }
+    .cook-toggle.cook-flex    { background: var(--flex-bg); color: var(--flex-fg); }
+    .cook-toggle:hover { filter: brightness(.94); }
+
+    .meal-day-header .day-right { display: flex; align-items: center; gap: 6px; }
+    .chevron { transition: transform .2s; color: var(--text-muted); }
     .meal-day-card.open .chevron { transform: rotate(180deg); }
 
-    .meal-day-body { display: none; padding: 0 14px 14px; border-top: 1px solid var(--border); }
+    .meal-day-body { display: none; border-top: 1px solid var(--border); }
     .meal-day-card.open .meal-day-body { display: block; }
 
+    .meal-slots { padding: 4px 13px 10px; }
     .meal-slot {
-      display: flex; align-items: flex-start;
-      gap: 10px; padding: 10px 0;
+      display: flex; align-items: flex-start; gap: 9px; padding: 9px 0;
       border-bottom: 1px solid var(--border);
     }
     .meal-slot:last-child { border-bottom: none; }
     .meal-slot-icon {
-      width: 30px; height: 30px; border-radius: 8px;
+      width: 28px; height: 28px; border-radius: 7px;
       display: flex; align-items: center; justify-content: center;
-      flex-shrink: 0; font-size: .95rem;
+      flex-shrink: 0; font-size: .88rem;
     }
     .meal-slot-icon.breakfast { background: #fef9c3; }
     .meal-slot-icon.lunch     { background: var(--accent-light); }
     .meal-slot-icon.dinner    { background: var(--warm-light); }
-    .meal-slot-content { flex: 1; }
-    .meal-slot-label { font-size: .72rem; font-weight: 600; color: var(--text-muted); text-transform: uppercase; letter-spacing: .3px; }
+    .meal-slot-content { flex: 1; min-width: 0; }
+    .meal-slot-label { font-size: .68rem; font-weight: 600; color: var(--text-muted); text-transform: uppercase; letter-spacing: .4px; }
     .meal-slot-value {
-      font-size: .88rem; color: var(--text); margin-top: 2px;
-      cursor: pointer; min-height: 22px;
+      font-size: .85rem; color: var(--text); margin-top: 2px;
+      min-height: 20px; cursor: pointer; border-radius: 4px;
+      padding: 1px 2px; transition: background .12s;
     }
+    .meal-slot-value:hover { background: var(--surface-2); }
     .meal-slot-value.empty { color: var(--text-muted); font-style: italic; }
 
-    .meal-slot-edit { display: flex; gap: 6px; align-items: center; margin-top: 4px; }
-    .meal-slot-edit input { padding: 6px 10px; font-size: .85rem; }
-    .meal-slot-edit .btn-icon { width: 28px; height: 28px; border-radius: 6px; flex-shrink: 0; }
-
-    .cook-tag {
-      font-size: .7rem; font-weight: 600; padding: 1px 6px;
-      border-radius: 10px; margin-left: 6px;
+    /* Consolidated strip — events & runs under meals */
+    .day-consolidated {
+      border-top: 1px solid var(--border);
+      padding: 8px 13px; display: flex; flex-direction: column; gap: 4px;
     }
-    .cook-wife   { background: #fce7f3; color: #9d174d; }
-    .cook-husband{ background: #dbeafe; color: #1d4ed8; }
-    .cook-flex   { background: var(--surface-2); color: var(--text-muted); }
+    .day-consolidated:empty { display: none; }
+    .consolidated-item {
+      display: flex; align-items: center; gap: 7px;
+      font-size: .78rem; color: var(--text);
+    }
+    .consolidated-dot {
+      width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0;
+    }
+    .dot-event-playdate    { background: #ec4899; }
+    .dot-event-activity    { background: var(--blue); }
+    .dot-event-appointment { background: var(--warm); }
+    .dot-event-family      { background: var(--accent); }
+    .dot-event-other       { background: var(--text-muted); }
+    .dot-run               { background: #7c3aed; }
 
-    .meal-legend {
-      display: flex; flex-wrap: wrap; gap: 6px;
-      margin-bottom: 12px;
+    /* ════════════════════════════════════════
+       MEALS — MONTH VIEW
+    ════════════════════════════════════════ */
+    #month-view {}
+
+    .month-grid {
+      display: grid; grid-template-columns: repeat(7, 1fr);
+      gap: 1px; background: var(--border); border-radius: var(--radius);
+      overflow: hidden; border: 1px solid var(--border);
+    }
+    .month-dow {
+      background: var(--surface-2); text-align: center;
+      font-size: .68rem; font-weight: 700; color: var(--text-muted);
+      padding: 6px 2px; letter-spacing: .3px; text-transform: uppercase;
+    }
+    .month-cell {
+      background: var(--surface); min-height: 68px; padding: 5px 5px 4px;
+      cursor: pointer; transition: background .12s;
+      display: flex; flex-direction: column; gap: 2px;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .month-cell:hover { background: var(--surface-2); }
+    .month-cell.other-month { background: var(--bg); }
+    .month-cell.other-month .cell-day-num { color: var(--border); }
+    .month-cell.is-today { background: var(--accent-light); }
+    .month-cell.is-today .cell-day-num {
+      background: var(--accent); color: #fff;
+      width: 20px; height: 20px; border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
     }
 
-    /* ══════════════════════════════════════════════
-       PAGE: GROCERY
-    ══════════════════════════════════════════════ */
-    .grocery-section { margin-bottom: 18px; }
+    .cell-day-num {
+      font-size: .75rem; font-weight: 700; color: var(--text);
+      line-height: 1; margin-bottom: 2px;
+    }
+    .cell-dots { display: flex; flex-wrap: wrap; gap: 2px; }
+    .cell-dot {
+      width: 6px; height: 6px; border-radius: 50%;
+    }
+    .cell-dot.meal   { background: var(--accent-light); border: 1.5px solid var(--accent); }
+    .cell-dot.event  { background: #ec4899; }
+    .cell-dot.run    { background: #7c3aed; }
+    .cell-pill {
+      font-size: .6rem; font-weight: 600; padding: 1px 4px;
+      border-radius: 4px; white-space: nowrap; overflow: hidden;
+      text-overflow: ellipsis; max-width: 100%;
+      background: var(--accent-light); color: var(--accent);
+      line-height: 1.3;
+    }
+    .cell-pill.ev-pill  { background: #fce7f3; color: #9d174d; }
+    .cell-pill.run-pill { background: #ede9fe; color: #5b21b6; }
+
+    /* ── Day detail sheet (month tap) ── */
+    #day-sheet-overlay {
+      position: fixed; inset: 0; z-index: 200;
+      background: rgba(0,0,0,.4); backdrop-filter: blur(2px);
+      display: flex; align-items: flex-end; justify-content: center;
+      animation: fadeIn .15s;
+    }
+    #day-sheet-overlay.hidden { display: none; }
+    #day-sheet {
+      background: var(--surface); border-radius: var(--radius) var(--radius) 0 0;
+      width: 100%; max-width: 540px; max-height: 80dvh;
+      overflow-y: auto; padding: 0 0 24px;
+      animation: slideUp .2s ease;
+    }
+    .day-sheet-header {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 16px 18px 12px; border-bottom: 1px solid var(--border);
+      position: sticky; top: 0; background: var(--surface); z-index: 1;
+    }
+    .day-sheet-header h2 { font-size: 1rem; }
+    .day-sheet-body { padding: 14px 18px; }
+    .sheet-section { margin-bottom: 16px; }
+    .sheet-section-title {
+      font-size: .72rem; font-weight: 700; color: var(--text-muted);
+      text-transform: uppercase; letter-spacing: .5px; margin-bottom: 8px;
+    }
+    .sheet-meal-row {
+      display: flex; align-items: flex-start; gap: 8px;
+      padding: 6px 0; border-bottom: 1px solid var(--border);
+    }
+    .sheet-meal-row:last-child { border-bottom: none; }
+    .sheet-run-row, .sheet-event-row {
+      padding: 7px 10px; background: var(--surface-2);
+      border-radius: var(--radius-sm); margin-bottom: 5px;
+      font-size: .82rem;
+    }
+    .sheet-event-title { font-weight: 600; }
+    .sheet-empty { font-size: .8rem; color: var(--text-muted); font-style: italic; }
+
+    /* ════════════════════════════════════════
+       GROCERY
+    ════════════════════════════════════════ */
+    .grocery-section { margin-bottom: 16px; }
     .grocery-section-header {
-      display: flex; align-items: center; gap: 8px;
-      padding: 8px 0; margin-bottom: 6px;
+      display: flex; align-items: center; gap: 7px;
+      padding: 7px 0; margin-bottom: 5px;
       border-bottom: 2px solid var(--border);
     }
-    .grocery-section-header h3 { font-size: .85rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: .5px; }
-    .grocery-section-header .section-icon { font-size: 1rem; }
-
+    .grocery-section-header h3 { font-size: .8rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: .5px; }
+    .grocery-section-header .section-icon { font-size: .95rem; }
     .grocery-item {
-      display: flex; align-items: center; gap: 10px;
-      padding: 10px 12px;
-      border-radius: var(--radius-sm);
+      display: flex; align-items: center; gap: 9px;
+      padding: 9px 10px; border-radius: var(--radius-sm); margin-bottom: 2px;
       transition: background .12s;
-      margin-bottom: 2px;
     }
     .grocery-item:hover { background: var(--surface-2); }
     .grocery-item.checked { opacity: .5; }
     .grocery-item.checked .grocery-name { text-decoration: line-through; }
-
     .grocery-check {
       width: 22px; height: 22px; border-radius: 6px;
       border: 2px solid var(--border); background: var(--surface);
       display: flex; align-items: center; justify-content: center;
-      cursor: pointer; flex-shrink: 0;
-      transition: background .15s, border-color .15s;
+      cursor: pointer; flex-shrink: 0; transition: all .15s;
       -webkit-tap-highlight-color: transparent;
     }
-    .grocery-item.checked .grocery-check {
-      background: var(--accent); border-color: var(--accent);
-    }
-    .grocery-name { flex: 1; font-size: .9rem; }
-    .grocery-qty  { font-size: .8rem; color: var(--text-muted); font-weight: 500; }
-
+    .grocery-item.checked .grocery-check { background: var(--accent); border-color: var(--accent); }
+    .grocery-name { flex: 1; font-size: .88rem; }
+    .grocery-qty  { font-size: .78rem; color: var(--text-muted); font-weight: 500; }
     .grocery-delete {
       width: 28px; height: 28px; border-radius: 50%;
       border: none; background: none; color: var(--text-muted);
       cursor: pointer; display: flex; align-items: center; justify-content: center;
       opacity: 0; transition: opacity .15s;
-      -webkit-tap-highlight-color: transparent;
     }
-    .grocery-item:hover .grocery-delete,
-    .grocery-item:focus-within .grocery-delete { opacity: 1; }
+    .grocery-item:hover .grocery-delete { opacity: 1; }
 
-    .add-grocery-form {
-      display: flex; gap: 8px; margin-top: 12px;
-      padding: 12px; background: var(--surface-2);
-      border-radius: var(--radius-sm);
-    }
-    .add-grocery-form input { flex: 1; }
-    .add-grocery-form input.qty-input { max-width: 70px; }
-
-    /* ─── Grocery clear checked bar ─── */
-    .grocery-toolbar {
-      display: flex; align-items: center; justify-content: space-between;
-      margin-bottom: 12px;
-    }
-    .checked-count { font-size: .8rem; color: var(--text-muted); }
-
-    /* ══════════════════════════════════════════════
-       PAGE: SCHEDULE
-    ══════════════════════════════════════════════ */
-    .schedule-grid { display: flex; flex-direction: column; gap: 8px; }
-    .schedule-day {
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: var(--radius-sm);
-      overflow: hidden;
-    }
-    .schedule-day-header {
-      display: flex; align-items: center; justify-content: space-between;
-      padding: 12px 14px;
-    }
-    .schedule-day-header .day-info { display: flex; flex-direction: column; gap: 2px; }
-    .schedule-day-header .day-name { font-weight: 700; font-size: .9rem; }
-    .schedule-day-header .day-date { font-size: .75rem; color: var(--text-muted); }
-    .schedule-runs {
-      padding: 0 14px 12px;
-      display: flex; flex-direction: column; gap: 6px;
-    }
-    .run-item {
-      display: flex; align-items: center; gap: 8px;
-      padding: 8px 10px;
-      background: var(--surface-2);
-      border-radius: var(--radius-sm);
-    }
-    .run-item .run-time { font-size: .75rem; color: var(--text-muted); font-weight: 600; min-width: 50px; }
-    .run-item .run-desc { font-size: .85rem; flex: 1; }
-    .run-item .run-who {
-      font-size: .75rem; font-weight: 700;
-      padding: 2px 8px; border-radius: 10px;
-    }
-    .run-who.wife    { background: #fce7f3; color: #9d174d; }
-    .run-who.husband { background: #dbeafe; color: #1d4ed8; }
-    .run-who.both    { background: var(--accent-light); color: var(--accent); }
-
-    .run-add-btn {
-      display: flex; align-items: center; gap: 5px;
-      padding: 7px 14px; font-size: .8rem; font-weight: 600;
-      background: none; border: 1px dashed var(--border);
-      border-radius: var(--radius-sm); cursor: pointer;
-      color: var(--text-muted); width: 100%;
-      transition: background .15s, color .15s;
-      -webkit-tap-highlight-color: transparent;
-    }
-    .run-add-btn:hover { background: var(--surface-2); color: var(--text); }
-
-    /* ══════════════════════════════════════════════
-       PAGE: EVENTS
-    ══════════════════════════════════════════════ */
-    .events-list { display: flex; flex-direction: column; gap: 10px; }
-    .event-card {
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: var(--radius-sm);
-      padding: 14px;
-      display: flex; align-items: flex-start; gap: 12px;
-      box-shadow: var(--shadow-sm);
-    }
-    .event-date-block {
-      background: var(--accent);
-      color: #fff;
-      border-radius: 8px;
-      min-width: 44px; height: 48px;
-      display: flex; flex-direction: column;
-      align-items: center; justify-content: center;
-      flex-shrink: 0;
-    }
-    .event-date-block .ev-day   { font-size: 1.15rem; font-weight: 800; line-height: 1; }
-    .event-date-block .ev-month { font-size: .62rem; font-weight: 600; text-transform: uppercase; letter-spacing: .5px; opacity: .85; }
-    .event-info { flex: 1; }
-    .event-title { font-weight: 600; font-size: .9rem; margin-bottom: 3px; }
-    .event-meta  { font-size: .78rem; color: var(--text-muted); display: flex; flex-wrap: wrap; gap: 8px; }
-    .event-meta span { display: flex; align-items: center; gap: 3px; }
-    .event-actions { display: flex; gap: 4px; }
-
-    .event-type-badge { }
-    .type-playdate  { background: #fce7f3; color: #9d174d; }
-    .type-activity  { background: var(--blue-light); color: var(--blue); }
-    .type-appointment{ background: var(--warm-light); color: var(--warm); }
-    .type-family    { background: var(--accent-light); color: var(--accent); }
-    .type-other     { background: var(--surface-2); color: var(--text-muted); }
-
-    .past-event { opacity: .55; }
-
-    /* ─── Setup Banner ─── */
-    #setup-banner {
-      background: linear-gradient(135deg, var(--accent) 0%, #3d5c52 100%);
-      color: #fff;
-      border-radius: var(--radius);
-      padding: 18px;
-      margin-bottom: 16px;
-    }
-    #setup-banner h2 { color: #fff; font-size: .95rem; margin-bottom: 6px; }
-    #setup-banner p  { font-size: .82rem; opacity: .85; margin-bottom: 14px; line-height: 1.5; }
-    #setup-banner code {
-      background: rgba(255,255,255,.15); padding: 2px 6px;
-      border-radius: 4px; font-size: .8rem;
-    }
-    #setup-banner .banner-actions { display: flex; gap: 8px; flex-wrap: wrap; }
-    #setup-banner .btn-banner {
-      background: rgba(255,255,255,.2);
-      color: #fff; border: 1px solid rgba(255,255,255,.3);
-      font-size: .82rem;
-    }
-    #setup-banner .btn-banner.primary {
-      background: #fff; color: var(--accent);
-    }
-
-    /* ─── Loader ─── */
-    .spinner {
-      width: 18px; height: 18px;
-      border: 2px solid var(--border);
-      border-top-color: var(--accent);
-      border-radius: 50%;
-      animation: spin .6s linear infinite;
-      display: inline-block;
-    }
-    @keyframes spin { to { transform: rotate(360deg); } }
-
-    /* ─── Responsive ─── */
-    @media (min-width: 600px) {
-      #content { max-width: 600px; margin: 0 auto; padding: 20px 20px calc(var(--tab-h) + 30px); }
-      .modal-overlay { align-items: center; }
-      .modal { border-radius: var(--radius); }
-    }
-
-    /* ─── Toast ─── */
-    #toast-container {
-      position: fixed; bottom: calc(var(--tab-h) + 12px); left: 0; right: 0;
-      display: flex; flex-direction: column; align-items: center;
-      gap: 8px; z-index: 300; pointer-events: none;
-    }
-    .toast {
-      background: var(--text); color: #fff;
-      padding: 10px 18px; border-radius: 20px;
-      font-size: .82rem; font-weight: 500;
-      animation: toastIn .2s ease, toastOut .2s ease 2.3s forwards;
-    }
-    @keyframes toastIn  { from { transform: translateY(10px); opacity: 0; } }
-    @keyframes toastOut { to   { transform: translateY(-6px); opacity: 0; } }
-
-    /* ─── Store badges ─── */
+    /* Store badges */
     .store-badge {
-      display: inline-flex; align-items: center; gap: 3px;
-      padding: 2px 7px; border-radius: 10px;
-      font-size: .68rem; font-weight: 700; letter-spacing: .2px;
-      white-space: nowrap; flex-shrink: 0;
+      display: inline-flex; align-items: center; padding: 2px 7px;
+      border-radius: 10px; font-size: .67rem; font-weight: 700;
+      white-space: nowrap; flex-shrink: 0; letter-spacing: .2px;
     }
     .store-metro    { background: var(--accent-light); color: var(--accent); }
     .store-shoppers { background: #fee2e2; color: #b91c1c; }
     .store-walmart  { background: #dbeafe; color: #1d4ed8; }
     .store-other    { background: var(--surface-2); color: var(--text-muted); }
 
-    /* ─── Store filter chips ─── */
-    .store-filters {
-      display: flex; gap: 6px; flex-wrap: wrap;
-      margin-bottom: 14px;
-    }
+    /* Store filter chips */
+    .store-filters { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 12px; }
     .filter-chip {
-      padding: 6px 13px; border-radius: 20px;
-      border: 1.5px solid var(--border);
-      background: var(--surface); color: var(--text-muted);
-      font-size: .78rem; font-weight: 600;
-      cursor: pointer; transition: all .15s;
-      -webkit-tap-highlight-color: transparent;
-      white-space: nowrap;
+      padding: 5px 12px; border-radius: 20px;
+      border: 1.5px solid var(--border); background: var(--surface); color: var(--text-muted);
+      font-size: .76rem; font-weight: 600; cursor: pointer; transition: all .15s;
+      white-space: nowrap; -webkit-tap-highlight-color: transparent;
     }
-    .filter-chip:hover { border-color: var(--accent); color: var(--accent); }
-    .filter-chip.active-all      { background: var(--text); color: #fff; border-color: var(--text); }
-    .filter-chip.active-metro    { background: var(--accent); color: #fff; border-color: var(--accent); }
-    .filter-chip.active-shoppers { background: #b91c1c; color: #fff; border-color: #b91c1c; }
-    .filter-chip.active-walmart  { background: #1d4ed8; color: #fff; border-color: #1d4ed8; }
-    .filter-chip.active-other    { background: var(--text-muted); color: #fff; border-color: var(--text-muted); }
+    .filter-chip.active-all      { background: var(--text); color:#fff; border-color:var(--text); }
+    .filter-chip.active-metro    { background: var(--accent); color:#fff; border-color:var(--accent); }
+    .filter-chip.active-shoppers { background: #b91c1c; color:#fff; border-color:#b91c1c; }
+    .filter-chip.active-walmart  { background: #1d4ed8; color:#fff; border-color:#1d4ed8; }
+    .filter-chip.active-other    { background: var(--text-muted); color:#fff; border-color:var(--text-muted); }
 
-    /* ─── Deal Alerts ─── */
+    /* Deal Alerts */
     .deal-alerts-card {
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: var(--radius);
-      margin-bottom: 14px;
-      overflow: hidden;
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: var(--radius); margin-bottom: 12px; overflow: hidden;
     }
     .deal-alerts-header {
       display: flex; align-items: center; justify-content: space-between;
-      padding: 11px 14px;
-      cursor: pointer; user-select: none;
-      -webkit-tap-highlight-color: transparent;
-      border-bottom: 1px solid var(--border);
+      padding: 10px 13px; cursor: pointer; user-select: none;
+      -webkit-tap-highlight-color: transparent; border-bottom: 1px solid var(--border);
     }
-    .deal-alerts-header .da-title {
-      display: flex; align-items: center; gap: 7px;
-      font-weight: 700; font-size: .88rem;
-    }
-    .deal-alerts-body {
-      display: none; padding: 12px 14px;
-      display: flex; flex-direction: column; gap: 10px;
-    }
+    .deal-alerts-header .da-title { display: flex; align-items: center; gap: 7px; font-weight: 700; font-size: .85rem; }
+    .deal-alerts-body { padding: 11px 13px; display: flex; flex-direction: column; gap: 9px; }
     .deal-alerts-card.collapsed .deal-alerts-body { display: none; }
-    .deal-store-row { display: flex; flex-direction: column; gap: 5px; }
-    .deal-store-label {
-      display: flex; align-items: center; gap: 6px;
-      font-size: .75rem; font-weight: 700; letter-spacing: .3px;
-      text-transform: uppercase;
-    }
+    .deal-store-row { display: flex; flex-direction: column; gap: 4px; }
+    .deal-store-label { display: flex; align-items: center; gap: 6px; font-size: .72rem; font-weight: 700; letter-spacing: .3px; text-transform: uppercase; }
     .deal-store-input {
-      width: 100%;
-      padding: 8px 10px;
-      border: 1px solid var(--border);
-      border-radius: var(--radius-sm);
-      background: var(--surface);
-      font-family: var(--font); font-size: .85rem;
-      color: var(--text); resize: none;
-      min-height: 48px; line-height: 1.5;
-      transition: border-color .15s, box-shadow .15s;
+      width: 100%; padding: 8px 10px; border: 1px solid var(--border);
+      border-radius: var(--radius-sm); background: var(--surface);
+      font-family: var(--font); font-size: .83rem; color: var(--text);
+      resize: none; min-height: 44px; line-height: 1.5; transition: border-color .15s, box-shadow .15s;
     }
-    .deal-store-input:focus {
-      outline: none;
-      border-color: var(--accent);
-      box-shadow: 0 0 0 3px var(--accent-light);
-    }
+    .deal-store-input:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-light); }
     .deal-store-input::placeholder { color: var(--text-muted); font-style: italic; }
-    .deal-alerts-hint {
-      font-size: .72rem; color: var(--text-muted);
-      text-align: center; padding: 4px 0 2px;
-    }
+    .deal-alerts-hint { font-size: .7rem; color: var(--text-muted); text-align: center; padding: 2px 0; }
 
-    /* ─── Shopping Summary ─── */
-    .summary-store-block {
-      padding: 9px 0;
-      border-bottom: 1px solid var(--border);
-    }
-    .summary-store-block:last-child { border-bottom: none; padding-bottom: 2px; }
-    .summary-store-name {
+    /* Shopping Summary */
+    .summary-store-block { padding: 8px 0; border-bottom: 1px solid var(--border); }
+    .summary-store-block:last-child { border-bottom: none; }
+    .summary-store-name { display: flex; align-items: center; gap: 7px; font-weight: 700; font-size: .8rem; margin-bottom: 3px; }
+    .summary-items { font-size: .8rem; color: var(--text); line-height: 1.5; }
+    .summary-deal  { font-size: .76rem; color: var(--warm); font-weight: 600; margin-top: 2px; }
+
+    /* ════════════════════════════════════════
+       SCHEDULE
+    ════════════════════════════════════════ */
+    .schedule-grid { display: flex; flex-direction: column; gap: 7px; }
+    .schedule-day { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-sm); overflow: hidden; }
+    .schedule-day-header { display: flex; align-items: center; justify-content: space-between; padding: 11px 13px; }
+    .schedule-day-header .day-info { display: flex; flex-direction: column; gap: 1px; }
+    .schedule-day-header .day-name { font-weight: 700; font-size: .88rem; }
+    .schedule-day-header .day-date { font-size: .72rem; color: var(--text-muted); }
+    .schedule-runs { padding: 0 13px 11px; display: flex; flex-direction: column; gap: 5px; }
+    .run-item {
       display: flex; align-items: center; gap: 7px;
-      font-weight: 700; font-size: .82rem; margin-bottom: 4px;
+      padding: 7px 9px; background: var(--surface-2); border-radius: var(--radius-sm); cursor: pointer;
     }
-    .summary-items {
-      font-size: .82rem; color: var(--text); line-height: 1.5;
-      padding-left: 2px;
-    }
-    .summary-deal {
-      font-size: .78rem; color: var(--warm);
-      font-weight: 600; margin-top: 3px; padding-left: 2px;
-    }
+    .run-item .run-time { font-size: .72rem; color: var(--text-muted); font-weight: 600; min-width: 48px; }
+    .run-item .run-desc { font-size: .82rem; flex: 1; }
+    .run-item .run-who { font-size: .7rem; font-weight: 700; padding: 2px 7px; border-radius: 10px; }
+    .run-who.wife    { background: var(--wife-bg); color: var(--wife-fg); }
+    .run-who.husband { background: var(--husb-bg); color: var(--husb-fg); }
+    .run-who.both    { background: var(--accent-light); color: var(--accent); }
 
-    /* ─── No Firebase placeholder ─── */
+    /* ════════════════════════════════════════
+       EVENTS
+    ════════════════════════════════════════ */
+    .events-list { display: flex; flex-direction: column; gap: 9px; }
+    .event-card {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: var(--radius-sm); padding: 12px;
+      display: flex; align-items: flex-start; gap: 11px; box-shadow: var(--shadow-sm);
+    }
+    .event-date-block {
+      background: var(--accent); color: #fff; border-radius: 8px;
+      min-width: 42px; height: 46px;
+      display: flex; flex-direction: column; align-items: center; justify-content: center; flex-shrink: 0;
+    }
+    .event-date-block .ev-day   { font-size: 1.1rem; font-weight: 800; line-height: 1; }
+    .event-date-block .ev-month { font-size: .6rem; font-weight: 600; text-transform: uppercase; letter-spacing: .4px; opacity: .85; }
+    .event-info { flex: 1; }
+    .event-title { font-weight: 600; font-size: .88rem; margin-bottom: 3px; }
+    .event-meta  { font-size: .75rem; color: var(--text-muted); display: flex; flex-wrap: wrap; gap: 7px; }
+    .event-actions { display: flex; gap: 4px; }
+    .past-event { opacity: .5; }
+    .type-playdate    { background: #fce7f3; color: #9d174d; }
+    .type-activity    { background: var(--blue-light); color: var(--blue); }
+    .type-appointment { background: var(--warm-light); color: var(--warm); }
+    .type-family      { background: var(--accent-light); color: var(--accent); }
+    .type-other       { background: var(--surface-2); color: var(--text-muted); }
+
+    /* ── Demo note ── */
     .demo-note {
       background: #fffbeb; border: 1px solid #fcd34d;
-      border-radius: var(--radius-sm);
-      padding: 10px 12px; font-size: .8rem; color: #92400e;
-      margin-bottom: 12px;
+      border-radius: var(--radius-sm); padding: 9px 12px;
+      font-size: .78rem; color: #92400e; margin-bottom: 11px;
     }
   </style>
 </head>
 <body>
 <div id="app">
 
-  <!-- Top Bar -->
+  <!-- Top bar -->
   <header id="topbar">
     <div class="logo">
-      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-        <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/>
-      </svg>
+      <svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
       <span>Family Hub</span>
     </div>
-    <span id="sync-indicator" class="offline">⚪ Offline</span>
+    <span id="sync-indicator" class="offline">🔴 Offline</span>
   </header>
 
-  <!-- Week Navigator -->
-  <div id="week-nav">
-    <button id="prev-week" aria-label="Previous week">‹</button>
-    <div id="week-label">Week of ...</div>
-    <button id="next-week" aria-label="Next week">›</button>
+  <!-- Period nav -->
+  <div id="period-nav">
+    <button class="period-arrow" id="prev-period">‹</button>
+    <span id="period-label">…</span>
+    <button class="period-arrow" id="next-period">›</button>
+    <div id="view-toggle">
+      <button class="view-btn active" data-view="week">Week</button>
+      <button class="view-btn" data-view="month">Month</button>
+    </div>
   </div>
 
-  <!-- Main Content -->
+  <!-- Main content -->
   <main id="content">
 
-    <!-- ─── MEAL PLANNER ─── -->
+    <!-- ── MEALS / CALENDAR ── -->
     <section class="page active" id="page-meals">
-      <div class="card" style="padding:12px 16px; margin-bottom:12px;">
-        <div class="meal-legend">
-          <span class="badge"><span class="cook-tag cook-wife">W</span> &nbsp;Wife cooks</span>
-          <span class="badge"><span class="cook-tag cook-husband">H</span> &nbsp;Husband cooks</span>
-          <span class="badge"><span class="cook-tag cook-flex">✦</span> &nbsp;Flexible</span>
-        </div>
-        <p style="font-size:.78rem; color:var(--text-muted);">Tap a meal to edit it. Tap a day to expand/collapse.</p>
+
+      <!-- WEEK VIEW -->
+      <div id="week-view">
+        <div id="meal-grid"></div>
       </div>
-      <div id="meal-grid"></div>
+
+      <!-- MONTH VIEW -->
+      <div id="month-view">
+        <div id="month-grid-container"></div>
+      </div>
+
     </section>
 
-    <!-- ─── GROCERY LIST ─── -->
+    <!-- ── GROCERY ── -->
     <section class="page" id="page-grocery">
-      <div class="card-header" style="margin-bottom:12px;">
-        <h2>
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
+      <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:11px;">
+        <h2 style="display:flex;align-items:center;gap:7px;">
+          <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
           Grocery List
         </h2>
         <div style="display:flex;gap:6px;align-items:center;">
-          <span id="checked-count" class="checked-count"></span>
+          <span id="checked-count" style="font-size:.78rem;color:var(--text-muted);"></span>
           <button class="btn btn-ghost btn-sm" id="clear-checked-btn">Clear checked</button>
         </div>
       </div>
@@ -682,33 +590,27 @@
       <div class="deal-alerts-card" id="deal-alerts-card">
         <div class="deal-alerts-header" id="deal-alerts-toggle">
           <div class="da-title">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
             Deal Alerts
-            <span class="badge badge-warm" style="font-size:.65rem;">Shoppers &amp; Walmart</span>
+            <span class="badge badge-warm" style="font-size:.62rem;">Shoppers &amp; Walmart</span>
           </div>
-          <svg class="chevron" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+          <svg class="chevron" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
         </div>
         <div class="deal-alerts-body" id="deal-alerts-body">
           <div class="deal-store-row">
-            <div class="deal-store-label">
-              <span class="store-badge store-shoppers">SDM</span>
-              Shoppers Drug Mart
-            </div>
+            <div class="deal-store-label"><span class="store-badge store-shoppers">SDM</span>Shoppers Drug Mart</div>
             <textarea class="deal-store-input" id="deal-shoppers" placeholder="e.g. 20× points weekend, vitamins 30% off…" rows="2"></textarea>
           </div>
           <div class="deal-store-row">
-            <div class="deal-store-label">
-              <span class="store-badge store-walmart">WMT</span>
-              Walmart Oakville
-            </div>
+            <div class="deal-store-label"><span class="store-badge store-walmart">WMT</span>Walmart Oakville</div>
             <textarea class="deal-store-input" id="deal-walmart" placeholder="e.g. Tide pods $8, cereal BOGO…" rows="2"></textarea>
           </div>
-          <p class="deal-alerts-hint">Tap a field to jot down deals — syncs to your partner in real time</p>
+          <p class="deal-alerts-hint">Syncs to your partner in real time</p>
         </div>
       </div>
 
       <!-- Store filter chips -->
-      <div class="store-filters" id="store-filters">
+      <div class="store-filters">
         <button class="filter-chip active-all" data-store="all">All stores</button>
         <button class="filter-chip" data-store="metro">🟢 Metro</button>
         <button class="filter-chip" data-store="shoppers">🔴 Shoppers</button>
@@ -717,13 +619,13 @@
       </div>
 
       <!-- Shopping Summary -->
-      <div class="card" id="shopping-summary-card" style="padding:14px; margin-bottom:14px;">
-        <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:10px; cursor:pointer;" id="summary-toggle">
-          <h3 style="display:flex; align-items:center; gap:6px; font-size:.85rem;">
-            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>
+      <div class="card" style="padding:12px; margin-bottom:12px;">
+        <div style="display:flex;align-items:center;justify-content:space-between;cursor:pointer;margin-bottom:8px;" id="summary-toggle">
+          <h3 style="display:flex;align-items:center;gap:5px;font-size:.82rem;">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>
             This week's store run
           </h3>
-          <svg class="summary-chevron" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+          <svg class="summary-chevron" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
         </div>
         <div id="shopping-summary"></div>
       </div>
@@ -731,31 +633,29 @@
       <div id="grocery-sections"></div>
 
       <!-- Add item -->
-      <div class="card" style="padding:14px;">
-        <h3 style="margin-bottom:10px; font-size:.85rem;">Add item</h3>
-        <div class="add-grocery-form" style="flex-direction:column; gap:8px;">
-          <div style="display:flex; gap:8px;">
+      <div class="card" style="padding:13px;">
+        <h3 style="margin-bottom:9px;font-size:.82rem;">Add item</h3>
+        <div style="display:flex;flex-direction:column;gap:7px;">
+          <div style="display:flex;gap:7px;">
             <input type="text" id="grocery-name-input" placeholder="Item name…" />
-            <input type="text" id="grocery-qty-input" class="qty-input" placeholder="Qty" style="max-width:70px;" />
+            <input type="text" id="grocery-qty-input" placeholder="Qty" style="max-width:66px;" />
           </div>
-          <div style="display:flex; gap:8px; align-items:center;">
-            <select id="grocery-section-select" style="flex:1;">
-              <option value="produce">🥦 Fruits &amp; Veggies</option>
-              <option value="bakery">🥖 Bakery</option>
-              <option value="deli">🫙 Deli &amp; Charcuterie</option>
-              <option value="meat">🥩 Meat &amp; Poultry</option>
-              <option value="seafood">🐟 Fish &amp; Seafood</option>
-              <option value="dairy">🧀 Dairy &amp; Eggs</option>
-              <option value="frozen">🧊 Frozen</option>
-              <option value="pantry">🥫 Pantry &amp; Dry Goods</option>
-              <option value="snacks">🥣 Snacks &amp; Cereal</option>
-              <option value="beverages">🥤 Beverages</option>
-              <option value="health">🧴 Health &amp; Beauty</option>
-              <option value="household">🧹 Household &amp; Cleaning</option>
-              <option value="other">📦 Other</option>
-            </select>
-          </div>
-          <div style="display:flex; gap:8px; align-items:center;">
+          <select id="grocery-section-select">
+            <option value="produce">🥦 Fruits &amp; Veggies</option>
+            <option value="bakery">🥖 Bakery</option>
+            <option value="deli">🫙 Deli &amp; Charcuterie</option>
+            <option value="meat">🥩 Meat &amp; Poultry</option>
+            <option value="seafood">🐟 Fish &amp; Seafood</option>
+            <option value="dairy">🧀 Dairy &amp; Eggs</option>
+            <option value="frozen">🧊 Frozen</option>
+            <option value="pantry">🥫 Pantry &amp; Dry Goods</option>
+            <option value="snacks">🥣 Snacks &amp; Cereal</option>
+            <option value="beverages">🥤 Beverages</option>
+            <option value="health">🧴 Health &amp; Beauty</option>
+            <option value="household">🧹 Household &amp; Cleaning</option>
+            <option value="other">📦 Other</option>
+          </select>
+          <div style="display:flex;gap:7px;">
             <select id="grocery-store-select" style="flex:1;">
               <option value="metro">🟢 Metro (Upper Middle)</option>
               <option value="shoppers">🔴 Shoppers Drug Mart</option>
@@ -768,78 +668,80 @@
       </div>
     </section>
 
-    <!-- ─── PICKUP/DROP-OFF ─── -->
+    <!-- ── SCHEDULE ── -->
     <section class="page" id="page-schedule">
-      <div class="card" style="padding:12px 16px; margin-bottom:12px;">
-        <p style="font-size:.78rem; color:var(--text-muted);">School runs &amp; after-school for this week. Tap the + button on any day to add or edit a run.</p>
+      <div class="card" style="padding:10px 13px;margin-bottom:10px;">
+        <p style="font-size:.76rem;color:var(--text-muted);">School runs &amp; after-school. Tap + to add or tap a run to edit.</p>
       </div>
       <div id="schedule-grid" class="schedule-grid"></div>
     </section>
 
-    <!-- ─── EVENTS ─── -->
+    <!-- ── EVENTS ── -->
     <section class="page" id="page-events">
-      <div style="display:flex; justify-content:flex-end; margin-bottom:12px;">
+      <div style="display:flex;justify-content:flex-end;margin-bottom:11px;">
         <button class="btn btn-primary" id="add-event-btn">
-          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
           Add Event
         </button>
       </div>
       <div id="events-list" class="events-list">
         <div class="empty-state" id="events-empty">
-          <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
-          <p>No events yet. Tap "Add Event" to get started.</p>
+          <svg width="38" height="38" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+          <p>No events yet. Tap "Add Event" to start.</p>
         </div>
       </div>
     </section>
 
   </main>
 
-  <!-- Bottom Tab Bar -->
+  <!-- Bottom tabs -->
   <nav id="tabs">
     <button class="tab-btn active" data-page="meals">
-      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 2v7c0 1.1.9 2 2 2h4a2 2 0 0 0 2-2V2"/><path d="M7 2v20"/><path d="M21 15V2v0a5 5 0 0 0-5 5v6c0 1.1.9 2 2 2h3Zm0 0v7"/></svg>
-      <span>Meals</span>
+      <svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+      <span>Calendar</span>
     </button>
     <button class="tab-btn" data-page="grocery">
-      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
+      <svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
       <span>Grocery</span>
     </button>
     <button class="tab-btn" data-page="schedule">
-      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
-      <span>Schedule</span>
+      <svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+      <span>Runs</span>
     </button>
     <button class="tab-btn" data-page="events">
-      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+      <svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
       <span>Events</span>
     </button>
   </nav>
 
 </div>
 
-<!-- ─── Modal: Add/Edit Run ─── -->
+<!-- Meal edit modal -->
+<div class="modal-overlay hidden" id="meal-modal">
+  <div class="modal">
+    <h2 id="meal-modal-title">Edit Meal</h2>
+    <div class="form-row">
+      <label id="meal-modal-label">Dinner</label>
+      <input type="text" id="meal-modal-input" placeholder="What's cooking?" />
+    </div>
+    <div class="form-actions">
+      <button class="btn btn-ghost" id="meal-modal-cancel">Cancel</button>
+      <button class="btn btn-danger btn-sm" id="meal-modal-clear">Clear</button>
+      <button class="btn btn-primary" id="meal-modal-save">Save</button>
+    </div>
+  </div>
+</div>
+
+<!-- Run modal -->
 <div class="modal-overlay hidden" id="run-modal">
   <div class="modal">
     <h2 id="run-modal-title">Add School Run</h2>
-    <div class="form-row">
-      <label>Time</label>
-      <input type="text" id="run-time" placeholder="e.g. 8:15 AM" />
+    <div class="form-row"><label>Time</label><input type="text" id="run-time" placeholder="e.g. 8:15 AM" /></div>
+    <div class="form-row"><label>Description</label><input type="text" id="run-desc" placeholder="e.g. Drop-off at school" /></div>
+    <div class="form-row"><label>Who</label>
+      <select id="run-who"><option value="wife">Wife</option><option value="husband">Husband</option><option value="both">Both</option></select>
     </div>
-    <div class="form-row">
-      <label>Description</label>
-      <input type="text" id="run-desc" placeholder="e.g. Drop-off at school" />
-    </div>
-    <div class="form-row">
-      <label>Who</label>
-      <select id="run-who">
-        <option value="wife">Wife</option>
-        <option value="husband">Husband</option>
-        <option value="both">Both</option>
-      </select>
-    </div>
-    <div class="form-row">
-      <label>Notes (optional)</label>
-      <textarea id="run-notes" placeholder="Any extra details…"></textarea>
-    </div>
+    <div class="form-row"><label>Notes (optional)</label><textarea id="run-notes" placeholder="Any extra details…"></textarea></div>
     <div class="form-actions">
       <button class="btn btn-ghost" id="run-modal-cancel">Cancel</button>
       <button class="btn btn-danger btn-sm" id="run-modal-delete" style="display:none;">Delete</button>
@@ -848,42 +750,23 @@
   </div>
 </div>
 
-<!-- ─── Modal: Add/Edit Event ─── -->
+<!-- Event modal -->
 <div class="modal-overlay hidden" id="event-modal">
   <div class="modal">
     <h2 id="event-modal-title">Add Event</h2>
-    <div class="form-row">
-      <label>Title</label>
-      <input type="text" id="event-title-input" placeholder="e.g. Playdate with the Smiths" />
+    <div class="form-row"><label>Title</label><input type="text" id="event-title-input" placeholder="e.g. Playdate with the Smiths" /></div>
+    <div class="form-row" style="display:flex;gap:8px;">
+      <div style="flex:1;"><label>Date</label><input type="date" id="event-date-input" /></div>
+      <div style="flex:1;"><label>Time (optional)</label><input type="text" id="event-time-input" placeholder="3:00 PM" /></div>
     </div>
-    <div class="form-row" style="display:flex; gap:8px;">
-      <div style="flex:1;">
-        <label>Date</label>
-        <input type="date" id="event-date-input" />
-      </div>
-      <div style="flex:1;">
-        <label>Time (optional)</label>
-        <input type="text" id="event-time-input" placeholder="e.g. 3:00 PM" />
-      </div>
-    </div>
-    <div class="form-row">
-      <label>Type</label>
+    <div class="form-row"><label>Type</label>
       <select id="event-type-input">
-        <option value="playdate">Playdate</option>
-        <option value="activity">Activity / Class</option>
-        <option value="appointment">Appointment</option>
-        <option value="family">Family</option>
-        <option value="other">Other</option>
+        <option value="playdate">Playdate</option><option value="activity">Activity / Class</option>
+        <option value="appointment">Appointment</option><option value="family">Family</option><option value="other">Other</option>
       </select>
     </div>
-    <div class="form-row">
-      <label>Location (optional)</label>
-      <input type="text" id="event-location-input" placeholder="e.g. 123 Oak St" />
-    </div>
-    <div class="form-row">
-      <label>Notes (optional)</label>
-      <textarea id="event-notes-input" placeholder="Any extra details…"></textarea>
-    </div>
+    <div class="form-row"><label>Location (optional)</label><input type="text" id="event-location-input" placeholder="e.g. 123 Oak St" /></div>
+    <div class="form-row"><label>Notes (optional)</label><textarea id="event-notes-input" placeholder="Any extra details…"></textarea></div>
     <div class="form-actions">
       <button class="btn btn-ghost" id="event-modal-cancel">Cancel</button>
       <button class="btn btn-danger btn-sm" id="event-modal-delete" style="display:none;">Delete</button>
@@ -892,19 +775,26 @@
   </div>
 </div>
 
-<!-- Toast container -->
+<!-- Day detail sheet (month view tap) -->
+<div id="day-sheet-overlay" class="hidden">
+  <div id="day-sheet">
+    <div class="day-sheet-header">
+      <h2 id="day-sheet-title">Monday, Jan 1</h2>
+      <button class="btn-icon" id="day-sheet-close">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+    </div>
+    <div class="day-sheet-body" id="day-sheet-body"></div>
+  </div>
+</div>
+
 <div id="toast-container"></div>
 
-<!-- ─────────────────────────────────────────────
-     FIREBASE CONFIGURATION
-     Replace the firebaseConfig object below with
-     your own project's values from the Firebase console.
-     See README.md for full setup instructions.
-──────────────────────────────────────────────── -->
+<!-- ─────────────────────────────────────
+     FIREBASE CONFIG — replace with yours
+     See README.md for setup instructions
+──────────────────────────────────────── -->
 <script type="module">
-// ══════════════════════════════════════════════
-// FIREBASE CONFIG — replace with your values
-// ══════════════════════════════════════════════
 const firebaseConfig = {
   apiKey:            "YOUR_API_KEY",
   authDomain:        "YOUR_PROJECT.firebaseapp.com",
@@ -915,894 +805,831 @@ const firebaseConfig = {
   appId:             "YOUR_APP_ID"
 };
 
-// ══════════════════════════════════════════════
-// IMPORTS
-// ══════════════════════════════════════════════
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
 import { getDatabase, ref, onValue, set, update, push, remove, serverTimestamp }
   from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
 
-// ══════════════════════════════════════════════
-// INIT
-// ══════════════════════════════════════════════
 const isConfigured = firebaseConfig.apiKey !== "YOUR_API_KEY";
-let db, app;
-let localData = {}; // fallback when Firebase not configured
+let db;
+let localData = {};
 
 if (isConfigured) {
-  app = initializeApp(firebaseConfig);
-  db  = getDatabase(app);
+  const app = initializeApp(firebaseConfig);
+  db = getDatabase(app);
   setSyncStatus("live");
 } else {
   setSyncStatus("offline");
   showDemoNote();
 }
 
-// ══════════════════════════════════════════════
-// WEEK STATE
-// ══════════════════════════════════════════════
+// ══════════════════════════
+// DATE HELPERS
+// ══════════════════════════
 const DAY_NAMES  = ["Sunday","Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"];
 const DAY_SHORT  = ["Sun","Mon","Tue","Wed","Thu","Fri","Sat"];
+const MONTH_NAMES= ["January","February","March","April","May","June","July","August","September","October","November","December"];
 const MONTH_SHORT= ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
 
-let currentWeekStart = getWeekStart(new Date());
-
 function getWeekStart(d) {
-  const s = new Date(d);
-  s.setHours(0,0,0,0);
-  const day = s.getDay(); // 0=Sun
-  s.setDate(s.getDate() - day);
-  return s;
+  const s = new Date(d); s.setHours(0,0,0,0);
+  s.setDate(s.getDate() - s.getDay()); return s;
 }
-function addWeeks(d, n) {
-  const s = new Date(d);
-  s.setDate(s.getDate() + n * 7);
-  return s;
-}
-function weekKey(d) {
-  return `w${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
-}
-function formatWeekLabel(d) {
-  const end = new Date(d); end.setDate(d.getDate() + 6);
-  return `${MONTH_SHORT[d.getMonth()]} ${d.getDate()} – ${MONTH_SHORT[end.getMonth()]} ${end.getDate()}, ${end.getFullYear()}`;
-}
-function dayOfWeek(weekStart, offset) {
-  const d = new Date(weekStart);
-  d.setDate(d.getDate() + offset);
-  return d;
-}
+function addWeeks(d,n)  { const s=new Date(d); s.setDate(s.getDate()+n*7); return s; }
+function addMonths(d,n) { const s=new Date(d); s.setMonth(s.getMonth()+n); s.setDate(1); return s; }
+function weekKey(d)     { return `w${d.getFullYear()}-${p2(d.getMonth()+1)}-${p2(d.getDate())}`; }
+function dateKey(d)     { return `${d.getFullYear()}-${p2(d.getMonth()+1)}-${p2(d.getDate())}`; }
+function p2(n)          { return String(n).padStart(2,'0'); }
+function dayOfWeek(ws,i){ const d=new Date(ws); d.setDate(d.getDate()+i); return d; }
+function isToday(d)     { const t=new Date(); return d.getFullYear()===t.getFullYear()&&d.getMonth()===t.getMonth()&&d.getDate()===t.getDate(); }
 
-// Cook assignment for each day index (0=Sun…6=Sat)
-const COOK_INFO = [
-  { label:"Sunday", sub:"Prep day", cook:"flex"    },
-  { label:"Monday", sub:"Wife cooks", cook:"wife"   },
-  { label:"Tuesday", sub:"Wife cooks", cook:"wife"  },
-  { label:"Wednesday", sub:"Husband cooks", cook:"husband" },
-  { label:"Thursday", sub:"Husband cooks", cook:"husband"  },
-  { label:"Friday", sub:"Flexible", cook:"flex"    },
-  { label:"Saturday", sub:"Flexible", cook:"flex"  },
-];
-
-// ══════════════════════════════════════════════
-// SYNC HELPERS
-// ══════════════════════════════════════════════
-function setSyncStatus(state) {
-  const el = document.getElementById("sync-indicator");
-  el.className = state;
-  el.textContent = state === "live"    ? "🟢 Live"
-                 : state === "saving"  ? "🟡 Saving…"
-                 : "🔴 Offline";
-}
-
-function dbSet(path, value) {
-  if (!isConfigured) { setLocal(path, value); return Promise.resolve(); }
-  setSyncStatus("saving");
-  return set(ref(db, path), value)
-    .then(() => setSyncStatus("live"))
-    .catch(e => { console.error(e); setSyncStatus("offline"); });
-}
-function dbUpdate(path, value) {
-  if (!isConfigured) { updateLocal(path, value); return Promise.resolve(); }
-  setSyncStatus("saving");
-  return update(ref(db, path), value)
-    .then(() => setSyncStatus("live"))
-    .catch(e => { console.error(e); setSyncStatus("offline"); });
-}
-function dbPush(path, value) {
-  if (!isConfigured) { return pushLocal(path, value); }
-  setSyncStatus("saving");
-  return push(ref(db, path), value)
-    .then(() => setSyncStatus("live"))
-    .catch(e => { console.error(e); setSyncStatus("offline"); });
-}
-function dbRemove(path) {
-  if (!isConfigured) { removeLocal(path); return Promise.resolve(); }
-  setSyncStatus("saving");
-  return remove(ref(db, path))
-    .then(() => setSyncStatus("live"))
-    .catch(e => { console.error(e); setSyncStatus("offline"); });
-}
-function dbListen(path, cb) {
-  if (!isConfigured) {
-    // Return a small polling shim for local mode
-    const tick = () => cb(getLocalAt(path));
-    tick();
-    const id = setInterval(tick, 500);
-    return () => clearInterval(id);
+function formatPeriodLabel() {
+  if (calendarView === "week") {
+    const end = new Date(currentWeekStart); end.setDate(end.getDate()+6);
+    return `${MONTH_SHORT[currentWeekStart.getMonth()]} ${currentWeekStart.getDate()} – ${MONTH_SHORT[end.getMonth()]} ${end.getDate()}, ${end.getFullYear()}`;
+  } else {
+    return `${MONTH_NAMES[currentMonthStart.getMonth()]} ${currentMonthStart.getFullYear()}`;
   }
-  const r = ref(db, path);
-  const unsub = onValue(r, snap => cb(snap.val()));
-  return unsub;
 }
 
-// ─── Local storage fallback ───
-function setLocal(path, val) {
-  const parts = path.split("/").filter(Boolean);
-  let cur = localData;
-  for (let i = 0; i < parts.length - 1; i++) { cur[parts[i]] = cur[parts[i]] || {}; cur = cur[parts[i]]; }
-  cur[parts[parts.length-1]] = val;
+// ══════════════════════════
+// DB HELPERS
+// ══════════════════════════
+function setSyncStatus(s) {
+  const el = document.getElementById("sync-indicator");
+  el.className = s;
+  el.textContent = s==="live" ? "🟢 Live" : s==="saving" ? "🟡 Saving…" : "🔴 Offline";
 }
-function updateLocal(path, val) {
-  const parts = path.split("/").filter(Boolean);
-  let cur = localData;
-  for (const p of parts) { cur[p] = cur[p] || {}; cur = cur[p]; }
-  Object.assign(cur, val);
-}
-function pushLocal(path, val) {
-  const key = "local_" + Date.now() + "_" + Math.random().toString(36).slice(2,6);
-  setLocal(path + "/" + key, val);
-  return Promise.resolve({ key });
-}
-function removeLocal(path) {
-  const parts = path.split("/").filter(Boolean);
-  let cur = localData;
-  for (let i = 0; i < parts.length - 1; i++) { cur = cur[parts[i]] || {}; }
-  delete cur[parts[parts.length-1]];
-}
-function getLocalAt(path) {
-  const parts = path.split("/").filter(Boolean);
-  let cur = localData;
-  for (const p of parts) { cur = (cur || {})[p]; }
-  return cur ?? null;
+function saving(p) { setSyncStatus("saving"); return p.then(()=>setSyncStatus("live")).catch(e=>{console.error(e);setSyncStatus("offline");}); }
+
+function dbUpdate(path,val)  { if(!isConfigured){updateLocal(path,val);return Promise.resolve();} return saving(update(ref(db,path),val)); }
+function dbPush(path,val)    { if(!isConfigured){return pushLocal(path,val);} return saving(push(ref(db,path),val)); }
+function dbRemove(path)      { if(!isConfigured){removeLocal(path);return Promise.resolve();} return saving(remove(ref(db,path))); }
+function dbListen(path,cb) {
+  if (!isConfigured) { const t=()=>cb(getLocalAt(path)); t(); const id=setInterval(t,400); return ()=>clearInterval(id); }
+  const r=ref(db,path); const u=onValue(r,s=>cb(s.val())); return u;
 }
 
-// ══════════════════════════════════════════════
+// Local fallback
+function _nav(path) { const parts=path.split("/").filter(Boolean); let c=localData; for(let i=0;i<parts.length-1;i++){c[parts[i]]=c[parts[i]]||{};c=c[parts[i]];} return [c,parts[parts.length-1]]; }
+function updateLocal(path,val) { const [c,k]=_nav(path); c[k]=c[k]||{}; Object.assign(c[k],val); }
+function pushLocal(path,val)   { const key="loc_"+Date.now()+"_"+Math.random().toString(36).slice(2,5); const [c,k]=_nav(path); c[k]=c[k]||{}; c[k][key]=val; return Promise.resolve({key}); }
+function removeLocal(path)     { const [c,k]=_nav(path); delete c[k]; }
+function getLocalAt(path)      { const parts=path.split("/").filter(Boolean); let c=localData; for(const p of parts){c=(c||{})[p];} return c??null; }
+
+// ══════════════════════════
+// STATE
+// ══════════════════════════
+let calendarView   = "week";
+let currentWeekStart  = getWeekStart(new Date());
+let currentMonthStart = new Date(new Date().getFullYear(), new Date().getMonth(), 1);
+
+// default cook schedule (overridden by cookAssignmentsData)
+const DEFAULT_COOK = ["flex","wife","wife","husband","husband","flex","flex"];
+const COOK_LABELS  = { wife:"Wife", husband:"Husband", flex:"Flexible" };
+
+let mealsData          = {};
+let cookAssignmentsData= {};
+let eventsData         = {};
+let scheduleData       = {};
+let groceryData        = {};
+let dealAlertsData     = {};
+
+let mealUnsub, schedUnsub, cookUnsub;
+
+// ══════════════════════════
 // NAVIGATION
-// ══════════════════════════════════════════════
-let currentPage = "meals";
-const tabBtns = document.querySelectorAll(".tab-btn");
-tabBtns.forEach(btn => {
+// ══════════════════════════
+document.querySelectorAll(".tab-btn").forEach(btn => {
   btn.addEventListener("click", () => {
     const page = btn.dataset.page;
-    switchPage(page);
+    document.querySelectorAll(".tab-btn").forEach(b=>b.classList.toggle("active", b.dataset.page===page));
+    document.querySelectorAll(".page").forEach(p=>p.classList.toggle("active", p.id===`page-${page}`));
+    const showPeriodNav = page === "meals";
+    document.getElementById("period-nav").style.display = showPeriodNav ? "flex" : "none";
   });
 });
 
-function switchPage(page) {
-  currentPage = page;
-  tabBtns.forEach(b => b.classList.toggle("active", b.dataset.page === page));
-  document.querySelectorAll(".page").forEach(p => p.classList.toggle("active", p.id === `page-${page}`));
-}
-
-// ── Week nav ──
-document.getElementById("prev-week").addEventListener("click", () => {
-  currentWeekStart = addWeeks(currentWeekStart, -1);
-  onWeekChanged();
-});
-document.getElementById("next-week").addEventListener("click", () => {
-  currentWeekStart = addWeeks(currentWeekStart, 1);
-  onWeekChanged();
+// View toggle
+document.querySelectorAll(".view-btn").forEach(btn => {
+  btn.addEventListener("click", () => {
+    calendarView = btn.dataset.view;
+    document.querySelectorAll(".view-btn").forEach(b=>b.classList.toggle("active",b===btn));
+    document.getElementById("period-label").textContent = formatPeriodLabel();
+    document.getElementById("week-view").style.display  = calendarView==="week"  ? "block" : "none";
+    document.getElementById("month-view").style.display = calendarView==="month" ? "block" : "none";
+    if (calendarView === "month") buildMonthGrid();
+    else buildWeekView();
+  });
 });
 
-let mealUnsub, schedUnsub;
+// Period prev/next
+document.getElementById("prev-period").addEventListener("click", () => {
+  if (calendarView==="week") { currentWeekStart=addWeeks(currentWeekStart,-1); onWeekChanged(); }
+  else { currentMonthStart=addMonths(currentMonthStart,-1); buildMonthGrid(); document.getElementById("period-label").textContent=formatPeriodLabel(); }
+});
+document.getElementById("next-period").addEventListener("click", () => {
+  if (calendarView==="week") { currentWeekStart=addWeeks(currentWeekStart,1); onWeekChanged(); }
+  else { currentMonthStart=addMonths(currentMonthStart,1); buildMonthGrid(); document.getElementById("period-label").textContent=formatPeriodLabel(); }
+});
 
 function onWeekChanged() {
-  document.getElementById("week-label").textContent = formatWeekLabel(currentWeekStart);
-  buildMealGrid();
-  buildScheduleGrid();
-  // Re-subscribe listeners
+  document.getElementById("period-label").textContent = formatPeriodLabel();
   if (mealUnsub)  mealUnsub();
   if (schedUnsub) schedUnsub();
+  if (cookUnsub)  cookUnsub();
   subscribeMeals();
   subscribeSchedule();
+  subscribeCookAssignments();
 }
 
-// ══════════════════════════════════════════════
-// MEALS
-// ══════════════════════════════════════════════
+// ══════════════════════════
+// COOK ASSIGNMENTS
+// ══════════════════════════
+function getCook(dayIndex) {
+  const wk = weekKey(currentWeekStart);
+  return cookAssignmentsData[wk]?.[`day${dayIndex}`] || DEFAULT_COOK[dayIndex];
+}
+function cycleCook(dayIndex) {
+  const cur = getCook(dayIndex);
+  const next = cur==="wife" ? "husband" : cur==="husband" ? "flex" : "wife";
+  const wk = weekKey(currentWeekStart);
+  dbUpdate(`cookAssignments/${wk}`, { [`day${dayIndex}`]: next });
+}
+function subscribeCookAssignments() {
+  const wk = weekKey(currentWeekStart);
+  cookUnsub = dbListen(`cookAssignments/${wk}`, data => {
+    if (data) cookAssignmentsData[wk] = data;
+    renderCookTags();
+  });
+}
+function renderCookTags() {
+  document.querySelectorAll(".cook-toggle").forEach(btn => {
+    const day = parseInt(btn.dataset.day);
+    const cook = getCook(day);
+    btn.className = `cook-toggle cook-${cook}`;
+    btn.textContent = cook === "flex" ? "✦ Flexible" : cook === "wife" ? "W · Wife" : "H · Husband";
+  });
+}
+
+// ══════════════════════════
+// MEAL MODAL (fixed — no inline edit / no bubble)
+// ══════════════════════════
 const MEAL_SLOTS = [
   { key:"breakfast", label:"Breakfast", emoji:"☀️", cls:"breakfast" },
   { key:"lunch",     label:"Lunch",     emoji:"🌿", cls:"lunch"     },
-  { key:"dinner",    label:"Dinner",    emoji:"🍽️", cls:"dinner"    },
+  { key:"dinner",    label:"Dinner",    emoji:"🍽️",  cls:"dinner"    },
 ];
+const mealModal       = document.getElementById("meal-modal");
+const mealModalInput  = document.getElementById("meal-modal-input");
+const mealModalLabel  = document.getElementById("meal-modal-label");
+const mealModalTitle  = document.getElementById("meal-modal-title");
+let editingMeal = null; // { day, slot, wk }
 
-let mealsData = {};
+function openMealModal(day, slot) {
+  const wk = weekKey(currentWeekStart);
+  editingMeal = { day, slot, wk };
+  const slotInfo = MEAL_SLOTS.find(s=>s.key===slot);
+  const d = dayOfWeek(currentWeekStart, day);
+  mealModalTitle.textContent = `${DAY_NAMES[day]}`;
+  mealModalLabel.textContent = `${slotInfo.emoji} ${slotInfo.label}`;
+  const cur = mealsData[`day${day}`]?.[slot] || "";
+  mealModalInput.value = cur;
+  mealModal.classList.remove("hidden");
+  setTimeout(() => { mealModalInput.focus(); mealModalInput.select(); }, 80);
+}
+document.getElementById("meal-modal-cancel").addEventListener("click", () => mealModal.classList.add("hidden"));
+mealModal.addEventListener("click", e => { if (e.target===mealModal) mealModal.classList.add("hidden"); });
+document.getElementById("meal-modal-save").addEventListener("click", saveMeal);
+document.getElementById("meal-modal-clear").addEventListener("click", () => { mealModalInput.value=""; saveMeal(); });
+mealModalInput.addEventListener("keydown", e => { if(e.key==="Enter") saveMeal(); if(e.key==="Escape") mealModal.classList.add("hidden"); });
 
+function saveMeal() {
+  if (!editingMeal) return;
+  const { day, slot, wk } = editingMeal;
+  const val = mealModalInput.value.trim();
+  dbUpdate(`meals/${wk}/day${day}`, { [slot]: val });
+  mealModal.classList.add("hidden");
+  showToast(val ? "Meal saved" : "Meal cleared");
+}
+
+// ══════════════════════════
+// WEEK VIEW
+// ══════════════════════════
 function subscribeMeals() {
   const wk = weekKey(currentWeekStart);
   mealUnsub = dbListen(`meals/${wk}`, data => {
     mealsData = data || {};
-    renderMeals();
+    renderWeekMeals();
+    if (calendarView==="month") buildMonthGrid();
   });
 }
 
-function buildMealGrid() {
+function buildWeekView() {
   const grid = document.getElementById("meal-grid");
   grid.innerHTML = "";
   for (let i = 0; i < 7; i++) {
-    const info = COOK_INFO[i];
+    const d = dayOfWeek(currentWeekStart, i);
+    const today = isToday(d);
     const card = document.createElement("div");
-    card.className = "meal-day-card" + (i === new Date().getDay() && isCurrentWeek() ? " open" : "");
+    card.className = "meal-day-card" + (today ? " today-card" : "") + (today ? " open" : "");
     card.dataset.day = i;
 
-    const cookClass  = `cook-${info.cook}`;
-    const cookLetter = info.cook === "wife" ? "W" : info.cook === "husband" ? "H" : "✦";
     card.innerHTML = `
       <div class="meal-day-header">
-        <div>
-          <span class="day-label">${info.label}</span>
-          <span class="cook-tag ${cookClass}">${cookLetter}</span>
+        <div class="day-left">
+          <div>
+            <div class="day-name">${DAY_NAMES[i]}${today ? ' <span class="badge badge-accent" style="font-size:.62rem;">Today</span>' : ""}</div>
+            <div class="day-date">${MONTH_SHORT[d.getMonth()]} ${d.getDate()}</div>
+          </div>
         </div>
-        <div style="display:flex; align-items:center; gap:8px;">
-          <span class="day-sub" style="font-size:.75rem; color:var(--text-muted);">${info.sub}</span>
-          <svg class="chevron" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+        <div class="day-right">
+          <button class="cook-toggle cook-${getCook(i)}" data-day="${i}">${getCook(i)==="wife"?"W · Wife":getCook(i)==="husband"?"H · Husband":"✦ Flexible"}</button>
+          <svg class="chevron" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
         </div>
       </div>
       <div class="meal-day-body">
-        ${MEAL_SLOTS.map(s => `
-          <div class="meal-slot" data-slot="${s.key}">
-            <div class="meal-slot-icon ${s.cls}">${s.emoji}</div>
-            <div class="meal-slot-content">
-              <div class="meal-slot-label">${s.label}</div>
-              <div class="meal-slot-value empty" data-day="${i}" data-slot="${s.key}">Tap to add…</div>
+        <div class="meal-slots">
+          ${MEAL_SLOTS.map(s=>`
+            <div class="meal-slot">
+              <div class="meal-slot-icon ${s.cls}">${s.emoji}</div>
+              <div class="meal-slot-content">
+                <div class="meal-slot-label">${s.label}</div>
+                <div class="meal-slot-value empty" data-day="${i}" data-slot="${s.key}">Tap to add…</div>
+              </div>
             </div>
-          </div>
-        `).join("")}
+          `).join("")}
+        </div>
+        <div class="day-consolidated" data-day="${i}"></div>
       </div>
     `;
-    card.querySelector(".meal-day-header").addEventListener("click", () => {
+
+    // Header toggles open — but NOT when clicking cook-toggle
+    card.querySelector(".meal-day-header").addEventListener("click", e => {
+      if (e.target.closest(".cook-toggle")) return; // handled separately
       card.classList.toggle("open");
     });
+
+    // Cook toggle cycles assignment
+    card.querySelector(".cook-toggle").addEventListener("click", e => {
+      e.stopPropagation();
+      cycleCook(i);
+      showToast("Cook updated");
+    });
+
+    // Meal slots open modal — stopPropagation so header doesn't fire
+    card.querySelectorAll(".meal-slot-value").forEach(el => {
+      el.addEventListener("click", e => {
+        e.stopPropagation();
+        openMealModal(parseInt(el.dataset.day), el.dataset.slot);
+      });
+    });
+
     grid.appendChild(card);
   }
-  // Attach slot click listeners
-  grid.querySelectorAll(".meal-slot-value").forEach(el => {
-    el.addEventListener("click", () => openMealEdit(el));
-  });
+  renderWeekMeals();
+  renderConsolidated();
 }
 
-function renderMeals() {
+function renderWeekMeals() {
   document.querySelectorAll(".meal-slot-value").forEach(el => {
-    const day  = el.dataset.day;
-    const slot = el.dataset.slot;
-    const val  = mealsData[`day${day}`]?.[slot] || "";
+    const day = el.dataset.day, slot = el.dataset.slot;
+    const val = mealsData[`day${day}`]?.[slot] || "";
     el.textContent = val || "Tap to add…";
     el.classList.toggle("empty", !val);
   });
 }
 
-function isCurrentWeek() {
-  return weekKey(currentWeekStart) === weekKey(getWeekStart(new Date()));
+// Consolidated events + runs under each day card
+function renderConsolidated() {
+  for (let i = 0; i < 7; i++) {
+    const strip = document.querySelector(`.day-consolidated[data-day="${i}"]`);
+    if (!strip) continue;
+    const d = dayOfWeek(currentWeekStart, i);
+    const dk = dateKey(d);
+    strip.innerHTML = "";
+
+    // Events on this day
+    Object.values(eventsData).filter(ev => ev.date === dk).forEach(ev => {
+      const item = document.createElement("div");
+      item.className = "consolidated-item";
+      item.innerHTML = `
+        <span class="consolidated-dot dot-event-${ev.type||"other"}"></span>
+        <span>${escHtml(ev.title||"Event")}${ev.time?" · "+escHtml(ev.time):""}</span>
+      `;
+      strip.appendChild(item);
+    });
+
+    // Runs on this day
+    const wk = weekKey(currentWeekStart);
+    const runs = scheduleData[`day${i}`] || {};
+    Object.values(runs).forEach(run => {
+      const item = document.createElement("div");
+      item.className = "consolidated-item";
+      item.innerHTML = `
+        <span class="consolidated-dot dot-run"></span>
+        <span>${run.time?escHtml(run.time)+" · ":""}${escHtml(run.desc||"Run")} <span style="font-size:.7rem;color:var(--text-muted);">(${run.who})</span></span>
+      `;
+      strip.appendChild(item);
+    });
+  }
 }
 
-let editingMealEl = null;
+// ══════════════════════════
+// MONTH VIEW
+// ══════════════════════════
+function buildMonthGrid() {
+  const container = document.getElementById("month-grid-container");
+  container.innerHTML = "";
 
-function openMealEdit(el) {
-  if (el.querySelector("input")) return; // already editing
-  editingMealEl = el;
-  const current = el.classList.contains("empty") ? "" : el.textContent;
+  const year  = currentMonthStart.getFullYear();
+  const month = currentMonthStart.getMonth();
+  const firstDay = new Date(year, month, 1).getDay(); // 0=Sun
+  const daysInMonth = new Date(year, month+1, 0).getDate();
+  const prevDays = new Date(year, month, 0).getDate(); // days in prev month
 
-  // Inline edit UI
-  el.innerHTML = `
-    <div class="meal-slot-edit">
-      <input type="text" value="${current}" placeholder="What's for this meal?" />
-      <button class="btn-icon" id="meal-save-btn" title="Save">
-        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
-      </button>
-      <button class="btn-icon" id="meal-cancel-btn" title="Cancel">
-        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
-      </button>
-    </div>
-  `;
-  const input = el.querySelector("input");
-  input.focus(); input.select();
+  const grid = document.createElement("div");
+  grid.className = "month-grid";
 
-  const save = () => {
-    const val = input.value.trim();
-    const day  = el.dataset.day;
-    const slot = el.dataset.slot;
-    const wk   = weekKey(currentWeekStart);
-    dbUpdate(`meals/${wk}/day${day}`, { [slot]: val });
-    // optimistic render
-    el.textContent = val || "Tap to add…";
-    el.classList.toggle("empty", !val);
-    el.addEventListener("click", () => openMealEdit(el));
-  };
-  const cancel = () => {
-    const val = mealsData[`day${el.dataset.day}`]?.[el.dataset.slot] || "";
-    el.textContent = val || "Tap to add…";
-    el.classList.toggle("empty", !val);
-    el.addEventListener("click", () => openMealEdit(el));
-  };
+  // Day-of-week headers
+  DAY_SHORT.forEach(d => {
+    const h = document.createElement("div");
+    h.className = "month-dow";
+    h.textContent = d;
+    grid.appendChild(h);
+  });
 
-  el.querySelector("#meal-save-btn").addEventListener("click", e => { e.stopPropagation(); save(); });
-  el.querySelector("#meal-cancel-btn").addEventListener("click", e => { e.stopPropagation(); cancel(); });
-  input.addEventListener("keydown", e => { if (e.key==="Enter") save(); if (e.key==="Escape") cancel(); });
+  const totalCells = Math.ceil((firstDay + daysInMonth) / 7) * 7;
+
+  for (let i = 0; i < totalCells; i++) {
+    let cellDate, otherMonth = false;
+    if (i < firstDay) {
+      cellDate = new Date(year, month-1, prevDays - firstDay + i + 1);
+      otherMonth = true;
+    } else if (i >= firstDay + daysInMonth) {
+      cellDate = new Date(year, month+1, i - firstDay - daysInMonth + 1);
+      otherMonth = true;
+    } else {
+      cellDate = new Date(year, month, i - firstDay + 1);
+    }
+
+    const cell = document.createElement("div");
+    cell.className = "month-cell" + (otherMonth?" other-month":"") + (isToday(cellDate)?" is-today":"");
+
+    const dayNum = document.createElement("div");
+    dayNum.className = "cell-day-num";
+    dayNum.textContent = cellDate.getDate();
+    cell.appendChild(dayNum);
+
+    const dots = document.createElement("div");
+    dots.className = "cell-dots";
+
+    const dk = dateKey(cellDate);
+    const wk = weekKey(getWeekStart(cellDate));
+    const dayIdx = cellDate.getDay();
+
+    // Meal dots — check if any meals exist for this day
+    const dayMeals = mealsData[`day${dayIdx}`] || {};
+    // Only show if same week as currentWeekStart (since mealsData is per-week)
+    // For month view we show dots from whatever week data we have
+    const hasMeals = Object.values(dayMeals).some(v=>!!v);
+    if (hasMeals && weekKey(currentWeekStart)===wk) {
+      const dot = document.createElement("span");
+      dot.className = "cell-dot meal";
+      dots.appendChild(dot);
+    }
+
+    // Event dots
+    const dayEvents = Object.values(eventsData).filter(ev=>ev.date===dk);
+    dayEvents.slice(0,3).forEach(ev => {
+      const dot = document.createElement("span");
+      dot.className = "cell-dot event";
+      dots.appendChild(dot);
+    });
+
+    // Run dot
+    if (weekKey(currentWeekStart)===wk) {
+      const runs = scheduleData[`day${dayIdx}`] || {};
+      if (Object.keys(runs).length) {
+        const dot = document.createElement("span");
+        dot.className = "cell-dot run";
+        dots.appendChild(dot);
+      }
+    }
+
+    cell.appendChild(dots);
+
+    // Show up to 2 event pills
+    dayEvents.slice(0,2).forEach(ev => {
+      const pill = document.createElement("div");
+      pill.className = "cell-pill ev-pill";
+      pill.textContent = ev.title || "Event";
+      cell.appendChild(pill);
+    });
+
+    cell.addEventListener("click", () => openDaySheet(cellDate));
+    grid.appendChild(cell);
+  }
+
+  container.appendChild(grid);
 }
 
-// ══════════════════════════════════════════════
+// Day detail sheet
+function openDaySheet(d) {
+  const dk = dateKey(d);
+  const dayIdx = d.getDay();
+  const wk = weekKey(getWeekStart(d));
+  const isCurWeek = wk === weekKey(currentWeekStart);
+
+  document.getElementById("day-sheet-title").textContent =
+    `${DAY_NAMES[dayIdx]}, ${MONTH_SHORT[d.getMonth()]} ${d.getDate()}`;
+
+  const body = document.getElementById("day-sheet-body");
+  body.innerHTML = "";
+
+  // Meals section
+  const mealSec = document.createElement("div");
+  mealSec.className = "sheet-section";
+  mealSec.innerHTML = `<div class="sheet-section-title">🍽 Meals</div>`;
+  if (isCurWeek) {
+    const dayMeals = mealsData[`day${dayIdx}`] || {};
+    MEAL_SLOTS.forEach(slot => {
+      const val = dayMeals[slot.key] || "";
+      const row = document.createElement("div");
+      row.className = "sheet-meal-row";
+      row.innerHTML = `<span style="font-size:.85rem;">${slot.emoji}</span><span style="font-size:.83rem;flex:1;">${val ? escHtml(val) : '<span class="sheet-empty">Not planned</span>'}</span>`;
+      mealSec.appendChild(row);
+    });
+    // Cook tag
+    const cook = getCook(dayIdx);
+    const cookBg = cook==="wife"?"var(--wife-bg)":cook==="husband"?"var(--husb-bg)":"var(--flex-bg)";
+    const cookFg = cook==="wife"?"var(--wife-fg)":cook==="husband"?"var(--husb-fg)":"var(--flex-fg)";
+    const cookLabel = cook==="wife"?"Wife cooks":cook==="husband"?"Husband cooks":"Flexible";
+    const cookEl = document.createElement("p");
+    cookEl.style.cssText=`font-size:.74rem;font-weight:700;margin-top:6px;color:${cookFg};background:${cookBg};display:inline-block;padding:2px 8px;border-radius:10px;`;
+    cookEl.textContent = cookLabel;
+    mealSec.appendChild(cookEl);
+  } else {
+    mealSec.innerHTML += `<p class="sheet-empty">Navigate to this week to see meals.</p>`;
+  }
+  body.appendChild(mealSec);
+
+  // Events
+  const dayEvents = Object.entries(eventsData).filter(([,ev])=>ev.date===dk);
+  const evSec = document.createElement("div");
+  evSec.className = "sheet-section";
+  evSec.innerHTML = `<div class="sheet-section-title">📅 Events</div>`;
+  if (dayEvents.length) {
+    dayEvents.forEach(([id,ev]) => {
+      const row = document.createElement("div");
+      row.className = "sheet-event-row";
+      row.innerHTML = `<div class="sheet-event-title">${escHtml(ev.title||"Event")}</div><div style="font-size:.75rem;color:var(--text-muted);">${ev.time?ev.time+" · ":""}${ev.location||""}</div>`;
+      evSec.appendChild(row);
+    });
+  } else {
+    evSec.innerHTML += `<p class="sheet-empty">No events this day.</p>`;
+  }
+  body.appendChild(evSec);
+
+  // School runs
+  const runSec = document.createElement("div");
+  runSec.className = "sheet-section";
+  runSec.innerHTML = `<div class="sheet-section-title">🚗 School Runs</div>`;
+  if (isCurWeek) {
+    const runs = Object.values(scheduleData[`day${dayIdx}`] || {});
+    if (runs.length) {
+      runs.forEach(run => {
+        const row = document.createElement("div");
+        row.className = "sheet-run-row";
+        row.innerHTML = `${run.time?`<strong>${escHtml(run.time)}</strong> · `:""}${escHtml(run.desc||"")} <span style="font-size:.72rem;color:var(--text-muted);">(${run.who})</span>`;
+        runSec.appendChild(row);
+      });
+    } else {
+      runSec.innerHTML += `<p class="sheet-empty">No runs scheduled.</p>`;
+    }
+  } else {
+    runSec.innerHTML += `<p class="sheet-empty">Navigate to this week to see runs.</p>`;
+  }
+  body.appendChild(runSec);
+
+  document.getElementById("day-sheet-overlay").classList.remove("hidden");
+}
+
+document.getElementById("day-sheet-close").addEventListener("click", () => {
+  document.getElementById("day-sheet-overlay").classList.add("hidden");
+});
+document.getElementById("day-sheet-overlay").addEventListener("click", e => {
+  if (e.target === document.getElementById("day-sheet-overlay"))
+    document.getElementById("day-sheet-overlay").classList.add("hidden");
+});
+
+// ══════════════════════════
 // GROCERY
-// ══════════════════════════════════════════════
-
-// Store config — Metro is primary; Shoppers & Walmart for deals
+// ══════════════════════════
 const STORE_CONFIG = {
-  metro:    { label: "Metro",    short: "Metro",    cls: "store-metro"    },
-  shoppers: { label: "Shoppers", short: "SDM",      cls: "store-shoppers" },
-  walmart:  { label: "Walmart",  short: "WMT",      cls: "store-walmart"  },
-  other:    { label: "Other",    short: "Other",    cls: "store-other"    },
+  metro:    { label:"Metro",    short:"Metro", cls:"store-metro"    },
+  shoppers: { label:"Shoppers", short:"SDM",   cls:"store-shoppers" },
+  walmart:  { label:"Walmart",  short:"WMT",   cls:"store-walmart"  },
+  other:    { label:"Other",    short:"Other", cls:"store-other"    },
 };
-
-// Sections ordered to match Metro (Upper Middle & 9th Line, Oakville) store flow
 const GROCERY_SECTIONS = [
-  { key:"produce",    label:"Fruits & Veggies",      icon:"🥦" },
-  { key:"bakery",     label:"Bakery",                icon:"🥖" },
-  { key:"deli",       label:"Deli & Charcuterie",    icon:"🫙" },
-  { key:"meat",       label:"Meat & Poultry",        icon:"🥩" },
-  { key:"seafood",    label:"Fish & Seafood",        icon:"🐟" },
-  { key:"dairy",      label:"Dairy & Eggs",          icon:"🧀" },
-  { key:"frozen",     label:"Frozen",                icon:"🧊" },
-  { key:"pantry",     label:"Pantry & Dry Goods",    icon:"🥫" },
-  { key:"snacks",     label:"Snacks & Cereal",       icon:"🥣" },
-  { key:"beverages",  label:"Beverages",             icon:"🥤" },
-  { key:"health",     label:"Health & Beauty",       icon:"🧴" },
-  { key:"household",  label:"Household & Cleaning",  icon:"🧹" },
-  { key:"other",      label:"Other",                 icon:"📦" },
+  { key:"produce",   label:"Fruits & Veggies",     icon:"🥦" },
+  { key:"bakery",    label:"Bakery",               icon:"🥖" },
+  { key:"deli",      label:"Deli & Charcuterie",   icon:"🫙" },
+  { key:"meat",      label:"Meat & Poultry",       icon:"🥩" },
+  { key:"seafood",   label:"Fish & Seafood",       icon:"🐟" },
+  { key:"dairy",     label:"Dairy & Eggs",         icon:"🧀" },
+  { key:"frozen",    label:"Frozen",               icon:"🧊" },
+  { key:"pantry",    label:"Pantry & Dry Goods",   icon:"🥫" },
+  { key:"snacks",    label:"Snacks & Cereal",      icon:"🥣" },
+  { key:"beverages", label:"Beverages",            icon:"🥤" },
+  { key:"health",    label:"Health & Beauty",      icon:"🧴" },
+  { key:"household", label:"Household & Cleaning", icon:"🧹" },
+  { key:"other",     label:"Other",                icon:"📦" },
 ];
 
-let groceryData = {};
-let groceryUnsub;
+let activeStoreFilter = "all";
 
 function subscribeGrocery() {
-  groceryUnsub = dbListen("grocery", data => {
-    groceryData = data || {};
-    renderGrocery();
-    renderShoppingSummary();
-  });
+  dbListen("grocery", data => { groceryData=data||{}; renderGrocery(); renderShoppingSummary(); });
 }
-
-let activeStoreFilter = "all";
 
 function renderGrocery() {
   const container = document.getElementById("grocery-sections");
   container.innerHTML = "";
-
-  let totalItems = 0, checkedItems = 0;
+  let total=0, checked=0;
 
   GROCERY_SECTIONS.forEach(sec => {
-    let items = Object.entries(groceryData[sec.key] || {})
-      .sort((a,b) => (a[1].createdAt||0) - (b[1].createdAt||0));
+    let items = Object.entries(groceryData[sec.key]||{}).sort((a,b)=>(a[1].createdAt||0)-(b[1].createdAt||0));
+    if (activeStoreFilter !== "all") items = items.filter(([,v])=>(v.store||"metro")===activeStoreFilter);
+    if (!items.length) return;
+    total   += items.length;
+    checked += items.filter(([,v])=>v.checked).length;
 
-    // Apply store filter
-    if (activeStoreFilter !== "all") {
-      items = items.filter(([,v]) => (v.store || "metro") === activeStoreFilter);
-    }
-    if (items.length === 0) return;
-
-    totalItems   += items.length;
-    checkedItems += items.filter(([,v]) => v.checked).length;
-
-    const secDiv = document.createElement("div");
-    secDiv.className = "grocery-section";
-    secDiv.innerHTML = `
+    const sec_div = document.createElement("div");
+    sec_div.className = "grocery-section";
+    sec_div.innerHTML = `
       <div class="grocery-section-header">
         <span class="section-icon">${sec.icon}</span>
         <h3>${sec.label}</h3>
-        <span style="margin-left:auto; font-size:.75rem; color:var(--text-muted);">${items.length}</span>
-      </div>
-    `;
-    items.forEach(([id, item]) => {
-      const store    = item.store || "metro";
-      const storeCfg = STORE_CONFIG[store] || STORE_CONFIG.other;
+        <span style="margin-left:auto;font-size:.72rem;color:var(--text-muted);">${items.length}</span>
+      </div>`;
+
+    items.forEach(([id,item]) => {
+      const store = item.store||"metro";
+      const sc = STORE_CONFIG[store]||STORE_CONFIG.other;
       const row = document.createElement("div");
-      row.className = "grocery-item" + (item.checked ? " checked" : "");
+      row.className = "grocery-item"+(item.checked?" checked":"");
       row.innerHTML = `
-        <div class="grocery-check" data-id="${id}" data-sec="${sec.key}">
-          ${item.checked ? `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>` : ""}
-        </div>
+        <div class="grocery-check">${item.checked?`<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>`:""}</div>
         <span class="grocery-name">${escHtml(item.name)}</span>
-        ${item.qty ? `<span class="grocery-qty">${escHtml(item.qty)}</span>` : ""}
-        <span class="store-badge ${storeCfg.cls}">${storeCfg.short}</span>
-        <button class="grocery-delete" data-id="${id}" data-sec="${sec.key}" aria-label="Delete">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
-        </button>
-      `;
-      row.querySelector(".grocery-check").addEventListener("click", () => toggleGroceryItem(sec.key, id, !item.checked));
-      row.querySelector(".grocery-delete").addEventListener("click", () => deleteGroceryItem(sec.key, id));
-      secDiv.appendChild(row);
+        ${item.qty?`<span class="grocery-qty">${escHtml(item.qty)}</span>`:""}
+        <span class="store-badge ${sc.cls}">${sc.short}</span>
+        <button class="grocery-delete" aria-label="Delete">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+        </button>`;
+      row.querySelector(".grocery-check").addEventListener("click", ()=>dbUpdate(`grocery/${sec.key}/${id}`,{checked:!item.checked}));
+      row.querySelector(".grocery-delete").addEventListener("click", ()=>{ dbRemove(`grocery/${sec.key}/${id}`); showToast("Removed"); });
+      sec_div.appendChild(row);
     });
-    container.appendChild(secDiv);
+    container.appendChild(sec_div);
   });
 
-  // Update checked count
   const countEl = document.getElementById("checked-count");
-  if (totalItems > 0) {
-    countEl.textContent = `${checkedItems}/${totalItems} checked`;
-  } else {
-    countEl.textContent = "";
-    const filterNote = activeStoreFilter !== "all"
-      ? `No ${STORE_CONFIG[activeStoreFilter]?.label || ""} items yet.`
-      : "Your list is empty. Add some items below!";
-    container.innerHTML = `<div class="empty-state">
-      <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
-      <p>${filterNote}</p>
-    </div>`;
-  }
+  if (total) { countEl.textContent=`${checked}/${total} checked`; }
+  else { countEl.textContent=""; container.innerHTML=`<div class="empty-state"><svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg><p>${activeStoreFilter!=="all"?`No ${STORE_CONFIG[activeStoreFilter]?.label||""} items yet.`:"Your list is empty. Add items below!"}</p></div>`; }
 }
 
-function toggleGroceryItem(section, id, checked) {
-  dbUpdate(`grocery/${section}/${id}`, { checked });
-}
-function deleteGroceryItem(section, id) {
-  dbRemove(`grocery/${section}/${id}`);
-  showToast("Item removed");
-}
-
-document.getElementById("add-grocery-btn").addEventListener("click", addGroceryItem);
-document.getElementById("grocery-name-input").addEventListener("keydown", e => {
-  if (e.key === "Enter") addGroceryItem();
-});
-
-function addGroceryItem() {
-  const nameEl    = document.getElementById("grocery-name-input");
-  const qtyEl     = document.getElementById("grocery-qty-input");
-  const sectionEl = document.getElementById("grocery-section-select");
-  const storeEl   = document.getElementById("grocery-store-select");
-  const name = nameEl.value.trim();
-  if (!name) { nameEl.focus(); return; }
-  const section = sectionEl.value;
-  const store   = storeEl.value;
-  dbPush(`grocery/${section}`, {
-    name, qty: qtyEl.value.trim(), checked: false, store,
-    createdAt: isConfigured ? serverTimestamp() : Date.now()
-  }).then(() => {
-    nameEl.value = ""; qtyEl.value = "";
-    nameEl.focus();
-    const storeName = STORE_CONFIG[store]?.label || "store";
-    showToast(`Added to ${storeName} list`);
-  });
-}
-
-document.getElementById("clear-checked-btn").addEventListener("click", () => {
-  GROCERY_SECTIONS.forEach(sec => {
-    Object.entries(groceryData[sec.key] || {}).forEach(([id, item]) => {
-      if (item.checked) dbRemove(`grocery/${sec.key}/${id}`);
-    });
-  });
-  showToast("Checked items cleared");
-});
-
-// ─── Store filter chips ───
+// Store filter chips
 document.querySelectorAll(".filter-chip").forEach(chip => {
   chip.addEventListener("click", () => {
     activeStoreFilter = chip.dataset.store;
-    document.querySelectorAll(".filter-chip").forEach(c => {
-      c.className = "filter-chip"; // reset
-    });
+    document.querySelectorAll(".filter-chip").forEach(c=>c.className="filter-chip");
     chip.classList.add(`active-${activeStoreFilter}`);
-    renderGrocery();
-    renderShoppingSummary();
+    renderGrocery(); renderShoppingSummary();
   });
 });
 
-// ─── Deal Alerts collapse toggle ───
-document.getElementById("deal-alerts-toggle").addEventListener("click", () => {
-  document.getElementById("deal-alerts-card").classList.toggle("collapsed");
-  const chevron = document.querySelector("#deal-alerts-toggle .chevron");
-  chevron.style.transform = document.getElementById("deal-alerts-card").classList.contains("collapsed")
-    ? "rotate(-90deg)" : "rotate(0deg)";
+// Add grocery item
+document.getElementById("add-grocery-btn").addEventListener("click", addGroceryItem);
+document.getElementById("grocery-name-input").addEventListener("keydown", e=>{ if(e.key==="Enter") addGroceryItem(); });
+function addGroceryItem() {
+  const nameEl=document.getElementById("grocery-name-input"),qtyEl=document.getElementById("grocery-qty-input"),secEl=document.getElementById("grocery-section-select"),storeEl=document.getElementById("grocery-store-select");
+  const name=nameEl.value.trim(); if(!name){nameEl.focus();return;}
+  dbPush(`grocery/${secEl.value}`,{name,qty:qtyEl.value.trim(),checked:false,store:storeEl.value,createdAt:isConfigured?serverTimestamp():Date.now()})
+    .then(()=>{ nameEl.value=""; qtyEl.value=""; nameEl.focus(); showToast(`Added to ${STORE_CONFIG[storeEl.value]?.label||"list"}`); });
+}
+
+// Clear checked
+document.getElementById("clear-checked-btn").addEventListener("click", ()=>{
+  GROCERY_SECTIONS.forEach(sec=>Object.entries(groceryData[sec.key]||{}).forEach(([id,v])=>{ if(v.checked) dbRemove(`grocery/${sec.key}/${id}`); }));
+  showToast("Checked items cleared");
 });
 
-// ─── Deal Alerts sync ───
-let dealAlertsData = {};
-let dealAlertsUnsub;
-
-function subscribeDealAlerts() {
-  dealAlertsUnsub = dbListen("dealAlerts", data => {
-    dealAlertsData = data || {};
-    renderDealAlerts();
-    renderShoppingSummary();
-  });
-}
-
-function renderDealAlerts() {
-  const shopEl   = document.getElementById("deal-shoppers");
-  const walmEl   = document.getElementById("deal-walmart");
-  if (document.activeElement !== shopEl) shopEl.value = dealAlertsData.shoppers || "";
-  if (document.activeElement !== walmEl) walmEl.value = dealAlertsData.walmart  || "";
-}
-
-let dealSaveTimers = {};
-function onDealInput(storeKey, el) {
-  clearTimeout(dealSaveTimers[storeKey]);
-  dealSaveTimers[storeKey] = setTimeout(() => {
-    dbUpdate("dealAlerts", { [storeKey]: el.value });
-  }, 800); // debounce 800ms
-}
-
-document.getElementById("deal-shoppers").addEventListener("input", e => onDealInput("shoppers", e.target));
-document.getElementById("deal-walmart").addEventListener("input",  e => onDealInput("walmart",  e.target));
-
-// ─── Shopping Summary ───
+// Shopping Summary
 function renderShoppingSummary() {
-  const el = document.getElementById("shopping-summary");
-  if (!el) return;
-
-  // Gather unchecked items grouped by store
-  const byStore = { metro: [], shoppers: [], walmart: [], other: [] };
-  GROCERY_SECTIONS.forEach(sec => {
-    Object.values(groceryData[sec.key] || {}).forEach(item => {
-      if (item.checked) return;
-      const s = item.store || "metro";
-      (byStore[s] = byStore[s] || []).push(item.name);
-    });
-  });
-
-  const deals = dealAlertsData;
-  let html = "";
-
-  // Metro
-  if (byStore.metro.length) {
-    html += `<div class="summary-store-block">
-      <div class="summary-store-name"><span class="store-badge store-metro">Metro</span> Upper Middle &amp; 9th Line</div>
-      <p class="summary-items">Pick up: ${byStore.metro.map(escHtml).join(", ")}</p>
-    </div>`;
-  }
-
-  // Shoppers
-  const shoppersDeal = deals.shoppers?.trim();
-  if (byStore.shoppers.length || shoppersDeal) {
-    html += `<div class="summary-store-block">
-      <div class="summary-store-name"><span class="store-badge store-shoppers">SDM</span> Shoppers Drug Mart</div>
-      ${byStore.shoppers.length ? `<p class="summary-items">Pick up: ${byStore.shoppers.map(escHtml).join(", ")}</p>` : ""}
-      ${shoppersDeal ? `<p class="summary-deal">🏷️ Deal: ${escHtml(shoppersDeal)}</p>` : ""}
-    </div>`;
-  }
-
-  // Walmart
-  const walmartDeal = deals.walmart?.trim();
-  if (byStore.walmart.length || walmartDeal) {
-    html += `<div class="summary-store-block">
-      <div class="summary-store-name"><span class="store-badge store-walmart">WMT</span> Walmart Oakville</div>
-      ${byStore.walmart.length ? `<p class="summary-items">Pick up: ${byStore.walmart.map(escHtml).join(", ")}</p>` : ""}
-      ${walmartDeal ? `<p class="summary-deal">🏷️ Deal: ${escHtml(walmartDeal)}</p>` : ""}
-    </div>`;
-  }
-
-  // Other
-  if (byStore.other?.length) {
-    html += `<div class="summary-store-block">
-      <div class="summary-store-name"><span class="store-badge store-other">Other</span></div>
-      <p class="summary-items">Pick up: ${byStore.other.map(escHtml).join(", ")}</p>
-    </div>`;
-  }
-
-  if (!html) {
-    html = `<p style="font-size:.8rem; color:var(--text-muted); text-align:center; padding:8px 0;">Add items to see your store breakdown here.</p>`;
-  }
-
-  el.innerHTML = html;
+  const el=document.getElementById("shopping-summary"); if(!el)return;
+  const by={metro:[],shoppers:[],walmart:[],other:[]};
+  GROCERY_SECTIONS.forEach(sec=>Object.values(groceryData[sec.key]||{}).forEach(item=>{ if(!item.checked)(by[item.store||"metro"]=by[item.store||"metro"]||[]).push(item.name); }));
+  const d=dealAlertsData; let html="";
+  if(by.metro.length) html+=`<div class="summary-store-block"><div class="summary-store-name"><span class="store-badge store-metro">Metro</span>Upper Middle &amp; 9th Line</div><p class="summary-items">${by.metro.map(escHtml).join(", ")}</p></div>`;
+  const sd=d.shoppers?.trim(); if(by.shoppers.length||sd) html+=`<div class="summary-store-block"><div class="summary-store-name"><span class="store-badge store-shoppers">SDM</span>Shoppers Drug Mart</div>${by.shoppers.length?`<p class="summary-items">${by.shoppers.map(escHtml).join(", ")}</p>`:""}${sd?`<p class="summary-deal">🏷️ ${escHtml(sd)}</p>`:""}</div>`;
+  const wd=d.walmart?.trim(); if(by.walmart.length||wd) html+=`<div class="summary-store-block"><div class="summary-store-name"><span class="store-badge store-walmart">WMT</span>Walmart Oakville</div>${by.walmart.length?`<p class="summary-items">${by.walmart.map(escHtml).join(", ")}</p>`:""}${wd?`<p class="summary-deal">🏷️ ${escHtml(wd)}</p>`:""}</div>`;
+  el.innerHTML=html||`<p style="font-size:.78rem;color:var(--text-muted);text-align:center;padding:6px 0;">Add items to see your store breakdown.</p>`;
 }
 
-// ══════════════════════════════════════════════
-// SCHEDULE
-// ══════════════════════════════════════════════
-let scheduleData = {};
-let editingRun = null; // { dayIndex, runId } or null
+// Summary collapse
+document.getElementById("summary-toggle").addEventListener("click",()=>{
+  const b=document.getElementById("shopping-summary"),ch=document.querySelector(".summary-chevron"),h=b.style.display==="none";
+  b.style.display=h?"block":"none"; ch.style.transform=h?"":"rotate(-90deg)";
+});
 
+// ══════════════════════════
+// DEAL ALERTS
+// ══════════════════════════
+function subscribeDealAlerts() {
+  dbListen("dealAlerts", data=>{ dealAlertsData=data||{}; renderDealAlerts(); renderShoppingSummary(); });
+}
+function renderDealAlerts() {
+  const s=document.getElementById("deal-shoppers"),w=document.getElementById("deal-walmart");
+  if(document.activeElement!==s) s.value=dealAlertsData.shoppers||"";
+  if(document.activeElement!==w) w.value=dealAlertsData.walmart||"";
+}
+const _dt={};
+function onDealInput(key,el) { clearTimeout(_dt[key]); _dt[key]=setTimeout(()=>dbUpdate("dealAlerts",{[key]:el.value}),700); }
+document.getElementById("deal-shoppers").addEventListener("input",e=>onDealInput("shoppers",e.target));
+document.getElementById("deal-walmart").addEventListener("input", e=>onDealInput("walmart",e.target));
+document.getElementById("deal-alerts-toggle").addEventListener("click",()=>{
+  document.getElementById("deal-alerts-card").classList.toggle("collapsed");
+});
+
+// ══════════════════════════
+// SCHEDULE
+// ══════════════════════════
 function subscribeSchedule() {
-  const wk = weekKey(currentWeekStart);
-  schedUnsub = dbListen(`schedule/${wk}`, data => {
-    scheduleData = data || {};
-    renderSchedule();
-  });
+  const wk=weekKey(currentWeekStart);
+  schedUnsub=dbListen(`schedule/${wk}`,data=>{ scheduleData=data||{}; renderSchedule(); renderConsolidated(); if(calendarView==="month") buildMonthGrid(); });
 }
 
 function buildScheduleGrid() {
-  const grid = document.getElementById("schedule-grid");
-  grid.innerHTML = "";
-  for (let i = 0; i < 7; i++) {
-    const d = dayOfWeek(currentWeekStart, i);
-    const isToday = isCurrentWeek() && d.getDay() === new Date().getDay();
-    const div = document.createElement("div");
-    div.className = "schedule-day";
-    div.dataset.day = i;
-    if (isToday) div.style.border = "1.5px solid var(--accent)";
-    div.innerHTML = `
+  const grid=document.getElementById("schedule-grid"); grid.innerHTML="";
+  for(let i=0;i<7;i++){
+    const d=dayOfWeek(currentWeekStart,i),today=isToday(d);
+    const div=document.createElement("div"); div.className="schedule-day"; div.dataset.day=i;
+    if(today) div.style.border="1.5px solid var(--accent)";
+    div.innerHTML=`
       <div class="schedule-day-header">
         <div class="day-info">
-          <span class="day-name">${DAY_NAMES[i]}${isToday ? ' <span class="badge badge-accent" style="font-size:.65rem;">Today</span>' : ""}</span>
+          <span class="day-name">${DAY_NAMES[i]}${today?` <span class="badge badge-accent" style="font-size:.62rem;">Today</span>`:""}</span>
           <span class="day-date">${MONTH_SHORT[d.getMonth()]} ${d.getDate()}</span>
         </div>
         <button class="btn btn-ghost btn-sm add-run-btn" data-day="${i}">
-          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-          Add run
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg> Add
         </button>
       </div>
-      <div class="schedule-runs" data-day="${i}"></div>
-    `;
-    div.querySelector(".add-run-btn").addEventListener("click", () => openRunModal(i, null));
+      <div class="schedule-runs" data-day="${i}"></div>`;
+    div.querySelector(".add-run-btn").addEventListener("click",()=>openRunModal(i,null));
     grid.appendChild(div);
   }
 }
 
 function renderSchedule() {
-  for (let i = 0; i < 7; i++) {
-    const runsContainer = document.querySelector(`.schedule-runs[data-day="${i}"]`);
-    if (!runsContainer) continue;
-    runsContainer.innerHTML = "";
-    const runs = Object.entries(scheduleData[`day${i}`] || {})
-      .sort((a,b) => (a[1].time||"").localeCompare(b[1].time||""));
-    runs.forEach(([id, run]) => {
-      const row = document.createElement("div");
-      row.className = "run-item";
-      row.style.cursor = "pointer";
-      row.innerHTML = `
-        <span class="run-time">${escHtml(run.time||"")}</span>
-        <span class="run-desc">${escHtml(run.desc||"")}</span>
-        <span class="run-who ${run.who||""}">${run.who === "wife" ? "Wife" : run.who === "husband" ? "Husband" : "Both"}</span>
-      `;
-      row.addEventListener("click", () => openRunModal(i, id));
-      runsContainer.appendChild(row);
+  for(let i=0;i<7;i++){
+    const rc=document.querySelector(`.schedule-runs[data-day="${i}"]`); if(!rc)continue;
+    rc.innerHTML="";
+    const runs=Object.entries(scheduleData[`day${i}`]||{}).sort((a,b)=>(a[1].time||"").localeCompare(b[1].time||""));
+    runs.forEach(([id,run])=>{
+      const row=document.createElement("div"); row.className="run-item"; row.style.cursor="pointer";
+      row.innerHTML=`<span class="run-time">${escHtml(run.time||"")}</span><span class="run-desc">${escHtml(run.desc||"")}</span><span class="run-who ${run.who||""}">${run.who==="wife"?"Wife":run.who==="husband"?"Husband":"Both"}</span>`;
+      row.addEventListener("click",()=>openRunModal(i,id));
+      rc.appendChild(row);
     });
-    if (runs.length === 0) {
-      runsContainer.innerHTML = `<p style="font-size:.78rem; color:var(--text-muted); padding:4px 0 6px;">No runs scheduled</p>`;
-    }
+    if(!runs.length) rc.innerHTML=`<p style="font-size:.75rem;color:var(--text-muted);padding:3px 0 7px;">No runs scheduled</p>`;
   }
 }
 
-// ─── Run modal ───
-const runModal       = document.getElementById("run-modal");
-const runModalTitle  = document.getElementById("run-modal-title");
-const runModalSave   = document.getElementById("run-modal-save");
-const runModalCancel = document.getElementById("run-modal-cancel");
-const runModalDelete = document.getElementById("run-modal-delete");
-
-function openRunModal(dayIndex, runId) {
-  editingRun = { dayIndex, runId };
-  runModalTitle.textContent = runId ? "Edit School Run" : "Add School Run";
-  runModalDelete.style.display = runId ? "inline-flex" : "none";
-
-  if (runId) {
-    const run = scheduleData[`day${dayIndex}`]?.[runId] || {};
-    document.getElementById("run-time").value  = run.time  || "";
-    document.getElementById("run-desc").value  = run.desc  || "";
-    document.getElementById("run-who").value   = run.who   || "wife";
-    document.getElementById("run-notes").value = run.notes || "";
-  } else {
-    document.getElementById("run-time").value  = "";
-    document.getElementById("run-desc").value  = "";
-    document.getElementById("run-who").value   = "wife";
-    document.getElementById("run-notes").value = "";
-  }
+// Run modal
+const runModal=document.getElementById("run-modal");
+let editingRun=null;
+function openRunModal(dayIndex,runId){
+  editingRun={dayIndex,runId};
+  document.getElementById("run-modal-title").textContent=runId?"Edit School Run":"Add School Run";
+  document.getElementById("run-modal-delete").style.display=runId?"inline-flex":"none";
+  const run=runId?(scheduleData[`day${dayIndex}`]?.[runId]||{}):{};
+  document.getElementById("run-time").value=run.time||"";
+  document.getElementById("run-desc").value=run.desc||"";
+  document.getElementById("run-who").value=run.who||"wife";
+  document.getElementById("run-notes").value=run.notes||"";
   runModal.classList.remove("hidden");
   document.getElementById("run-time").focus();
 }
-
-runModalCancel.addEventListener("click", () => runModal.classList.add("hidden"));
-runModal.addEventListener("click", e => { if (e.target === runModal) runModal.classList.add("hidden"); });
-
-runModalSave.addEventListener("click", () => {
-  const { dayIndex, runId } = editingRun;
-  const data = {
-    time : document.getElementById("run-time").value.trim(),
-    desc : document.getElementById("run-desc").value.trim(),
-    who  : document.getElementById("run-who").value,
-    notes: document.getElementById("run-notes").value.trim(),
-  };
-  if (!data.desc) { document.getElementById("run-desc").focus(); return; }
-  const wk = weekKey(currentWeekStart);
-  if (runId) {
-    dbUpdate(`schedule/${wk}/day${dayIndex}/${runId}`, data).then(() => showToast("Run updated"));
-  } else {
-    dbPush(`schedule/${wk}/day${dayIndex}`, data).then(() => showToast("Run added"));
-  }
+document.getElementById("run-modal-cancel").addEventListener("click",()=>runModal.classList.add("hidden"));
+runModal.addEventListener("click",e=>{ if(e.target===runModal)runModal.classList.add("hidden"); });
+document.getElementById("run-modal-save").addEventListener("click",()=>{
+  const {dayIndex,runId}=editingRun;
+  const data={time:document.getElementById("run-time").value.trim(),desc:document.getElementById("run-desc").value.trim(),who:document.getElementById("run-who").value,notes:document.getElementById("run-notes").value.trim()};
+  if(!data.desc){document.getElementById("run-desc").focus();return;}
+  const wk=weekKey(currentWeekStart);
+  if(runId) dbUpdate(`schedule/${wk}/day${dayIndex}/${runId}`,data).then(()=>showToast("Run updated"));
+  else dbPush(`schedule/${wk}/day${dayIndex}`,data).then(()=>showToast("Run added"));
+  runModal.classList.add("hidden");
+});
+document.getElementById("run-modal-delete").addEventListener("click",()=>{
+  const {dayIndex,runId}=editingRun;
+  dbRemove(`schedule/${weekKey(currentWeekStart)}/day${dayIndex}/${runId}`).then(()=>showToast("Run deleted"));
   runModal.classList.add("hidden");
 });
 
-runModalDelete.addEventListener("click", () => {
-  const { dayIndex, runId } = editingRun;
-  const wk = weekKey(currentWeekStart);
-  dbRemove(`schedule/${wk}/day${dayIndex}/${runId}`).then(() => showToast("Run deleted"));
-  runModal.classList.add("hidden");
-});
-
-// ══════════════════════════════════════════════
+// ══════════════════════════
 // EVENTS
-// ══════════════════════════════════════════════
-const EVENT_TYPE_LABELS = {
-  playdate:    "Playdate",
-  activity:    "Activity",
-  appointment: "Appointment",
-  family:      "Family",
-  other:       "Other",
-};
-const EVENT_TYPE_CLASSES = {
-  playdate:    "type-playdate",
-  activity:    "type-activity",
-  appointment: "type-appointment",
-  family:      "type-family",
-  other:       "type-other",
-};
-
-let eventsData = {};
-let eventsUnsub;
-let editingEventId = null;
+// ══════════════════════════
+const EVENT_TYPE_LABELS  = {playdate:"Playdate",activity:"Activity",appointment:"Appointment",family:"Family",other:"Other"};
+const EVENT_TYPE_CLASSES = {playdate:"type-playdate",activity:"type-activity",appointment:"type-appointment",family:"type-family",other:"type-other"};
+let editingEventId=null;
 
 function subscribeEvents() {
-  eventsUnsub = dbListen("events", data => {
-    eventsData = data || {};
-    renderEvents();
-  });
+  dbListen("events",data=>{ eventsData=data||{}; renderEvents(); renderConsolidated(); if(calendarView==="month") buildMonthGrid(); });
 }
 
 function renderEvents() {
-  const list  = document.getElementById("events-list");
-  const empty = document.getElementById("events-empty");
-
-  // Sort by date
-  const entries = Object.entries(eventsData)
-    .sort((a,b) => (a[1].date||"").localeCompare(b[1].date||""));
-
-  list.innerHTML = "";
-
-  if (entries.length === 0) {
-    list.appendChild(empty);
-    return;
-  }
-
-  const today = new Date(); today.setHours(0,0,0,0);
-
-  entries.forEach(([id, ev]) => {
-    const d = ev.date ? new Date(ev.date + "T00:00:00") : null;
-    const isPast = d && d < today;
-    const card = document.createElement("div");
-    card.className = "event-card" + (isPast ? " past-event" : "");
-
-    const dayNum   = d ? d.getDate() : "?";
-    const monthStr = d ? MONTH_SHORT[d.getMonth()] : "?";
-
-    card.innerHTML = `
-      <div class="event-date-block">
-        <span class="ev-day">${dayNum}</span>
-        <span class="ev-month">${monthStr}</span>
-      </div>
+  const list=document.getElementById("events-list"),empty=document.getElementById("events-empty");
+  const entries=Object.entries(eventsData).sort((a,b)=>(a[1].date||"").localeCompare(b[1].date||""));
+  list.innerHTML="";
+  if(!entries.length){list.appendChild(empty);return;}
+  const today=new Date(); today.setHours(0,0,0,0);
+  entries.forEach(([id,ev])=>{
+    const d=ev.date?new Date(ev.date+"T00:00:00"):null;
+    const isPast=d&&d<today;
+    const card=document.createElement("div"); card.className="event-card"+(isPast?" past-event":"");
+    card.innerHTML=`
+      <div class="event-date-block"><span class="ev-day">${d?d.getDate():"?"}</span><span class="ev-month">${d?MONTH_SHORT[d.getMonth()]:"?"}</span></div>
       <div class="event-info">
         <div class="event-title">${escHtml(ev.title||"Untitled")}</div>
         <div class="event-meta">
-          ${ev.time ? `<span>🕐 ${escHtml(ev.time)}</span>` : ""}
-          ${ev.location ? `<span>📍 ${escHtml(ev.location)}</span>` : ""}
-          <span><span class="badge ${EVENT_TYPE_CLASSES[ev.type]||'type-other'}">${EVENT_TYPE_LABELS[ev.type]||"Event"}</span></span>
+          ${ev.time?`<span>🕐 ${escHtml(ev.time)}</span>`:""}
+          ${ev.location?`<span>📍 ${escHtml(ev.location)}</span>`:""}
+          <span><span class="badge ${EVENT_TYPE_CLASSES[ev.type]||"type-other"}">${EVENT_TYPE_LABELS[ev.type]||"Event"}</span></span>
         </div>
-        ${ev.notes ? `<p style="font-size:.78rem; color:var(--text-muted); margin-top:5px;">${escHtml(ev.notes)}</p>` : ""}
+        ${ev.notes?`<p style="font-size:.75rem;color:var(--text-muted);margin-top:4px;">${escHtml(ev.notes)}</p>`:""}
       </div>
       <div class="event-actions">
-        <button class="btn-icon edit-event-btn" data-id="${id}" aria-label="Edit">
-          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+        <button class="btn-icon edit-ev" data-id="${id}">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4z"/></svg>
         </button>
-      </div>
-    `;
-    card.querySelector(".edit-event-btn").addEventListener("click", () => openEventModal(id));
+      </div>`;
+    card.querySelector(".edit-ev").addEventListener("click",()=>openEventModal(id));
     list.appendChild(card);
   });
 }
 
-// ─── Event modal ───
-const eventModal       = document.getElementById("event-modal");
-const eventModalTitle  = document.getElementById("event-modal-title");
-const eventModalSave   = document.getElementById("event-modal-save");
-const eventModalCancel = document.getElementById("event-modal-cancel");
-const eventModalDelete = document.getElementById("event-modal-delete");
-
-document.getElementById("add-event-btn").addEventListener("click", () => openEventModal(null));
-
-function openEventModal(id) {
-  editingEventId = id;
-  eventModalTitle.textContent = id ? "Edit Event" : "Add Event";
-  eventModalDelete.style.display = id ? "inline-flex" : "none";
-  if (id) {
-    const ev = eventsData[id] || {};
-    document.getElementById("event-title-input").value    = ev.title    || "";
-    document.getElementById("event-date-input").value     = ev.date     || "";
-    document.getElementById("event-time-input").value     = ev.time     || "";
-    document.getElementById("event-type-input").value     = ev.type     || "other";
-    document.getElementById("event-location-input").value = ev.location || "";
-    document.getElementById("event-notes-input").value    = ev.notes    || "";
-  } else {
-    document.getElementById("event-title-input").value    = "";
-    document.getElementById("event-date-input").value     = new Date().toISOString().slice(0,10);
-    document.getElementById("event-time-input").value     = "";
-    document.getElementById("event-type-input").value     = "playdate";
-    document.getElementById("event-location-input").value = "";
-    document.getElementById("event-notes-input").value    = "";
-  }
+const eventModal=document.getElementById("event-modal");
+document.getElementById("add-event-btn").addEventListener("click",()=>openEventModal(null));
+function openEventModal(id){
+  editingEventId=id;
+  document.getElementById("event-modal-title").textContent=id?"Edit Event":"Add Event";
+  document.getElementById("event-modal-delete").style.display=id?"inline-flex":"none";
+  const ev=id?(eventsData[id]||{}):{};
+  document.getElementById("event-title-input").value=ev.title||"";
+  document.getElementById("event-date-input").value=ev.date||(new Date().toISOString().slice(0,10));
+  document.getElementById("event-time-input").value=ev.time||"";
+  document.getElementById("event-type-input").value=ev.type||"playdate";
+  document.getElementById("event-location-input").value=ev.location||"";
+  document.getElementById("event-notes-input").value=ev.notes||"";
   eventModal.classList.remove("hidden");
   document.getElementById("event-title-input").focus();
 }
-
-eventModalCancel.addEventListener("click", () => eventModal.classList.add("hidden"));
-eventModal.addEventListener("click", e => { if (e.target === eventModal) eventModal.classList.add("hidden"); });
-
-eventModalSave.addEventListener("click", () => {
-  const data = {
-    title:    document.getElementById("event-title-input").value.trim(),
-    date:     document.getElementById("event-date-input").value,
-    time:     document.getElementById("event-time-input").value.trim(),
-    type:     document.getElementById("event-type-input").value,
-    location: document.getElementById("event-location-input").value.trim(),
-    notes:    document.getElementById("event-notes-input").value.trim(),
-    createdAt: isConfigured ? serverTimestamp() : Date.now(),
-  };
-  if (!data.title) { document.getElementById("event-title-input").focus(); return; }
-  if (!data.date)  { document.getElementById("event-date-input").focus();  return; }
-  if (editingEventId) {
-    dbUpdate(`events/${editingEventId}`, data).then(() => showToast("Event updated"));
-  } else {
-    dbPush("events", data).then(() => showToast("Event added"));
-  }
+document.getElementById("event-modal-cancel").addEventListener("click",()=>eventModal.classList.add("hidden"));
+eventModal.addEventListener("click",e=>{ if(e.target===eventModal)eventModal.classList.add("hidden"); });
+document.getElementById("event-modal-save").addEventListener("click",()=>{
+  const data={title:document.getElementById("event-title-input").value.trim(),date:document.getElementById("event-date-input").value,time:document.getElementById("event-time-input").value.trim(),type:document.getElementById("event-type-input").value,location:document.getElementById("event-location-input").value.trim(),notes:document.getElementById("event-notes-input").value.trim(),createdAt:isConfigured?serverTimestamp():Date.now()};
+  if(!data.title){document.getElementById("event-title-input").focus();return;}
+  if(!data.date){document.getElementById("event-date-input").focus();return;}
+  if(editingEventId) dbUpdate(`events/${editingEventId}`,data).then(()=>showToast("Event updated"));
+  else dbPush("events",data).then(()=>showToast("Event added"));
+  eventModal.classList.add("hidden");
+});
+document.getElementById("event-modal-delete").addEventListener("click",()=>{
+  dbRemove(`events/${editingEventId}`).then(()=>showToast("Event deleted"));
   eventModal.classList.add("hidden");
 });
 
-eventModalDelete.addEventListener("click", () => {
-  dbRemove(`events/${editingEventId}`).then(() => showToast("Event deleted"));
-  eventModal.classList.add("hidden");
-});
+// ══════════════════════════
+// UTILS
+// ══════════════════════════
+function escHtml(s){ return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;"); }
+function showToast(msg){ const c=document.getElementById("toast-container"),t=document.createElement("div"); t.className="toast"; t.textContent=msg; c.appendChild(t); setTimeout(()=>t.remove(),2600); }
+function showDemoNote(){ const n=document.createElement("div"); n.className="demo-note"; n.innerHTML=`<strong>Demo mode:</strong> Data is local to this browser tab. Add your Firebase config to sync across devices. See README.md.`; document.getElementById("content").prepend(n); }
 
-// ══════════════════════════════════════════════
-// UTILITIES
-// ══════════════════════════════════════════════
-function escHtml(str) {
-  return String(str).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");
-}
-
-function showToast(msg) {
-  const container = document.getElementById("toast-container");
-  const t = document.createElement("div");
-  t.className = "toast";
-  t.textContent = msg;
-  container.appendChild(t);
-  setTimeout(() => t.remove(), 2600);
-}
-
-function showDemoNote() {
-  const note = document.createElement("div");
-  note.className = "demo-note";
-  note.innerHTML = `
-    <strong>Demo mode:</strong> Data saves locally in this browser tab only.
-    Add your Firebase config to <code>index.html</code> to enable real-time sync across devices.
-    See <code>README.md</code> for setup instructions.
-  `;
-  document.getElementById("content").prepend(note);
-}
-
-// ══════════════════════════════════════════════
+// ══════════════════════════
 // BOOT
-// ══════════════════════════════════════════════
-// ─── Summary card collapse toggle ───
-document.getElementById("summary-toggle").addEventListener("click", () => {
-  const body = document.getElementById("shopping-summary");
-  const chev = document.querySelector(".summary-chevron");
-  const hidden = body.style.display === "none";
-  body.style.display = hidden ? "block" : "none";
-  chev.style.transform = hidden ? "rotate(0deg)" : "rotate(-90deg)";
-});
-
+// ══════════════════════════
 function init() {
-  document.getElementById("week-label").textContent = formatWeekLabel(currentWeekStart);
-  buildMealGrid();
+  document.getElementById("period-label").textContent = formatPeriodLabel();
+  buildWeekView();
   buildScheduleGrid();
   subscribeMeals();
-  subscribeGrocery();
   subscribeSchedule();
+  subscribeCookAssignments();
+  subscribeGrocery();
   subscribeEvents();
   subscribeDealAlerts();
 }
