@@ -1128,6 +1128,17 @@ const monthScheduleCache = {};  // { weekKey: { day0:{...}, ... } }
 const monthCookCache     = {};  // { weekKey: { day0:"wife", ... } }
 let monthUnsubs = []; // cleanup handles
 
+// Debounced month cell renderer — prevents render storm from polling subscriptions
+let _monthRenderTimer = null;
+function scheduleMonthRender() {
+  if (_monthRenderTimer) return;
+  _monthRenderTimer = requestAnimationFrame(() => { _monthRenderTimer = null; renderMonthCells(); });
+}
+function cleanupMonthSubs() {
+  monthUnsubs.forEach(u => { try { u(); } catch(e){} });
+  monthUnsubs = [];
+}
+
 // ══════════════════════════
 // NAVIGATION
 // ══════════════════════════
@@ -1150,7 +1161,7 @@ document.querySelectorAll(".view-btn").forEach(btn => {
     document.getElementById("week-view").style.display  = calendarView==="week"  ? "block" : "none";
     document.getElementById("month-view").style.display = calendarView==="month" ? "block" : "none";
     if (calendarView === "month") buildMonthGrid();
-    else buildWeekView();
+    else { cleanupMonthSubs(); buildWeekView(); }
   });
 });
 
@@ -1199,7 +1210,7 @@ function subscribeCookAssignments() {
   cookUnsub = dbListen(`cookAssignments/${wk}`, data => {
     if (data) { cookAssignmentsData[wk] = data; monthCookCache[wk] = data; }
     renderCookTags();
-    if (calendarView==="month") renderMonthCells();
+    if (calendarView==="month") scheduleMonthRender();
   });
 }
 function renderCookTags() {
@@ -1261,7 +1272,7 @@ function subscribeMeals() {
     mealsData = data || {};
     monthMealsCache[wk] = mealsData; // keep month cache in sync
     renderWeekMeals();
-    if (calendarView==="month") renderMonthCells();
+    if (calendarView==="month") scheduleMonthRender();
   });
 }
 
@@ -1400,35 +1411,31 @@ function buildMonthGrid() {
   }
 
   // Subscribe to all needed weeks' data (meals, schedule, cook)
-  monthUnsubs.forEach(u => { try { u(); } catch(e){} });
-  monthUnsubs = [];
+  cleanupMonthSubs();
   neededWeeks.forEach(wk => {
     // Always keep current week's data fresh in cache
     if (wk === weekKey(currentWeekStart)) {
       monthMealsCache[wk] = mealsData;
       monthScheduleCache[wk] = scheduleData;
     }
-    if (!monthMealsCache[wk]) {
-      const u = dbListen(`meals/${wk}`, data => {
-        monthMealsCache[wk] = data || {};
-        renderMonthCells();
-      });
-      monthUnsubs.push(u);
-    }
-    if (!monthScheduleCache[wk]) {
-      const u = dbListen(`schedule/${wk}`, data => {
-        monthScheduleCache[wk] = data || {};
-        renderMonthCells();
-      });
-      monthUnsubs.push(u);
-    }
-    if (!monthCookCache[wk]) {
-      const u = dbListen(`cookAssignments/${wk}`, data => {
-        monthCookCache[wk] = data || {};
-        renderMonthCells();
-      });
-      monthUnsubs.push(u);
-    }
+    // Subscribe to meals for this week
+    const mu = dbListen(`meals/${wk}`, data => {
+      monthMealsCache[wk] = data || {};
+      if (calendarView === "month") scheduleMonthRender();
+    });
+    monthUnsubs.push(mu);
+    // Subscribe to schedule for this week
+    const su = dbListen(`schedule/${wk}`, data => {
+      monthScheduleCache[wk] = data || {};
+      if (calendarView === "month") scheduleMonthRender();
+    });
+    monthUnsubs.push(su);
+    // Subscribe to cook assignments for this week
+    const cu = dbListen(`cookAssignments/${wk}`, data => {
+      monthCookCache[wk] = data || {};
+      if (calendarView === "month") scheduleMonthRender();
+    });
+    monthUnsubs.push(cu);
   });
 
   const grid = document.createElement("div");
@@ -1825,7 +1832,7 @@ document.getElementById("deal-alerts-toggle").addEventListener("click",()=>{
 // ══════════════════════════
 function subscribeSchedule() {
   const wk=weekKey(currentWeekStart);
-  schedUnsub=dbListen(`schedule/${wk}`,data=>{ scheduleData=data||{}; monthScheduleCache[wk]=scheduleData; renderSchedule(); renderConsolidated(); if(calendarView==="month") renderMonthCells(); });
+  schedUnsub=dbListen(`schedule/${wk}`,data=>{ scheduleData=data||{}; monthScheduleCache[wk]=scheduleData; renderSchedule(); renderConsolidated(); if(calendarView==="month") scheduleMonthRender(); });
 }
 
 function buildScheduleGrid() {
@@ -1905,7 +1912,7 @@ const EVENT_TYPE_CLASSES = {playdate:"type-playdate",activity:"type-activity",ap
 let editingEventId=null;
 
 function subscribeEvents() {
-  dbListen("events",data=>{ eventsData=data||{}; renderEvents(); renderConsolidated(); if(calendarView==="month") renderMonthCells(); });
+  dbListen("events",data=>{ eventsData=data||{}; renderEvents(); renderConsolidated(); if(calendarView==="month") scheduleMonthRender(); });
 }
 
 function renderEvents() {
