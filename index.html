@@ -515,6 +515,110 @@
     @keyframes toastIn  { from { transform: translateY(10px); opacity: 0; } }
     @keyframes toastOut { to   { transform: translateY(-6px); opacity: 0; } }
 
+    /* ─── Store badges ─── */
+    .store-badge {
+      display: inline-flex; align-items: center; gap: 3px;
+      padding: 2px 7px; border-radius: 10px;
+      font-size: .68rem; font-weight: 700; letter-spacing: .2px;
+      white-space: nowrap; flex-shrink: 0;
+    }
+    .store-metro    { background: var(--accent-light); color: var(--accent); }
+    .store-shoppers { background: #fee2e2; color: #b91c1c; }
+    .store-walmart  { background: #dbeafe; color: #1d4ed8; }
+    .store-other    { background: var(--surface-2); color: var(--text-muted); }
+
+    /* ─── Store filter chips ─── */
+    .store-filters {
+      display: flex; gap: 6px; flex-wrap: wrap;
+      margin-bottom: 14px;
+    }
+    .filter-chip {
+      padding: 6px 13px; border-radius: 20px;
+      border: 1.5px solid var(--border);
+      background: var(--surface); color: var(--text-muted);
+      font-size: .78rem; font-weight: 600;
+      cursor: pointer; transition: all .15s;
+      -webkit-tap-highlight-color: transparent;
+      white-space: nowrap;
+    }
+    .filter-chip:hover { border-color: var(--accent); color: var(--accent); }
+    .filter-chip.active-all      { background: var(--text); color: #fff; border-color: var(--text); }
+    .filter-chip.active-metro    { background: var(--accent); color: #fff; border-color: var(--accent); }
+    .filter-chip.active-shoppers { background: #b91c1c; color: #fff; border-color: #b91c1c; }
+    .filter-chip.active-walmart  { background: #1d4ed8; color: #fff; border-color: #1d4ed8; }
+    .filter-chip.active-other    { background: var(--text-muted); color: #fff; border-color: var(--text-muted); }
+
+    /* ─── Deal Alerts ─── */
+    .deal-alerts-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      margin-bottom: 14px;
+      overflow: hidden;
+    }
+    .deal-alerts-header {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 11px 14px;
+      cursor: pointer; user-select: none;
+      -webkit-tap-highlight-color: transparent;
+      border-bottom: 1px solid var(--border);
+    }
+    .deal-alerts-header .da-title {
+      display: flex; align-items: center; gap: 7px;
+      font-weight: 700; font-size: .88rem;
+    }
+    .deal-alerts-body {
+      display: none; padding: 12px 14px;
+      display: flex; flex-direction: column; gap: 10px;
+    }
+    .deal-alerts-card.collapsed .deal-alerts-body { display: none; }
+    .deal-store-row { display: flex; flex-direction: column; gap: 5px; }
+    .deal-store-label {
+      display: flex; align-items: center; gap: 6px;
+      font-size: .75rem; font-weight: 700; letter-spacing: .3px;
+      text-transform: uppercase;
+    }
+    .deal-store-input {
+      width: 100%;
+      padding: 8px 10px;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      background: var(--surface);
+      font-family: var(--font); font-size: .85rem;
+      color: var(--text); resize: none;
+      min-height: 48px; line-height: 1.5;
+      transition: border-color .15s, box-shadow .15s;
+    }
+    .deal-store-input:focus {
+      outline: none;
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px var(--accent-light);
+    }
+    .deal-store-input::placeholder { color: var(--text-muted); font-style: italic; }
+    .deal-alerts-hint {
+      font-size: .72rem; color: var(--text-muted);
+      text-align: center; padding: 4px 0 2px;
+    }
+
+    /* ─── Shopping Summary ─── */
+    .summary-store-block {
+      padding: 9px 0;
+      border-bottom: 1px solid var(--border);
+    }
+    .summary-store-block:last-child { border-bottom: none; padding-bottom: 2px; }
+    .summary-store-name {
+      display: flex; align-items: center; gap: 7px;
+      font-weight: 700; font-size: .82rem; margin-bottom: 4px;
+    }
+    .summary-items {
+      font-size: .82rem; color: var(--text); line-height: 1.5;
+      padding-left: 2px;
+    }
+    .summary-deal {
+      font-size: .78rem; color: var(--warm);
+      font-weight: 600; margin-top: 3px; padding-left: 2px;
+    }
+
     /* ─── No Firebase placeholder ─── */
     .demo-note {
       background: #fffbeb; border: 1px solid #fcd34d;
@@ -574,6 +678,56 @@
         </div>
       </div>
 
+      <!-- Deal Alerts -->
+      <div class="deal-alerts-card" id="deal-alerts-card">
+        <div class="deal-alerts-header" id="deal-alerts-toggle">
+          <div class="da-title">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+            Deal Alerts
+            <span class="badge badge-warm" style="font-size:.65rem;">Shoppers &amp; Walmart</span>
+          </div>
+          <svg class="chevron" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+        </div>
+        <div class="deal-alerts-body" id="deal-alerts-body">
+          <div class="deal-store-row">
+            <div class="deal-store-label">
+              <span class="store-badge store-shoppers">SDM</span>
+              Shoppers Drug Mart
+            </div>
+            <textarea class="deal-store-input" id="deal-shoppers" placeholder="e.g. 20× points weekend, vitamins 30% off…" rows="2"></textarea>
+          </div>
+          <div class="deal-store-row">
+            <div class="deal-store-label">
+              <span class="store-badge store-walmart">WMT</span>
+              Walmart Oakville
+            </div>
+            <textarea class="deal-store-input" id="deal-walmart" placeholder="e.g. Tide pods $8, cereal BOGO…" rows="2"></textarea>
+          </div>
+          <p class="deal-alerts-hint">Tap a field to jot down deals — syncs to your partner in real time</p>
+        </div>
+      </div>
+
+      <!-- Store filter chips -->
+      <div class="store-filters" id="store-filters">
+        <button class="filter-chip active-all" data-store="all">All stores</button>
+        <button class="filter-chip" data-store="metro">🟢 Metro</button>
+        <button class="filter-chip" data-store="shoppers">🔴 Shoppers</button>
+        <button class="filter-chip" data-store="walmart">🔵 Walmart</button>
+        <button class="filter-chip" data-store="other">Other</button>
+      </div>
+
+      <!-- Shopping Summary -->
+      <div class="card" id="shopping-summary-card" style="padding:14px; margin-bottom:14px;">
+        <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:10px; cursor:pointer;" id="summary-toggle">
+          <h3 style="display:flex; align-items:center; gap:6px; font-size:.85rem;">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>
+            This week's store run
+          </h3>
+          <svg class="summary-chevron" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+        </div>
+        <div id="shopping-summary"></div>
+      </div>
+
       <div id="grocery-sections"></div>
 
       <!-- Add item -->
@@ -599,6 +753,14 @@
               <option value="health">🧴 Health &amp; Beauty</option>
               <option value="household">🧹 Household &amp; Cleaning</option>
               <option value="other">📦 Other</option>
+            </select>
+          </div>
+          <div style="display:flex; gap:8px; align-items:center;">
+            <select id="grocery-store-select" style="flex:1;">
+              <option value="metro">🟢 Metro (Upper Middle)</option>
+              <option value="shoppers">🔴 Shoppers Drug Mart</option>
+              <option value="walmart">🔵 Walmart Oakville</option>
+              <option value="other">🛒 Other store</option>
             </select>
             <button class="btn btn-primary" id="add-grocery-btn" style="flex-shrink:0;">Add</button>
           </div>
@@ -1071,6 +1233,15 @@ function openMealEdit(el) {
 // ══════════════════════════════════════════════
 // GROCERY
 // ══════════════════════════════════════════════
+
+// Store config — Metro is primary; Shoppers & Walmart for deals
+const STORE_CONFIG = {
+  metro:    { label: "Metro",    short: "Metro",    cls: "store-metro"    },
+  shoppers: { label: "Shoppers", short: "SDM",      cls: "store-shoppers" },
+  walmart:  { label: "Walmart",  short: "WMT",      cls: "store-walmart"  },
+  other:    { label: "Other",    short: "Other",    cls: "store-other"    },
+};
+
 // Sections ordered to match Metro (Upper Middle & 9th Line, Oakville) store flow
 const GROCERY_SECTIONS = [
   { key:"produce",    label:"Fruits & Veggies",      icon:"🥦" },
@@ -1095,8 +1266,11 @@ function subscribeGrocery() {
   groceryUnsub = dbListen("grocery", data => {
     groceryData = data || {};
     renderGrocery();
+    renderShoppingSummary();
   });
 }
+
+let activeStoreFilter = "all";
 
 function renderGrocery() {
   const container = document.getElementById("grocery-sections");
@@ -1105,8 +1279,13 @@ function renderGrocery() {
   let totalItems = 0, checkedItems = 0;
 
   GROCERY_SECTIONS.forEach(sec => {
-    const items = Object.entries(groceryData[sec.key] || {})
+    let items = Object.entries(groceryData[sec.key] || {})
       .sort((a,b) => (a[1].createdAt||0) - (b[1].createdAt||0));
+
+    // Apply store filter
+    if (activeStoreFilter !== "all") {
+      items = items.filter(([,v]) => (v.store || "metro") === activeStoreFilter);
+    }
     if (items.length === 0) return;
 
     totalItems   += items.length;
@@ -1122,6 +1301,8 @@ function renderGrocery() {
       </div>
     `;
     items.forEach(([id, item]) => {
+      const store    = item.store || "metro";
+      const storeCfg = STORE_CONFIG[store] || STORE_CONFIG.other;
       const row = document.createElement("div");
       row.className = "grocery-item" + (item.checked ? " checked" : "");
       row.innerHTML = `
@@ -1130,6 +1311,7 @@ function renderGrocery() {
         </div>
         <span class="grocery-name">${escHtml(item.name)}</span>
         ${item.qty ? `<span class="grocery-qty">${escHtml(item.qty)}</span>` : ""}
+        <span class="store-badge ${storeCfg.cls}">${storeCfg.short}</span>
         <button class="grocery-delete" data-id="${id}" data-sec="${sec.key}" aria-label="Delete">
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
         </button>
@@ -1147,9 +1329,12 @@ function renderGrocery() {
     countEl.textContent = `${checkedItems}/${totalItems} checked`;
   } else {
     countEl.textContent = "";
+    const filterNote = activeStoreFilter !== "all"
+      ? `No ${STORE_CONFIG[activeStoreFilter]?.label || ""} items yet.`
+      : "Your list is empty. Add some items below!";
     container.innerHTML = `<div class="empty-state">
       <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
-      <p>Your list is empty. Add some items below!</p>
+      <p>${filterNote}</p>
     </div>`;
   }
 }
@@ -1171,16 +1356,19 @@ function addGroceryItem() {
   const nameEl    = document.getElementById("grocery-name-input");
   const qtyEl     = document.getElementById("grocery-qty-input");
   const sectionEl = document.getElementById("grocery-section-select");
+  const storeEl   = document.getElementById("grocery-store-select");
   const name = nameEl.value.trim();
   if (!name) { nameEl.focus(); return; }
   const section = sectionEl.value;
+  const store   = storeEl.value;
   dbPush(`grocery/${section}`, {
-    name, qty: qtyEl.value.trim(), checked: false,
+    name, qty: qtyEl.value.trim(), checked: false, store,
     createdAt: isConfigured ? serverTimestamp() : Date.now()
   }).then(() => {
     nameEl.value = ""; qtyEl.value = "";
     nameEl.focus();
-    showToast("Item added");
+    const storeName = STORE_CONFIG[store]?.label || "store";
+    showToast(`Added to ${storeName} list`);
   });
 }
 
@@ -1192,6 +1380,118 @@ document.getElementById("clear-checked-btn").addEventListener("click", () => {
   });
   showToast("Checked items cleared");
 });
+
+// ─── Store filter chips ───
+document.querySelectorAll(".filter-chip").forEach(chip => {
+  chip.addEventListener("click", () => {
+    activeStoreFilter = chip.dataset.store;
+    document.querySelectorAll(".filter-chip").forEach(c => {
+      c.className = "filter-chip"; // reset
+    });
+    chip.classList.add(`active-${activeStoreFilter}`);
+    renderGrocery();
+    renderShoppingSummary();
+  });
+});
+
+// ─── Deal Alerts collapse toggle ───
+document.getElementById("deal-alerts-toggle").addEventListener("click", () => {
+  document.getElementById("deal-alerts-card").classList.toggle("collapsed");
+  const chevron = document.querySelector("#deal-alerts-toggle .chevron");
+  chevron.style.transform = document.getElementById("deal-alerts-card").classList.contains("collapsed")
+    ? "rotate(-90deg)" : "rotate(0deg)";
+});
+
+// ─── Deal Alerts sync ───
+let dealAlertsData = {};
+let dealAlertsUnsub;
+
+function subscribeDealAlerts() {
+  dealAlertsUnsub = dbListen("dealAlerts", data => {
+    dealAlertsData = data || {};
+    renderDealAlerts();
+    renderShoppingSummary();
+  });
+}
+
+function renderDealAlerts() {
+  const shopEl   = document.getElementById("deal-shoppers");
+  const walmEl   = document.getElementById("deal-walmart");
+  if (document.activeElement !== shopEl) shopEl.value = dealAlertsData.shoppers || "";
+  if (document.activeElement !== walmEl) walmEl.value = dealAlertsData.walmart  || "";
+}
+
+let dealSaveTimers = {};
+function onDealInput(storeKey, el) {
+  clearTimeout(dealSaveTimers[storeKey]);
+  dealSaveTimers[storeKey] = setTimeout(() => {
+    dbUpdate("dealAlerts", { [storeKey]: el.value });
+  }, 800); // debounce 800ms
+}
+
+document.getElementById("deal-shoppers").addEventListener("input", e => onDealInput("shoppers", e.target));
+document.getElementById("deal-walmart").addEventListener("input",  e => onDealInput("walmart",  e.target));
+
+// ─── Shopping Summary ───
+function renderShoppingSummary() {
+  const el = document.getElementById("shopping-summary");
+  if (!el) return;
+
+  // Gather unchecked items grouped by store
+  const byStore = { metro: [], shoppers: [], walmart: [], other: [] };
+  GROCERY_SECTIONS.forEach(sec => {
+    Object.values(groceryData[sec.key] || {}).forEach(item => {
+      if (item.checked) return;
+      const s = item.store || "metro";
+      (byStore[s] = byStore[s] || []).push(item.name);
+    });
+  });
+
+  const deals = dealAlertsData;
+  let html = "";
+
+  // Metro
+  if (byStore.metro.length) {
+    html += `<div class="summary-store-block">
+      <div class="summary-store-name"><span class="store-badge store-metro">Metro</span> Upper Middle &amp; 9th Line</div>
+      <p class="summary-items">Pick up: ${byStore.metro.map(escHtml).join(", ")}</p>
+    </div>`;
+  }
+
+  // Shoppers
+  const shoppersDeal = deals.shoppers?.trim();
+  if (byStore.shoppers.length || shoppersDeal) {
+    html += `<div class="summary-store-block">
+      <div class="summary-store-name"><span class="store-badge store-shoppers">SDM</span> Shoppers Drug Mart</div>
+      ${byStore.shoppers.length ? `<p class="summary-items">Pick up: ${byStore.shoppers.map(escHtml).join(", ")}</p>` : ""}
+      ${shoppersDeal ? `<p class="summary-deal">🏷️ Deal: ${escHtml(shoppersDeal)}</p>` : ""}
+    </div>`;
+  }
+
+  // Walmart
+  const walmartDeal = deals.walmart?.trim();
+  if (byStore.walmart.length || walmartDeal) {
+    html += `<div class="summary-store-block">
+      <div class="summary-store-name"><span class="store-badge store-walmart">WMT</span> Walmart Oakville</div>
+      ${byStore.walmart.length ? `<p class="summary-items">Pick up: ${byStore.walmart.map(escHtml).join(", ")}</p>` : ""}
+      ${walmartDeal ? `<p class="summary-deal">🏷️ Deal: ${escHtml(walmartDeal)}</p>` : ""}
+    </div>`;
+  }
+
+  // Other
+  if (byStore.other?.length) {
+    html += `<div class="summary-store-block">
+      <div class="summary-store-name"><span class="store-badge store-other">Other</span></div>
+      <p class="summary-items">Pick up: ${byStore.other.map(escHtml).join(", ")}</p>
+    </div>`;
+  }
+
+  if (!html) {
+    html = `<p style="font-size:.8rem; color:var(--text-muted); text-align:center; padding:8px 0;">Add items to see your store breakdown here.</p>`;
+  }
+
+  el.innerHTML = html;
+}
 
 // ══════════════════════════════════════════════
 // SCHEDULE
@@ -1487,6 +1787,15 @@ function showDemoNote() {
 // ══════════════════════════════════════════════
 // BOOT
 // ══════════════════════════════════════════════
+// ─── Summary card collapse toggle ───
+document.getElementById("summary-toggle").addEventListener("click", () => {
+  const body = document.getElementById("shopping-summary");
+  const chev = document.querySelector(".summary-chevron");
+  const hidden = body.style.display === "none";
+  body.style.display = hidden ? "block" : "none";
+  chev.style.transform = hidden ? "rotate(0deg)" : "rotate(-90deg)";
+});
+
 function init() {
   document.getElementById("week-label").textContent = formatWeekLabel(currentWeekStart);
   buildMealGrid();
@@ -1495,6 +1804,7 @@ function init() {
   subscribeGrocery();
   subscribeSchedule();
   subscribeEvents();
+  subscribeDealAlerts();
 }
 
 init();
