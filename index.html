@@ -426,6 +426,9 @@
       white-space: nowrap; flex-shrink: 0; letter-spacing: .2px;
     }
     .store-metro    { background: var(--accent-light); color: var(--accent); }
+    .store-fortinos { background: #fef3c7; color: #92400e; }
+    .store-longos   { background: #ffedd5; color: #c2410c; }
+    .store-costco   { background: #e0e7ff; color: #4338ca; }
     .store-shoppers { background: #fee2e2; color: #b91c1c; }
     .store-walmart  { background: #dbeafe; color: #1d4ed8; }
     .store-other    { background: var(--surface-2); color: var(--text-muted); }
@@ -440,6 +443,9 @@
     }
     .filter-chip.active-all      { background: var(--text); color:#fff; border-color:var(--text); }
     .filter-chip.active-metro    { background: var(--accent); color:#fff; border-color:var(--accent); }
+    .filter-chip.active-fortinos { background: #92400e; color:#fff; border-color:#92400e; }
+    .filter-chip.active-longos   { background: #c2410c; color:#fff; border-color:#c2410c; }
+    .filter-chip.active-costco   { background: #4338ca; color:#fff; border-color:#4338ca; }
     .filter-chip.active-shoppers { background: #b91c1c; color:#fff; border-color:#b91c1c; }
     .filter-chip.active-walmart  { background: #1d4ed8; color:#fff; border-color:#1d4ed8; }
     .filter-chip.active-other    { background: var(--text-muted); color:#fff; border-color:var(--text-muted); }
@@ -524,6 +530,111 @@
     .type-family      { background: var(--accent-light); color: var(--accent); }
     .type-other       { background: var(--surface-2); color: var(--text-muted); }
 
+    /* ════════════════════════════════════════
+       IDEAS TAB
+    ════════════════════════════════════════ */
+    .ideas-header { display:flex; align-items:center; justify-content:space-between; margin-bottom:12px; flex-wrap:wrap; gap:8px; }
+    .generate-btn {
+      display:flex; align-items:center; gap:6px;
+      padding:11px 20px; border-radius:var(--radius); border:none;
+      background:linear-gradient(135deg,var(--accent) 0%,#3d5c52 100%);
+      color:#fff; font-family:var(--font); font-size:.88rem; font-weight:700;
+      cursor:pointer; transition:opacity .15s; box-shadow:var(--shadow);
+    }
+    .generate-btn:hover { opacity:.9; }
+    .generate-btn:active { transform:scale(.98); }
+    .generate-btn .spinner-sm { width:16px;height:16px;border:2px solid rgba(255,255,255,.3);border-top-color:#fff;border-radius:50%;animation:spin .6s linear infinite;display:none; }
+    .generate-btn.loading .spinner-sm { display:inline-block; }
+
+    .flyer-deals-grid { display:flex; flex-direction:column; gap:8px; margin-bottom:14px; }
+    .flyer-deal-row { display:flex; align-items:flex-start; gap:8px; }
+    .flyer-deal-row .fd-label {
+      min-width:76px; font-size:.72rem; font-weight:700; padding:5px 0;
+      color:var(--text-muted); text-transform:uppercase; letter-spacing:.3px; flex-shrink:0;
+    }
+    .flyer-deal-row textarea {
+      flex:1; padding:7px 10px; border:1px solid var(--border); border-radius:var(--radius-sm);
+      font-family:var(--font); font-size:.82rem; resize:none; min-height:36px; line-height:1.4;
+      color:var(--text); background:var(--surface); transition:border-color .15s;
+    }
+    .flyer-deal-row textarea:focus { outline:none; border-color:var(--accent); box-shadow:0 0 0 3px var(--accent-light); }
+    .flyer-deal-row textarea::placeholder { color:var(--text-muted); font-style:italic; }
+
+    .season-banner {
+      display:flex; align-items:center; gap:8px;
+      padding:10px 13px; border-radius:var(--radius-sm);
+      background:var(--accent-light); color:var(--accent);
+      font-size:.82rem; font-weight:600; margin-bottom:12px;
+    }
+
+    #ideas-results { display:none; }
+    #ideas-results.visible { display:block; }
+
+    .ideas-section { margin-bottom:18px; }
+    .ideas-section-title {
+      font-size:.76rem; font-weight:700; color:var(--text-muted);
+      text-transform:uppercase; letter-spacing:.5px; margin-bottom:8px;
+      display:flex; align-items:center; gap:6px;
+    }
+
+    .idea-card {
+      background:var(--surface); border:1px solid var(--border);
+      border-radius:var(--radius-sm); padding:12px; margin-bottom:8px;
+      box-shadow:var(--shadow-sm);
+    }
+    .idea-card .idea-day {
+      font-size:.7rem; font-weight:700; color:var(--text-muted);
+      text-transform:uppercase; letter-spacing:.4px; margin-bottom:4px;
+    }
+    .idea-card .idea-name { font-weight:700; font-size:.9rem; margin-bottom:4px; }
+    .idea-card .idea-meta {
+      font-size:.76rem; color:var(--text-muted); line-height:1.5;
+      display:flex; flex-wrap:wrap; gap:6px; margin-bottom:6px;
+    }
+    .idea-card .idea-meta .method-tag {
+      padding:1px 7px; border-radius:8px;
+      background:var(--blue-light); color:var(--blue);
+      font-size:.68rem; font-weight:600;
+    }
+    .idea-card .idea-meta .source-tag {
+      font-style:italic; color:var(--warm);
+    }
+    .idea-card .idea-notes { font-size:.78rem; color:var(--text); line-height:1.5; margin-bottom:8px; }
+    .idea-card .idea-deal {
+      font-size:.74rem; color:#16a34a; font-weight:600;
+      padding:3px 8px; background:#dcfce7; border-radius:6px;
+      display:inline-block; margin-bottom:6px;
+    }
+    .idea-card .idea-ingredients {
+      font-size:.75rem; color:var(--text-muted); line-height:1.4;
+      padding:6px 0 4px; border-top:1px solid var(--border);
+    }
+    .idea-actions { display:flex; gap:6px; margin-top:6px; }
+    .idea-actions .btn { padding:5px 11px; font-size:.76rem; }
+
+    .lunch-card {
+      background:var(--surface); border:1px solid var(--border);
+      border-radius:var(--radius-sm); padding:10px 12px; margin-bottom:6px;
+    }
+    .lunch-card .lunch-day { font-size:.68rem; font-weight:700; color:var(--text-muted); text-transform:uppercase; letter-spacing:.3px; }
+    .lunch-card .lunch-main { font-weight:600; font-size:.86rem; margin:3px 0; }
+    .lunch-card .lunch-pack { font-size:.75rem; color:var(--text-muted); }
+    .lunch-card .idea-actions { margin-top:4px; }
+
+    .snack-list { display:flex; flex-wrap:wrap; gap:6px; }
+    .snack-chip {
+      padding:5px 10px; background:var(--surface-2); border-radius:20px;
+      font-size:.78rem; font-weight:500;
+    }
+
+    .accept-all-bar {
+      position:sticky; bottom:calc(var(--tab-h)+4px);
+      background:var(--surface); border:1px solid var(--border);
+      border-radius:var(--radius); padding:10px 14px;
+      box-shadow:0 -2px 12px rgba(0,0,0,.08);
+      display:flex; gap:8px; justify-content:center; margin-top:12px;
+    }
+
     /* ── Demo note ── */
     .demo-note {
       background: #fffbeb; border: 1px solid #fcd34d;
@@ -592,11 +703,27 @@
           <div class="da-title">
             <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
             Deal Alerts
-            <span class="badge badge-warm" style="font-size:.62rem;">Shoppers &amp; Walmart</span>
+            <span class="badge badge-warm" style="font-size:.62rem;">All Stores</span>
           </div>
           <svg class="chevron" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
         </div>
         <div class="deal-alerts-body" id="deal-alerts-body">
+          <div class="deal-store-row">
+            <div class="deal-store-label"><span class="store-badge store-metro">Metro</span>Metro — Upper Middle &amp; 9th Line</div>
+            <textarea class="deal-store-input" id="deal-metro" placeholder="e.g. chicken drumsticks $1.99/lb, berries $2.49…" rows="2"></textarea>
+          </div>
+          <div class="deal-store-row">
+            <div class="deal-store-label"><span class="store-badge store-fortinos">Fort</span>Fortinos — 493 Dundas St W</div>
+            <textarea class="deal-store-input" id="deal-fortinos" placeholder="e.g. strawberries $2.99, cream cheese $3.99…" rows="2"></textarea>
+          </div>
+          <div class="deal-store-row">
+            <div class="deal-store-label"><span class="store-badge store-longos">Longo</span>Longo's — 338 Dundas St E</div>
+            <textarea class="deal-store-input" id="deal-longos" placeholder="e.g. whole chicken $4.99, mangoes 3/$5…" rows="2"></textarea>
+          </div>
+          <div class="deal-store-row">
+            <div class="deal-store-label"><span class="store-badge store-costco">Costco</span>Costco Oakville</div>
+            <textarea class="deal-store-input" id="deal-costco" placeholder="e.g. chicken strips $10 off, salmon $26.69…" rows="2"></textarea>
+          </div>
           <div class="deal-store-row">
             <div class="deal-store-label"><span class="store-badge store-shoppers">SDM</span>Shoppers Drug Mart</div>
             <textarea class="deal-store-input" id="deal-shoppers" placeholder="e.g. 20× points weekend, vitamins 30% off…" rows="2"></textarea>
@@ -610,10 +737,13 @@
       </div>
 
       <!-- Store filter chips -->
-      <div class="store-filters">
-        <button class="filter-chip active-all" data-store="all">All stores</button>
+      <div class="store-filters" style="flex-wrap:wrap;">
+        <button class="filter-chip active-all" data-store="all">All</button>
         <button class="filter-chip" data-store="metro">🟢 Metro</button>
-        <button class="filter-chip" data-store="shoppers">🔴 Shoppers</button>
+        <button class="filter-chip" data-store="fortinos">🟡 Fortinos</button>
+        <button class="filter-chip" data-store="longos">🟠 Longo's</button>
+        <button class="filter-chip" data-store="costco">🟣 Costco</button>
+        <button class="filter-chip" data-store="shoppers">🔴 SDM</button>
         <button class="filter-chip" data-store="walmart">🔵 Walmart</button>
         <button class="filter-chip" data-store="other">Other</button>
       </div>
@@ -658,6 +788,9 @@
           <div style="display:flex;gap:7px;">
             <select id="grocery-store-select" style="flex:1;">
               <option value="metro">🟢 Metro (Upper Middle)</option>
+              <option value="fortinos">🟡 Fortinos (Dundas)</option>
+              <option value="longos">🟠 Longo's (Dundas)</option>
+              <option value="costco">🟣 Costco Oakville</option>
               <option value="shoppers">🔴 Shoppers Drug Mart</option>
               <option value="walmart">🔵 Walmart Oakville</option>
               <option value="other">🛒 Other store</option>
@@ -692,6 +825,74 @@
       </div>
     </section>
 
+    <!-- ── IDEAS ── -->
+    <section class="page" id="page-ideas">
+
+      <div class="ideas-header">
+        <h2 style="display:flex;align-items:center;gap:7px;">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2a7 7 0 0 0-4 12.74V17a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1v-2.26A7 7 0 0 0 12 2z"/><line x1="9" y1="21" x2="15" y2="21"/></svg>
+          Meal Ideas
+        </h2>
+        <button class="generate-btn" id="generate-week-btn">
+          <span class="spinner-sm"></span>
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+          Generate This Week
+        </button>
+      </div>
+
+      <div id="season-banner" class="season-banner" style="display:none;"></div>
+
+      <!-- Flyer deals per store -->
+      <div class="card" style="padding:12px;">
+        <h3 style="margin-bottom:8px;font-size:.82rem;display:flex;align-items:center;gap:5px;">
+          🏷️ This Week's Flyer Deals
+          <span style="font-size:.68rem;font-weight:500;color:var(--text-muted);">(jot down what you spot)</span>
+        </h3>
+        <div class="flyer-deals-grid">
+          <div class="flyer-deal-row"><span class="fd-label">🟢 Metro</span><textarea id="flyer-metro" placeholder="e.g. chicken drumsticks $1.99/lb, berries $2.49…" rows="1"></textarea></div>
+          <div class="flyer-deal-row"><span class="fd-label">🟡 Fortinos</span><textarea id="flyer-fortinos" placeholder="e.g. strawberries $2.99, cream cheese $3.99…" rows="1"></textarea></div>
+          <div class="flyer-deal-row"><span class="fd-label">🟠 Longo's</span><textarea id="flyer-longos" placeholder="e.g. whole chicken $4.99, mangoes 3/$5…" rows="1"></textarea></div>
+          <div class="flyer-deal-row"><span class="fd-label">🟣 Costco</span><textarea id="flyer-costco" placeholder="e.g. chicken strips $10 off, salmon $26.69…" rows="1"></textarea></div>
+          <div class="flyer-deal-row"><span class="fd-label">🔴 SDM</span><textarea id="flyer-shoppers" placeholder="e.g. 20× points, snacks BOGO…" rows="1"></textarea></div>
+          <div class="flyer-deal-row"><span class="fd-label">🔵 Walmart</span><textarea id="flyer-walmart" placeholder="e.g. butter $4.97, grapes $2.97/lb…" rows="1"></textarea></div>
+        </div>
+        <p style="font-size:.68rem;color:var(--text-muted);text-align:center;">Syncs in real time — deals inform meal suggestions</p>
+      </div>
+
+      <!-- Generated results -->
+      <div id="ideas-results">
+
+        <div id="deal-highlights-section" class="ideas-section" style="display:none;">
+          <div class="ideas-section-title">🏷️ Deal-Matched Items</div>
+          <div id="deal-highlights"></div>
+        </div>
+
+        <div class="ideas-section">
+          <div class="ideas-section-title">🍴 Dinners (Sun – Sat)</div>
+          <div id="dinner-ideas"></div>
+        </div>
+
+        <div class="ideas-section">
+          <div class="ideas-section-title">🧒 Kid Lunches (Mon – Fri) — All Nut-Free</div>
+          <div id="lunch-ideas"></div>
+        </div>
+
+        <div class="ideas-section">
+          <div class="ideas-section-title">🍓 Seasonal Snacks &amp; Fruit</div>
+          <div id="seasonal-snacks" class="snack-list"></div>
+        </div>
+
+        <div class="accept-all-bar" id="accept-all-bar" style="display:none;">
+          <button class="btn btn-primary" id="accept-all-btn">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+            Accept All &amp; Build Grocery List
+          </button>
+          <button class="btn btn-ghost" id="clear-ideas-btn">Clear</button>
+        </div>
+
+      </div>
+    </section>
+
   </main>
 
   <!-- Bottom tabs -->
@@ -711,6 +912,10 @@
     <button class="tab-btn" data-page="events">
       <svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
       <span>Events</span>
+    </button>
+    <button class="tab-btn" data-page="ideas">
+      <svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2a7 7 0 0 0-4 12.74V17a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1v-2.26A7 7 0 0 0 12 2z"/><line x1="9" y1="21" x2="15" y2="21"/></svg>
+      <span>Ideas</span>
     </button>
   </nav>
 
@@ -1326,10 +1531,13 @@ document.getElementById("day-sheet-overlay").addEventListener("click", e => {
 // GROCERY
 // ══════════════════════════
 const STORE_CONFIG = {
-  metro:    { label:"Metro",    short:"Metro", cls:"store-metro"    },
-  shoppers: { label:"Shoppers", short:"SDM",   cls:"store-shoppers" },
-  walmart:  { label:"Walmart",  short:"WMT",   cls:"store-walmart"  },
-  other:    { label:"Other",    short:"Other", cls:"store-other"    },
+  metro:    { label:"Metro",      short:"Metro",   cls:"store-metro"    },
+  fortinos: { label:"Fortinos",   short:"Fort",    cls:"store-fortinos" },
+  longos:   { label:"Longo's",    short:"Longo",   cls:"store-longos"   },
+  costco:   { label:"Costco",     short:"Costco",  cls:"store-costco"   },
+  shoppers: { label:"Shoppers",   short:"SDM",     cls:"store-shoppers" },
+  walmart:  { label:"Walmart",    short:"WMT",     cls:"store-walmart"  },
+  other:    { label:"Other",      short:"Other",   cls:"store-other"    },
 };
 const GROCERY_SECTIONS = [
   { key:"produce",   label:"Fruits & Veggies",     icon:"🥦" },
@@ -1428,12 +1636,29 @@ document.getElementById("clear-checked-btn").addEventListener("click", ()=>{
 // Shopping Summary
 function renderShoppingSummary() {
   const el=document.getElementById("shopping-summary"); if(!el)return;
-  const by={metro:[],shoppers:[],walmart:[],other:[]};
+  const by={};
+  Object.keys(STORE_CONFIG).forEach(k=>by[k]=[]);
   GROCERY_SECTIONS.forEach(sec=>Object.values(groceryData[sec.key]||{}).forEach(item=>{ if(!item.checked)(by[item.store||"metro"]=by[item.store||"metro"]||[]).push(item.name); }));
   const d=dealAlertsData; let html="";
-  if(by.metro.length) html+=`<div class="summary-store-block"><div class="summary-store-name"><span class="store-badge store-metro">Metro</span>Upper Middle &amp; 9th Line</div><p class="summary-items">${by.metro.map(escHtml).join(", ")}</p></div>`;
-  const sd=d.shoppers?.trim(); if(by.shoppers.length||sd) html+=`<div class="summary-store-block"><div class="summary-store-name"><span class="store-badge store-shoppers">SDM</span>Shoppers Drug Mart</div>${by.shoppers.length?`<p class="summary-items">${by.shoppers.map(escHtml).join(", ")}</p>`:""}${sd?`<p class="summary-deal">🏷️ ${escHtml(sd)}</p>`:""}</div>`;
-  const wd=d.walmart?.trim(); if(by.walmart.length||wd) html+=`<div class="summary-store-block"><div class="summary-store-name"><span class="store-badge store-walmart">WMT</span>Walmart Oakville</div>${by.walmart.length?`<p class="summary-items">${by.walmart.map(escHtml).join(", ")}</p>`:""}${wd?`<p class="summary-deal">🏷️ ${escHtml(wd)}</p>`:""}</div>`;
+  const storeInfo = {
+    metro:    { badge:"Metro", name:"Upper Middle &amp; 9th Line" },
+    fortinos: { badge:"Fort",  name:"Fortinos — 493 Dundas St W" },
+    longos:   { badge:"Longo", name:"Longo's — 338 Dundas St E" },
+    costco:   { badge:"Costco",name:"Costco Oakville" },
+    shoppers: { badge:"SDM",   name:"Shoppers Drug Mart" },
+    walmart:  { badge:"WMT",   name:"Walmart Oakville" },
+  };
+  Object.entries(storeInfo).forEach(([k,info]) => {
+    const items = by[k]||[];
+    const deal = (d[k]||"").trim();
+    if (items.length || deal) {
+      const sc = STORE_CONFIG[k];
+      html += `<div class="summary-store-block"><div class="summary-store-name"><span class="store-badge ${sc.cls}">${info.badge}</span>${info.name}</div>`;
+      if (items.length) html += `<p class="summary-items">${items.map(escHtml).join(", ")}</p>`;
+      if (deal) html += `<p class="summary-deal">🏷️ ${escHtml(deal)}</p>`;
+      html += `</div>`;
+    }
+  });
   el.innerHTML=html||`<p style="font-size:.78rem;color:var(--text-muted);text-align:center;padding:6px 0;">Add items to see your store breakdown.</p>`;
 }
 
@@ -1446,18 +1671,21 @@ document.getElementById("summary-toggle").addEventListener("click",()=>{
 // ══════════════════════════
 // DEAL ALERTS
 // ══════════════════════════
+const DEAL_STORES = ["metro","fortinos","longos","costco","shoppers","walmart"];
 function subscribeDealAlerts() {
   dbListen("dealAlerts", data=>{ dealAlertsData=data||{}; renderDealAlerts(); renderShoppingSummary(); });
 }
 function renderDealAlerts() {
-  const s=document.getElementById("deal-shoppers"),w=document.getElementById("deal-walmart");
-  if(document.activeElement!==s) s.value=dealAlertsData.shoppers||"";
-  if(document.activeElement!==w) w.value=dealAlertsData.walmart||"";
+  DEAL_STORES.forEach(k => {
+    const el = document.getElementById(`deal-${k}`);
+    if (el && document.activeElement !== el) el.value = dealAlertsData[k] || "";
+  });
 }
 const _dt={};
 function onDealInput(key,el) { clearTimeout(_dt[key]); _dt[key]=setTimeout(()=>dbUpdate("dealAlerts",{[key]:el.value}),700); }
-document.getElementById("deal-shoppers").addEventListener("input",e=>onDealInput("shoppers",e.target));
-document.getElementById("deal-walmart").addEventListener("input", e=>onDealInput("walmart",e.target));
+DEAL_STORES.forEach(k => {
+  document.getElementById(`deal-${k}`)?.addEventListener("input", e => onDealInput(k, e.target));
+});
 document.getElementById("deal-alerts-toggle").addEventListener("click",()=>{
   document.getElementById("deal-alerts-card").classList.toggle("collapsed");
 });
@@ -1613,6 +1841,370 @@ document.getElementById("event-modal-delete").addEventListener("click",()=>{
 });
 
 // ══════════════════════════
+// IDEAS — MEAL DATABASE
+// ══════════════════════════
+const SEASONS = {
+  0:"winter",1:"winter",2:"spring",3:"spring",4:"spring",5:"summer",6:"summer",7:"summer",8:"fall",9:"fall",10:"fall",11:"winter"
+};
+function curSeason(){ return SEASONS[new Date().getMonth()]; }
+
+const DINNERS = [
+  {name:"Shake and Bake Chicken",protein:"chicken",method:"Oven",season:["all"],source:"Family favourite",notes:"Classic coating — buttermilk soak, seasoned breadcrumbs, bake at 425°F until golden. Rest 5 min before serving.",ing:[{n:"chicken thighs",q:"2 lbs",s:"meat"},{n:"breadcrumbs",q:"1 cup",s:"pantry"},{n:"buttermilk",q:"1 cup",s:"dairy"},{n:"broccoli",q:"1 head",s:"produce"},{n:"potatoes",q:"4",s:"produce"}]},
+  {name:"Flank Steak Quinoa Salad",protein:"beef",method:"Grill / BBQ",season:["spring","summer","fall"],source:"Serious Eats",notes:"High-heat sear 4 min/side, rest 10 min, slice against the grain. Acid in the dressing brightens the char.",ing:[{n:"flank steak",q:"1.5 lbs",s:"meat"},{n:"quinoa",q:"1 cup",s:"pantry"},{n:"mixed greens",q:"5 oz",s:"produce"},{n:"cherry tomatoes",q:"1 pint",s:"produce"},{n:"feta cheese",q:"100g",s:"dairy"},{n:"lemon",q:"2",s:"produce"}]},
+  {name:"Smash Burgers",protein:"beef",method:"Blackstone",season:["all"],source:"Kenji López-Alt",notes:"Loosely ball the beef, smash HARD with spatula on screaming-hot griddle. Crust > thickness. 2 min/side max.",ing:[{n:"ground beef",q:"1.5 lbs",s:"meat"},{n:"burger buns",q:"6",s:"bakery"},{n:"cheddar slices",q:"6",s:"dairy"},{n:"lettuce",q:"1 head",s:"produce"},{n:"tomato",q:"2",s:"produce"},{n:"pickles",q:"1 jar",s:"pantry"}]},
+  {name:"Roasted Whole Chicken with Root Veg",protein:"chicken",method:"Oven",season:["fall","winter","spring"],source:"NYT Cooking / Thomas Keller",notes:"Dry bird thoroughly, high heat (450°F) for crisp skin. Carrots & parsnips underneath catch drippings.",ing:[{n:"whole chicken",q:"1 (4 lb)",s:"meat"},{n:"carrots",q:"4",s:"produce"},{n:"parsnips",q:"3",s:"produce"},{n:"onion",q:"2",s:"produce"},{n:"garlic head",q:"1",s:"produce"},{n:"butter",q:"3 tbsp",s:"dairy"}]},
+  {name:"Pork Tenderloin with Maple Glaze",protein:"pork",method:"Oven",season:["fall","winter","spring"],source:"Smitten Kitchen",notes:"Sear all sides in cast iron, then roast 15 min at 400°F. Maple-Dijon glaze in last 5 min. Rest before slicing.",ing:[{n:"pork tenderloin",q:"1.5 lbs",s:"meat"},{n:"maple syrup",q:"3 tbsp",s:"pantry"},{n:"Dijon mustard",q:"2 tbsp",s:"pantry"},{n:"sweet potatoes",q:"3",s:"produce"},{n:"green beans",q:"1 lb",s:"produce"}]},
+  {name:"Sheet Pan Chicken Fajitas",protein:"chicken",method:"Oven",season:["all"],source:"Bon Appétit",notes:"425°F, everything on one pan. Char the peppers. Lime + cilantro at the end = brightness.",ing:[{n:"chicken breast",q:"1.5 lbs",s:"meat"},{n:"bell peppers",q:"3",s:"produce"},{n:"onion",q:"1",s:"produce"},{n:"tortillas",q:"8",s:"bakery"},{n:"avocado",q:"2",s:"produce"},{n:"sour cream",q:"1 tub",s:"dairy"},{n:"lime",q:"2",s:"produce"}]},
+  {name:"One-Pot Beef Short Rib Braise",protein:"beef",method:"Oven (braise)",season:["fall","winter"],source:"Serious Eats / Kenji",notes:"Sear hard for fond, deglaze with wine. Low (300°F) for 3 hrs. Collagen breaks down = silky sauce. Great Sunday prep.",ing:[{n:"bone-in short ribs",q:"3 lbs",s:"meat"},{n:"red wine",q:"2 cups",s:"beverages"},{n:"carrots",q:"3",s:"produce"},{n:"celery",q:"3 stalks",s:"produce"},{n:"onion",q:"1",s:"produce"},{n:"tomato paste",q:"2 tbsp",s:"pantry"},{n:"egg noodles",q:"1 pkg",s:"pantry"}]},
+  {name:"Salmon with Lemon-Dill Butter",protein:"fish",method:"Stove / Oven",season:["all"],source:"Food52",notes:"Skin-side down first in hot pan for crisp skin. Flip once. Compound butter melts over top. 6 min total.",ing:[{n:"salmon fillets",q:"4",s:"seafood"},{n:"butter",q:"3 tbsp",s:"dairy"},{n:"fresh dill",q:"1 bunch",s:"produce"},{n:"lemon",q:"2",s:"produce"},{n:"asparagus",q:"1 bunch",s:"produce"},{n:"rice",q:"2 cups",s:"pantry"}]},
+  {name:"BBQ Pork Chops with Corn",protein:"pork",method:"Grill / BBQ",season:["summer","spring"],source:"Joshua Weissman",notes:"Brine 30 min in salt water for juicier chops. Direct heat 4 min/side. Internal 145°F, then rest.",ing:[{n:"bone-in pork chops",q:"4",s:"meat"},{n:"corn on the cob",q:"4",s:"produce"},{n:"coleslaw mix",q:"1 bag",s:"produce"},{n:"BBQ sauce",q:"1 bottle",s:"pantry"}]},
+  {name:"Chicken Stir-Fry with Ginger",protein:"chicken",method:"Stove (wok)",season:["all"],source:"Kenji / Wok of Life",notes:"Velvet chicken in cornstarch slurry first. Hottest flame you have. Wok hei = flavour. Cook in batches.",ing:[{n:"chicken thighs",q:"1.5 lbs",s:"meat"},{n:"broccoli",q:"1 head",s:"produce"},{n:"bell pepper",q:"2",s:"produce"},{n:"fresh ginger",q:"1 knob",s:"produce"},{n:"soy sauce",q:"3 tbsp",s:"pantry"},{n:"rice",q:"2 cups",s:"pantry"},{n:"sesame oil",q:"1 tbsp",s:"pantry"}]},
+  {name:"Pulled Pork (Smoker)",protein:"pork",method:"Smoke / Low-and-slow",season:["all"],source:"Aaron Franklin method",notes:"225°F for 10-12 hrs. Dry rub night before. Spritz with apple cider vinegar hourly. Rest 1 hr wrapped.",ing:[{n:"pork shoulder",q:"5-6 lbs",s:"meat"},{n:"burger buns",q:"8",s:"bakery"},{n:"coleslaw mix",q:"1 bag",s:"produce"},{n:"apple cider vinegar",q:"1 bottle",s:"pantry"},{n:"pickles",q:"1 jar",s:"pantry"}]},
+  {name:"Lamb Kofta with Tzatziki",protein:"lamb",method:"Grill / BBQ",season:["spring","summer"],source:"Jamie Oliver",notes:"Mix ground lamb with cumin, coriander, mint. Shape on skewers. High heat, 3 min/side. Don't over-handle the meat.",ing:[{n:"ground lamb",q:"1.5 lbs",s:"meat"},{n:"cucumber",q:"1",s:"produce"},{n:"Greek yogurt",q:"1 tub",s:"dairy"},{n:"pita bread",q:"6",s:"bakery"},{n:"cherry tomatoes",q:"1 pint",s:"produce"},{n:"red onion",q:"1",s:"produce"}]},
+  {name:"Chicken Parm (Sheet Pan)",protein:"chicken",method:"Oven",season:["all"],source:"NYT Cooking",notes:"Pound cutlets thin for even cooking. Breadcrumb crust, par-bake, then add sauce + mozz for last 8 min.",ing:[{n:"chicken cutlets",q:"4",s:"meat"},{n:"marinara sauce",q:"1 jar",s:"pantry"},{n:"mozzarella",q:"250g",s:"dairy"},{n:"breadcrumbs",q:"1 cup",s:"pantry"},{n:"parmesan",q:"½ cup",s:"dairy"},{n:"spaghetti",q:"1 lb",s:"pantry"}]},
+  {name:"Teriyaki Chicken Rice Bowls",protein:"chicken",method:"Blackstone / Stove",season:["all"],source:"Joshua Weissman",notes:"Homemade teriyaki (soy, mirin, sugar, ginger) > bottled. Griddle chicken thighs skin-down for crisp.",ing:[{n:"chicken thighs",q:"2 lbs",s:"meat"},{n:"rice",q:"2 cups",s:"pantry"},{n:"soy sauce",q:"¼ cup",s:"pantry"},{n:"broccoli",q:"1 head",s:"produce"},{n:"edamame",q:"1 cup",s:"frozen"},{n:"sesame seeds",q:"2 tbsp",s:"pantry"}]},
+  {name:"Beef Tacos (Ground Beef)",protein:"beef",method:"Stove",season:["all"],source:"Kenji López-Alt",notes:"Toast spices in oil before adding beef. Splash of fish sauce adds umami. Let meat simmer in its own fat.",ing:[{n:"ground beef",q:"1.5 lbs",s:"meat"},{n:"taco shells",q:"12",s:"pantry"},{n:"cheddar cheese",q:"200g",s:"dairy"},{n:"lettuce",q:"1 head",s:"produce"},{n:"tomato",q:"2",s:"produce"},{n:"sour cream",q:"1 tub",s:"dairy"},{n:"avocado",q:"2",s:"produce"}]},
+  {name:"Pan-Seared Chicken Thighs, Pan Sauce",protein:"chicken",method:"Stove",season:["all"],source:"Serious Eats",notes:"Start skin-down in cold pan — renders fat slowly for crispiest skin. Build pan sauce with shallot, stock, butter.",ing:[{n:"chicken thighs",q:"4",s:"meat"},{n:"shallot",q:"2",s:"produce"},{n:"chicken stock",q:"1 cup",s:"pantry"},{n:"butter",q:"2 tbsp",s:"dairy"},{n:"mashed potatoes",q:"4",s:"produce"},{n:"green beans",q:"1 lb",s:"produce"}]},
+  {name:"Smoked Brisket",protein:"beef",method:"Smoke / Low-and-slow",season:["all"],source:"Aaron Franklin",notes:"Salt + pepper only. 250°F, fat-cap up. Wrap at stall (~165°F). Total 12-14 hrs. Slice against grain.",ing:[{n:"beef brisket",q:"5 lbs",s:"meat"},{n:"coleslaw mix",q:"1 bag",s:"produce"},{n:"white bread",q:"1 loaf",s:"bakery"},{n:"pickles",q:"1 jar",s:"pantry"},{n:"BBQ sauce",q:"1 bottle",s:"pantry"}]},
+  {name:"Shrimp Scampi",protein:"fish",method:"Stove",season:["all"],source:"Bon Appétit",notes:"Cook shrimp 90 sec/side max — they carry-over cook. Butter + garlic + white wine + lemon = the sauce. Pasta water is key.",ing:[{n:"large shrimp",q:"1.5 lbs",s:"seafood"},{n:"linguine",q:"1 lb",s:"pantry"},{n:"garlic",q:"6 cloves",s:"produce"},{n:"white wine",q:"½ cup",s:"beverages"},{n:"butter",q:"3 tbsp",s:"dairy"},{n:"lemon",q:"2",s:"produce"},{n:"parsley",q:"1 bunch",s:"produce"}]},
+  {name:"Italian Sausage Sheet Pan",protein:"pork",method:"Oven",season:["fall","winter"],source:"Smitten Kitchen",notes:"One pan: sausages + peppers + potatoes + onion at 425°F. Toss in olive oil, Italian herbs. Minimal cleanup.",ing:[{n:"Italian sausages",q:"6",s:"meat"},{n:"bell peppers",q:"3",s:"produce"},{n:"baby potatoes",q:"1.5 lbs",s:"produce"},{n:"onion",q:"1",s:"produce"},{n:"olive oil",q:"3 tbsp",s:"pantry"}]},
+  {name:"Butter Chicken (Murgh Makhani)",protein:"chicken",method:"Stove",season:["fall","winter","spring"],source:"Kenji / Serious Eats",notes:"Marinate in yogurt + spices overnight. Tomato-cream sauce with garam masala. Finish with butter for richness.",ing:[{n:"chicken thighs",q:"2 lbs",s:"meat"},{n:"plain yogurt",q:"1 cup",s:"dairy"},{n:"canned tomatoes",q:"1 can (28oz)",s:"pantry"},{n:"heavy cream",q:"½ cup",s:"dairy"},{n:"basmati rice",q:"2 cups",s:"pantry"},{n:"naan bread",q:"4",s:"bakery"},{n:"butter",q:"3 tbsp",s:"dairy"}]},
+  {name:"Grilled Skirt Steak with Chimichurri",protein:"beef",method:"Grill / BBQ",season:["spring","summer"],source:"Food52 / Francis Mallmann",notes:"Screaming-hot grill, 3 min/side for med-rare. Chimichurri: parsley, oregano, garlic, vinegar, oil. Make ahead.",ing:[{n:"skirt steak",q:"1.5 lbs",s:"meat"},{n:"parsley",q:"2 bunches",s:"produce"},{n:"garlic",q:"4 cloves",s:"produce"},{n:"red wine vinegar",q:"¼ cup",s:"pantry"},{n:"crusty bread",q:"1 loaf",s:"bakery"},{n:"mixed greens",q:"5 oz",s:"produce"}]},
+  {name:"Fish Tacos with Slaw",protein:"fish",method:"Blackstone",season:["spring","summer"],source:"Bon Appétit",notes:"Season white fish with cumin + chili powder. Griddle 3 min/side. Cabbage slaw with lime crema on top.",ing:[{n:"white fish fillets",q:"1.5 lbs",s:"seafood"},{n:"cabbage",q:"½ head",s:"produce"},{n:"tortillas",q:"8",s:"bakery"},{n:"lime",q:"3",s:"produce"},{n:"sour cream",q:"½ cup",s:"dairy"},{n:"avocado",q:"2",s:"produce"}]},
+  {name:"One-Pot Chicken & Rice",protein:"chicken",method:"Oven",season:["all"],source:"NYT Cooking",notes:"Brown chicken, set aside. Bloom rice in drippings, add stock, nestle chicken on top. Covered 375°F 25 min.",ing:[{n:"chicken thighs",q:"6",s:"meat"},{n:"basmati rice",q:"1.5 cups",s:"pantry"},{n:"chicken stock",q:"2 cups",s:"pantry"},{n:"onion",q:"1",s:"produce"},{n:"garlic",q:"4 cloves",s:"produce"},{n:"frozen peas",q:"1 cup",s:"frozen"}]},
+  {name:"Pasta Bolognese",protein:"beef",method:"Stove",season:["fall","winter"],source:"Kenji López-Alt",notes:"Low and slow. Milk first, then wine, then tomatoes. 2-3 hrs minimum. The long simmer is the technique.",ing:[{n:"ground beef",q:"1 lb",s:"meat"},{n:"ground pork",q:"½ lb",s:"meat"},{n:"canned tomatoes",q:"1 can (28oz)",s:"pantry"},{n:"pappardelle",q:"1 lb",s:"pantry"},{n:"onion",q:"1",s:"produce"},{n:"carrots",q:"2",s:"produce"},{n:"celery",q:"2 stalks",s:"produce"},{n:"milk",q:"1 cup",s:"dairy"},{n:"parmesan",q:"½ cup",s:"dairy"}]},
+];
+
+const KID_LUNCHES = [
+  {name:"Turkey Pinwheels",items:"Turkey, tortilla, cream cheese, cucumber sticks",ing:[{n:"deli turkey",q:"200g",s:"deli"},{n:"tortillas",q:"4",s:"bakery"},{n:"cream cheese",q:"1 tub",s:"dairy"},{n:"cucumber",q:"1",s:"produce"}]},
+  {name:"Bento Box (crackers, cheese, deli meat)",items:"Round crackers, cheddar cubes, salami, grapes",ing:[{n:"crackers",q:"1 box",s:"snacks"},{n:"cheddar cheese",q:"200g",s:"dairy"},{n:"salami",q:"100g",s:"deli"},{n:"grapes",q:"1 bunch",s:"produce"}]},
+  {name:"Homemade Lunchables",items:"Round crackers, sliced cheese, pepperoni, cucumber",ing:[{n:"crackers",q:"1 box",s:"snacks"},{n:"sliced cheese",q:"200g",s:"dairy"},{n:"pepperoni",q:"100g",s:"deli"},{n:"cucumber",q:"1",s:"produce"}]},
+  {name:"Quesadilla Triangles",items:"Cheese quesadilla (+ leftover chicken), salsa on side",ing:[{n:"tortillas",q:"4",s:"bakery"},{n:"cheddar cheese",q:"200g",s:"dairy"},{n:"mild salsa",q:"1 jar",s:"pantry"}]},
+  {name:"Pasta Salad",items:"Rotini, Italian dressing, cherry tomatoes, salami",ing:[{n:"rotini pasta",q:"½ lb",s:"pantry"},{n:"Italian dressing",q:"¼ cup",s:"pantry"},{n:"cherry tomatoes",q:"1 pint",s:"produce"},{n:"salami",q:"100g",s:"deli"}]},
+  {name:"Bagel Pizzas",items:"Mini bagels, marinara, mozzarella — baked and packed",ing:[{n:"mini bagels",q:"6",s:"bakery"},{n:"marinara sauce",q:"1 cup",s:"pantry"},{n:"mozzarella",q:"150g",s:"dairy"}]},
+  {name:"Fried Rice (thermos)",items:"Leftover rice, soy sauce, egg, peas, carrots",ing:[{n:"eggs",q:"3",s:"dairy"},{n:"frozen peas & carrots",q:"1 cup",s:"frozen"},{n:"soy sauce",q:"2 tbsp",s:"pantry"}]},
+  {name:"Mini Grilled Cheese",items:"Cut into shapes with cookie cutters, tomato soup on side",ing:[{n:"bread",q:"1 loaf",s:"bakery"},{n:"cheddar cheese",q:"200g",s:"dairy"},{n:"butter",q:"2 tbsp",s:"dairy"},{n:"tomato soup",q:"1 can",s:"pantry"}]},
+  {name:"Kraft Dinner (thermos)",items:"Mac & cheese, packed hot in thermos",ing:[{n:"KD boxes",q:"2",s:"pantry"},{n:"milk",q:"½ cup",s:"dairy"},{n:"butter",q:"2 tbsp",s:"dairy"}]},
+  {name:"Pigs in Blankets",items:"Hot dog pieces wrapped in crescent dough, baked",ing:[{n:"hot dogs",q:"6",s:"meat"},{n:"crescent roll dough",q:"1 tube",s:"dairy"}]},
+  {name:"French Toast Sticks",items:"With small container of maple syrup for dipping",ing:[{n:"bread",q:"4 slices",s:"bakery"},{n:"eggs",q:"3",s:"dairy"},{n:"milk",q:"¼ cup",s:"dairy"},{n:"maple syrup",q:"small container",s:"pantry"}]},
+  {name:"Chicken Nuggets + Dip",items:"Homemade or store-bought, with plum or honey mustard",ing:[{n:"chicken nuggets",q:"1 bag",s:"frozen"},{n:"dipping sauce",q:"1 bottle",s:"pantry"}]},
+  {name:"Ham & Cheese Sandwich",items:"Classic on whole wheat, with mustard, lettuce",ing:[{n:"deli ham",q:"200g",s:"deli"},{n:"sliced cheese",q:"4 slices",s:"dairy"},{n:"whole wheat bread",q:"1 loaf",s:"bakery"},{n:"lettuce",q:"1 head",s:"produce"}]},
+  {name:"Taco Kit",items:"Cooked ground beef/chicken, soft tortillas, cheese, salsa — assemble at school",ing:[{n:"soft tortillas",q:"6",s:"bakery"},{n:"cheddar cheese",q:"100g",s:"dairy"},{n:"mild salsa",q:"1 jar",s:"pantry"}]},
+  {name:"Pancake Roll-Ups",items:"Cream cheese + strawberry jam rolled in pancakes",ing:[{n:"pancake mix",q:"1 box",s:"pantry"},{n:"cream cheese",q:"1 tub",s:"dairy"},{n:"strawberry jam",q:"1 jar",s:"pantry"}]},
+  {name:"Soup in a Thermos",items:"Broccoli cheddar, chicken noodle, or tomato — with crackers",ing:[{n:"soup",q:"2 cans",s:"pantry"},{n:"crackers",q:"1 sleeve",s:"snacks"}]},
+  {name:"Spring Rolls (rice paper)",items:"Rice paper, veggies, deli meat, sweet chili dip",ing:[{n:"rice paper",q:"1 pack",s:"pantry"},{n:"cucumber",q:"1",s:"produce"},{n:"carrots",q:"2",s:"produce"},{n:"sweet chili sauce",q:"1 bottle",s:"pantry"}]},
+  {name:"Egg Muffin Cups",items:"Mini quiches with cheese & veggies — great meal prep",ing:[{n:"eggs",q:"6",s:"dairy"},{n:"cheddar cheese",q:"100g",s:"dairy"},{n:"bell pepper",q:"1",s:"produce"},{n:"deli ham",q:"100g",s:"deli"}]},
+];
+
+const LUNCH_ALWAYS = [
+  "Drinkable yogurt (Yop / Kids Kefir)",
+  "Applesauce pouch (Motts / PC)",
+  "Small treat (Dunkaroos / fruit gummies / fruit leather)",
+  "Fresh fruit or veg (strawberries, grapes, mandarins, carrot sticks)"
+];
+
+const SEASONAL_SNACKS = {
+  winter: ["🍊 Mandarins/clementines","🥕 Carrot sticks + hummus","🍎 Apples with sunflower seed butter","🍌 Bananas","🫐 Frozen blueberries (thawed)","🧀 Cheese cubes"],
+  spring: ["🍓 Strawberries","🥒 Cucumber rounds","🫛 Sugar snap peas","🍊 Mandarins","🍇 Grapes","🧀 Babybel cheese"],
+  summer: ["🍑 Peaches/nectarines","🍉 Watermelon cubes","🫐 Blueberries","🌽 Mini cucumber","🍒 Cherries","🍇 Grapes"],
+  fall:   ["🍎 Ontario apples (Honeycrisp)","🍐 Pears","🍇 Concord grapes","🥕 Carrot sticks + hummus","🫐 Blueberries","🧀 Cheese strings"],
+};
+
+// ══════════════════════════
+// IDEAS — FLYER DEALS SYNC
+// ══════════════════════════
+let flyerDealsData = {};
+const FLYER_STORES = ["metro","fortinos","longos","costco","shoppers","walmart"];
+function subscribeFlyerDeals() {
+  dbListen("flyerDeals", data => { flyerDealsData = data || {}; renderFlyerDeals(); });
+}
+function renderFlyerDeals() {
+  FLYER_STORES.forEach(k => {
+    const el = document.getElementById(`flyer-${k}`);
+    if (el && document.activeElement !== el) el.value = flyerDealsData[k] || "";
+  });
+}
+const _fdt = {};
+function onFlyerInput(key, el) {
+  clearTimeout(_fdt[key]);
+  _fdt[key] = setTimeout(() => dbUpdate("flyerDeals", {[key]: el.value}), 700);
+}
+FLYER_STORES.forEach(k => {
+  document.getElementById(`flyer-${k}`)?.addEventListener("input", e => onFlyerInput(k, e.target));
+});
+
+// ══════════════════════════
+// IDEAS — SUGGESTION ENGINE
+// ══════════════════════════
+let generatedDinners = [];
+let generatedLunches = [];
+
+function generateWeekPlan() {
+  const season = curSeason();
+  const btn = document.getElementById("generate-week-btn");
+  btn.classList.add("loading");
+
+  // Season banner
+  const seasonNames = {winter:"Winter",spring:"Early Spring",summer:"Summer",fall:"Fall"};
+  const seasonTips = {
+    winter:"Root vegetables, squash, citrus, hearty braises. Ontario greenhouse lettuce & mushrooms.",
+    spring:"Asparagus arriving, early ramps, peas starting. Citrus still great. Transition to lighter grilling.",
+    summer:"Tomatoes, corn, stone fruit at peak. Grill season. Ontario berries and fresh herbs.",
+    fall:"Apples, squash, mushrooms, brassicas. Perfect braising weather. Ontario root veggies.",
+  };
+  const banner = document.getElementById("season-banner");
+  banner.textContent = `🌱 ${seasonNames[season]}: ${seasonTips[season]}`;
+  banner.style.display = "flex";
+
+  // Filter dinners by season
+  let pool = DINNERS.filter(d => d.season.includes("all") || d.season.includes(season));
+
+  // Check flyer deals for deal matching
+  const allDeals = Object.values(flyerDealsData).join(" ").toLowerCase();
+
+  // Pick 7 dinners — variety in protein + method
+  const usedProteins = {}, usedMethods = {};
+  generatedDinners = [];
+
+  // Shuffle pool
+  pool = pool.sort(() => Math.random() - 0.5);
+
+  // Sunday is prep day — prefer oven/braise/smoke
+  const sundayPool = pool.filter(d => ["Oven","Oven (braise)","Smoke / Low-and-slow"].includes(d.method));
+  if (sundayPool.length) {
+    const pick = sundayPool[0];
+    generatedDinners.push(pick);
+    pool = pool.filter(d => d !== pick);
+    usedProteins[pick.protein] = 1;
+    usedMethods[pick.method] = 1;
+  }
+
+  // Fill Mon–Sat with variety
+  for (let day = 1; day < 7 && pool.length; day++) {
+    // Prefer least-used protein + method
+    pool.sort((a,b) => {
+      const pa = (usedProteins[a.protein]||0), pb = (usedProteins[b.protein]||0);
+      const ma = (usedMethods[a.method]||0), mb = (usedMethods[b.method]||0);
+      return (pa + ma) - (pb + mb) + (Math.random() - 0.5);
+    });
+    // Boost items that match deals
+    const dealPool = pool.filter(d => d.ing.some(i => allDeals.includes(i.n.toLowerCase().split(" ")[0])));
+    const pick = dealPool.length > 0 && Math.random() > 0.4 ? dealPool[0] : pool[0];
+    generatedDinners.push(pick);
+    pool = pool.filter(d => d !== pick);
+    usedProteins[pick.protein] = (usedProteins[pick.protein]||0) + 1;
+    usedMethods[pick.method] = (usedMethods[pick.method]||0) + 1;
+  }
+
+  // Pick 5 kid lunches (Mon-Fri)
+  let lunchPool = [...KID_LUNCHES].sort(() => Math.random() - 0.5);
+  generatedLunches = lunchPool.slice(0, 5);
+
+  // Render
+  renderDinnerIdeas(allDeals);
+  renderLunchIdeas();
+  renderSeasonalSnacks();
+  renderDealHighlights(allDeals);
+
+  document.getElementById("ideas-results").classList.add("visible");
+  document.getElementById("accept-all-bar").style.display = "flex";
+  setTimeout(() => btn.classList.remove("loading"), 300);
+}
+
+function findDealMatch(ing, allDeals) {
+  if (!allDeals) return null;
+  for (const i of ing) {
+    const words = i.n.toLowerCase().split(" ");
+    for (const w of words) {
+      if (w.length < 3) continue;
+      if (allDeals.includes(w)) {
+        // Find which store
+        for (const [store, text] of Object.entries(flyerDealsData)) {
+          if ((text||"").toLowerCase().includes(w)) {
+            const storeNames = {metro:"Metro",fortinos:"Fortinos",longos:"Longo's",costco:"Costco",shoppers:"Shoppers",walmart:"Walmart"};
+            return `${storeNames[store]||store}: ${i.n} may be on sale!`;
+          }
+        }
+      }
+    }
+  }
+  return null;
+}
+
+function renderDinnerIdeas(allDeals) {
+  const container = document.getElementById("dinner-ideas");
+  container.innerHTML = "";
+  const dayNames = ["Sunday (Prep Day)","Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"];
+
+  generatedDinners.forEach((d, i) => {
+    const deal = findDealMatch(d.ing, allDeals);
+    const card = document.createElement("div");
+    card.className = "idea-card";
+    card.innerHTML = `
+      <div class="idea-day">${dayNames[i]}</div>
+      <div class="idea-name">${escHtml(d.name)}</div>
+      <div class="idea-meta">
+        <span class="method-tag">${d.method}</span>
+        <span class="source-tag">${d.source}</span>
+      </div>
+      <div class="idea-notes">${escHtml(d.notes)}</div>
+      ${deal ? `<div class="idea-deal">🏷️ ${escHtml(deal)}</div>` : ""}
+      <div class="idea-ingredients">🛒 ${d.ing.map(i=>i.n).join(", ")}</div>
+      <div class="idea-actions">
+        <button class="btn btn-primary btn-sm accept-dinner" data-idx="${i}">Accept</button>
+        <button class="btn btn-ghost btn-sm swap-dinner" data-idx="${i}">Swap</button>
+      </div>
+    `;
+    card.querySelector(".accept-dinner").addEventListener("click", () => acceptDinner(i));
+    card.querySelector(".swap-dinner").addEventListener("click", () => swapDinner(i, allDeals));
+    container.appendChild(card);
+  });
+}
+
+function renderLunchIdeas() {
+  const container = document.getElementById("lunch-ideas");
+  container.innerHTML = "";
+  const days = ["Monday","Tuesday","Wednesday","Thursday","Friday"];
+  generatedLunches.forEach((l, i) => {
+    const card = document.createElement("div");
+    card.className = "lunch-card";
+    card.innerHTML = `
+      <div class="lunch-day">${days[i]}</div>
+      <div class="lunch-main">${escHtml(l.name)}</div>
+      <div class="lunch-pack">📦 ${escHtml(l.items)}<br>✅ <em>${LUNCH_ALWAYS.join(" • ")}</em></div>
+      <div class="idea-actions">
+        <button class="btn btn-primary btn-sm accept-lunch" data-idx="${i}">Accept</button>
+        <button class="btn btn-ghost btn-sm swap-lunch" data-idx="${i}">Swap</button>
+      </div>
+    `;
+    card.querySelector(".accept-lunch").addEventListener("click", () => acceptLunch(i));
+    card.querySelector(".swap-lunch").addEventListener("click", () => swapLunch(i));
+    container.appendChild(card);
+  });
+}
+
+function renderSeasonalSnacks() {
+  const container = document.getElementById("seasonal-snacks");
+  const snacks = SEASONAL_SNACKS[curSeason()] || SEASONAL_SNACKS.spring;
+  container.innerHTML = snacks.map(s => `<span class="snack-chip">${s}</span>`).join("");
+}
+
+function renderDealHighlights(allDeals) {
+  const section = document.getElementById("deal-highlights-section");
+  const container = document.getElementById("deal-highlights");
+  if (!allDeals) { section.style.display = "none"; return; }
+  const matches = [];
+  generatedDinners.forEach(d => {
+    const m = findDealMatch(d.ing, allDeals);
+    if (m) matches.push(`<strong>${d.name}</strong>: ${m}`);
+  });
+  if (matches.length) {
+    section.style.display = "block";
+    container.innerHTML = matches.map(m => `<p style="font-size:.82rem;margin-bottom:4px;">${m}</p>`).join("");
+  } else {
+    section.style.display = "none";
+  }
+}
+
+// ── Accept / Swap ──
+function acceptDinner(idx) {
+  const d = generatedDinners[idx];
+  const wk = weekKey(currentWeekStart);
+  dbUpdate(`meals/${wk}/day${idx}`, { dinner: d.name });
+  showToast(`${DAY_NAMES[idx]} dinner set: ${d.name}`);
+  const btn = document.querySelectorAll(".accept-dinner")[idx];
+  if (btn) { btn.textContent = "✓ Added"; btn.disabled = true; btn.style.opacity = ".6"; }
+}
+
+function swapDinner(idx, allDeals) {
+  const season = curSeason();
+  const current = generatedDinners.map(d=>d.name);
+  let pool = DINNERS.filter(d => !current.includes(d.name) && (d.season.includes("all")||d.season.includes(season)));
+  if (!pool.length) pool = DINNERS.filter(d=>!current.includes(d.name));
+  if (!pool.length) { showToast("No more options!"); return; }
+  const pick = pool[Math.floor(Math.random()*pool.length)];
+  generatedDinners[idx] = pick;
+  renderDinnerIdeas(allDeals || Object.values(flyerDealsData).join(" ").toLowerCase());
+  showToast("Swapped!");
+}
+
+function acceptLunch(idx) {
+  showToast(`${["Mon","Tue","Wed","Thu","Fri"][idx]} lunch set: ${generatedLunches[idx].name}`);
+  const btn = document.querySelectorAll(".accept-lunch")[idx];
+  if (btn) { btn.textContent = "✓ Noted"; btn.disabled = true; btn.style.opacity = ".6"; }
+}
+
+function swapLunch(idx) {
+  const current = generatedLunches.map(l=>l.name);
+  let pool = KID_LUNCHES.filter(l=>!current.includes(l.name));
+  if (!pool.length) { showToast("No more options!"); return; }
+  const pick = pool[Math.floor(Math.random()*pool.length)];
+  generatedLunches[idx] = pick;
+  renderLunchIdeas();
+  showToast("Swapped!");
+}
+
+// ── Accept All & Build Grocery List ──
+document.getElementById("accept-all-btn")?.addEventListener("click", () => {
+  const wk = weekKey(currentWeekStart);
+
+  // Push all dinners to meal planner
+  generatedDinners.forEach((d, i) => {
+    dbUpdate(`meals/${wk}/day${i}`, { dinner: d.name });
+  });
+
+  // Build grocery list from all ingredients
+  const allIngredients = {};
+  generatedDinners.forEach(d => {
+    d.ing.forEach(i => {
+      const key = `${i.s}__${i.n}`;
+      if (!allIngredients[key]) allIngredients[key] = { name: i.n, qty: i.q, section: i.s };
+      // Don't duplicate
+    });
+  });
+  generatedLunches.forEach(l => {
+    (l.ing||[]).forEach(i => {
+      const key = `${i.s}__${i.n}`;
+      if (!allIngredients[key]) allIngredients[key] = { name: i.n, qty: i.q, section: i.s };
+    });
+  });
+
+  // Add lunch always-include items
+  const alwaysItems = [
+    {name:"Drinkable yogurt (Yop/Kefir)",qty:"5",section:"dairy"},
+    {name:"Applesauce pouches",qty:"5",section:"snacks"},
+    {name:"Fruit gummies / Dunkaroos",qty:"5",section:"snacks"},
+  ];
+  alwaysItems.forEach(i => {
+    const key = `${i.section}__${i.name}`;
+    if (!allIngredients[key]) allIngredients[key] = i;
+  });
+
+  // Push to grocery
+  let count = 0;
+  Object.values(allIngredients).forEach(item => {
+    dbPush(`grocery/${item.section}`, {
+      name: item.name, qty: item.qty || "", checked: false, store: "metro",
+      createdAt: isConfigured ? serverTimestamp() : Date.now()
+    });
+    count++;
+  });
+
+  showToast(`✓ ${generatedDinners.length} dinners set + ${count} grocery items added!`);
+
+  document.getElementById("accept-all-bar").style.display = "none";
+});
+
+document.getElementById("clear-ideas-btn")?.addEventListener("click", () => {
+  document.getElementById("ideas-results").classList.remove("visible");
+  document.getElementById("accept-all-bar").style.display = "none";
+  document.getElementById("season-banner").style.display = "none";
+  showToast("Ideas cleared");
+});
+
+document.getElementById("generate-week-btn")?.addEventListener("click", generateWeekPlan);
+
+// ══════════════════════════
 // UTILS
 // ══════════════════════════
 function escHtml(s){ return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;"); }
@@ -1632,6 +2224,7 @@ function init() {
   subscribeGrocery();
   subscribeEvents();
   subscribeDealAlerts();
+  subscribeFlyerDeals();
 }
 
 init();
