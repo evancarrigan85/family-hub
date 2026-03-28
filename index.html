@@ -296,6 +296,16 @@
     ════════════════════════════════════════ */
     #month-view {}
 
+    .month-legend {
+      display: flex; gap: 12px; justify-content: center; padding: 6px 0 8px;
+      font-size: .65rem; font-weight: 600; color: var(--text-muted);
+    }
+    .month-legend span { display: flex; align-items: center; gap: 3px; }
+    .legend-dot { width: 8px; height: 8px; border-radius: 50%; display: inline-block; }
+    .legend-dot.ld-meal  { background: var(--accent); }
+    .legend-dot.ld-event { background: #ec4899; }
+    .legend-dot.ld-run   { background: #7c3aed; }
+
     .month-grid {
       display: grid; grid-template-columns: repeat(7, 1fr);
       gap: 1px; background: var(--border); border-radius: var(--radius);
@@ -307,14 +317,14 @@
       padding: 6px 2px; letter-spacing: .3px; text-transform: uppercase;
     }
     .month-cell {
-      background: var(--surface); min-height: 68px; padding: 5px 5px 4px;
+      background: var(--surface); min-height: 82px; padding: 4px 3px 3px;
       cursor: pointer; transition: background .12s;
-      display: flex; flex-direction: column; gap: 2px;
-      -webkit-tap-highlight-color: transparent;
+      display: flex; flex-direction: column; gap: 1px;
+      -webkit-tap-highlight-color: transparent; overflow: hidden;
     }
     .month-cell:hover { background: var(--surface-2); }
-    .month-cell.other-month { background: var(--bg); }
-    .month-cell.other-month .cell-day-num { color: var(--border); }
+    .month-cell.other-month { background: var(--bg); opacity: .5; }
+    .month-cell.other-month .cell-day-num { color: var(--text-muted); }
     .month-cell.is-today { background: var(--accent-light); }
     .month-cell.is-today .cell-day-num {
       background: var(--accent); color: #fff;
@@ -323,25 +333,29 @@
     }
 
     .cell-day-num {
-      font-size: .75rem; font-weight: 700; color: var(--text);
-      line-height: 1; margin-bottom: 2px;
+      font-size: .72rem; font-weight: 700; color: var(--text);
+      line-height: 1; margin-bottom: 1px;
     }
-    .cell-dots { display: flex; flex-wrap: wrap; gap: 2px; }
-    .cell-dot {
-      width: 6px; height: 6px; border-radius: 50%;
-    }
-    .cell-dot.meal   { background: var(--accent-light); border: 1.5px solid var(--accent); }
-    .cell-dot.event  { background: #ec4899; }
-    .cell-dot.run    { background: #7c3aed; }
     .cell-pill {
-      font-size: .6rem; font-weight: 600; padding: 1px 4px;
-      border-radius: 4px; white-space: nowrap; overflow: hidden;
+      font-size: .58rem; font-weight: 600; padding: 1px 3px;
+      border-radius: 3px; white-space: nowrap; overflow: hidden;
       text-overflow: ellipsis; max-width: 100%;
-      background: var(--accent-light); color: var(--accent);
-      line-height: 1.3;
+      line-height: 1.35; display: block;
     }
-    .cell-pill.ev-pill  { background: #fce7f3; color: #9d174d; }
-    .cell-pill.run-pill { background: #ede9fe; color: #5b21b6; }
+    .cell-pill.meal-pill { background: var(--accent-light); color: var(--accent); }
+    .cell-pill.ev-pill   { background: #fce7f3; color: #9d174d; }
+    .cell-pill.run-pill  { background: #ede9fe; color: #5b21b6; }
+    .cell-pill.cook-pill { font-size: .52rem; font-weight: 700; padding: 0px 3px; border-radius: 2px; opacity: .8; }
+    .cell-pill.cook-wife    { background: var(--wife-bg); color: var(--wife-fg); }
+    .cell-pill.cook-husband { background: var(--husb-bg); color: var(--husb-fg); }
+    .cell-more {
+      font-size: .55rem; color: var(--text-muted); font-weight: 600;
+      padding: 0 2px;
+    }
+    @media (min-width: 600px) {
+      .month-cell { min-height: 90px; padding: 5px 4px 4px; }
+      .cell-pill { font-size: .62rem; }
+    }
 
     /* ── Day detail sheet (month tap) ── */
     #day-sheet-overlay {
@@ -679,6 +693,12 @@
 
       <!-- MONTH VIEW -->
       <div id="month-view">
+        <div class="month-legend">
+          <span><span class="legend-dot ld-meal"></span> Meals</span>
+          <span><span class="legend-dot ld-event"></span> Events</span>
+          <span><span class="legend-dot ld-run"></span> Runs</span>
+          <button id="month-today-btn" class="btn btn-ghost" style="padding:2px 10px;font-size:.65rem;margin-left:auto;">Today</button>
+        </div>
         <div id="month-grid-container"></div>
       </div>
 
@@ -1101,6 +1121,12 @@ let dealAlertsData     = {};
 
 let mealUnsub, schedUnsub, cookUnsub;
 
+// Month view multi-week cache
+const monthMealsCache    = {};  // { weekKey: { day0:{...}, day1:{...}, ... } }
+const monthScheduleCache = {};  // { weekKey: { day0:{...}, ... } }
+const monthCookCache     = {};  // { weekKey: { day0:"wife", ... } }
+let monthUnsubs = []; // cleanup handles
+
 // ══════════════════════════
 // NAVIGATION
 // ══════════════════════════
@@ -1147,6 +1173,13 @@ function onWeekChanged() {
   subscribeCookAssignments();
 }
 
+// Month "Today" button
+document.getElementById("month-today-btn")?.addEventListener("click", () => {
+  currentMonthStart = new Date(new Date().getFullYear(), new Date().getMonth(), 1);
+  buildMonthGrid();
+  document.getElementById("period-label").textContent = formatPeriodLabel();
+});
+
 // ══════════════════════════
 // COOK ASSIGNMENTS
 // ══════════════════════════
@@ -1163,8 +1196,9 @@ function cycleCook(dayIndex) {
 function subscribeCookAssignments() {
   const wk = weekKey(currentWeekStart);
   cookUnsub = dbListen(`cookAssignments/${wk}`, data => {
-    if (data) cookAssignmentsData[wk] = data;
+    if (data) { cookAssignmentsData[wk] = data; monthCookCache[wk] = data; }
     renderCookTags();
+    if (calendarView==="month") renderMonthCells();
   });
 }
 function renderCookTags() {
@@ -1224,8 +1258,9 @@ function subscribeMeals() {
   const wk = weekKey(currentWeekStart);
   mealUnsub = dbListen(`meals/${wk}`, data => {
     mealsData = data || {};
+    monthMealsCache[wk] = mealsData; // keep month cache in sync
     renderWeekMeals();
-    if (calendarView==="month") buildMonthGrid();
+    if (calendarView==="month") renderMonthCells();
   });
 }
 
@@ -1351,9 +1386,53 @@ function buildMonthGrid() {
   const firstDay = new Date(year, month, 1).getDay(); // 0=Sun
   const daysInMonth = new Date(year, month+1, 0).getDate();
   const prevDays = new Date(year, month, 0).getDate(); // days in prev month
+  const totalCells = Math.ceil((firstDay + daysInMonth) / 7) * 7;
+
+  // Collect all unique week keys visible in this month view
+  const neededWeeks = new Set();
+  for (let i = 0; i < totalCells; i++) {
+    let cellDate;
+    if (i < firstDay) cellDate = new Date(year, month-1, prevDays - firstDay + i + 1);
+    else if (i >= firstDay + daysInMonth) cellDate = new Date(year, month+1, i - firstDay - daysInMonth + 1);
+    else cellDate = new Date(year, month, i - firstDay + 1);
+    neededWeeks.add(weekKey(getWeekStart(cellDate)));
+  }
+
+  // Subscribe to all needed weeks' data (meals, schedule, cook)
+  monthUnsubs.forEach(u => { try { u(); } catch(e){} });
+  monthUnsubs = [];
+  neededWeeks.forEach(wk => {
+    // Always keep current week's data fresh in cache
+    if (wk === weekKey(currentWeekStart)) {
+      monthMealsCache[wk] = mealsData;
+      monthScheduleCache[wk] = scheduleData;
+    }
+    if (!monthMealsCache[wk]) {
+      const u = dbListen(`meals/${wk}`, data => {
+        monthMealsCache[wk] = data || {};
+        renderMonthCells();
+      });
+      monthUnsubs.push(u);
+    }
+    if (!monthScheduleCache[wk]) {
+      const u = dbListen(`schedule/${wk}`, data => {
+        monthScheduleCache[wk] = data || {};
+        renderMonthCells();
+      });
+      monthUnsubs.push(u);
+    }
+    if (!monthCookCache[wk]) {
+      const u = dbListen(`cookAssignments/${wk}`, data => {
+        monthCookCache[wk] = data || {};
+        renderMonthCells();
+      });
+      monthUnsubs.push(u);
+    }
+  });
 
   const grid = document.createElement("div");
   grid.className = "month-grid";
+  grid.id = "month-grid";
 
   // Day-of-week headers
   DAY_SHORT.forEach(d => {
@@ -1362,8 +1441,6 @@ function buildMonthGrid() {
     h.textContent = d;
     grid.appendChild(h);
   });
-
-  const totalCells = Math.ceil((firstDay + daysInMonth) / 7) * 7;
 
   for (let i = 0; i < totalCells; i++) {
     let cellDate, otherMonth = false;
@@ -1379,66 +1456,92 @@ function buildMonthGrid() {
 
     const cell = document.createElement("div");
     cell.className = "month-cell" + (otherMonth?" other-month":"") + (isToday(cellDate)?" is-today":"");
+    cell.dataset.cellDate = cellDate.toISOString();
 
     const dayNum = document.createElement("div");
     dayNum.className = "cell-day-num";
     dayNum.textContent = cellDate.getDate();
     cell.appendChild(dayNum);
 
-    const dots = document.createElement("div");
-    dots.className = "cell-dots";
-
-    const dk = dateKey(cellDate);
-    const wk = weekKey(getWeekStart(cellDate));
-    const dayIdx = cellDate.getDay();
-
-    // Meal dots — check if any meals exist for this day
-    const dayMeals = mealsData[`day${dayIdx}`] || {};
-    // Only show if same week as currentWeekStart (since mealsData is per-week)
-    // For month view we show dots from whatever week data we have
-    const hasMeals = Object.values(dayMeals).some(v=>!!v);
-    if (hasMeals && weekKey(currentWeekStart)===wk) {
-      const dot = document.createElement("span");
-      dot.className = "cell-dot meal";
-      dots.appendChild(dot);
-    }
-
-    // Event dots
-    const dayEvents = Object.values(eventsData).filter(ev=>ev.date===dk);
-    dayEvents.slice(0,3).forEach(ev => {
-      const dot = document.createElement("span");
-      dot.className = "cell-dot event";
-      dots.appendChild(dot);
-    });
-
-    // Run dot
-    if (weekKey(currentWeekStart)===wk) {
-      const runs = scheduleData[`day${dayIdx}`] || {};
-      if (Object.keys(runs).length) {
-        const dot = document.createElement("span");
-        dot.className = "cell-dot run";
-        dots.appendChild(dot);
-      }
-    }
-
-    cell.appendChild(dots);
-
-    // Show up to 2 event pills
-    dayEvents.slice(0,2).forEach(ev => {
-      const pill = document.createElement("div");
-      pill.className = "cell-pill ev-pill";
-      pill.textContent = ev.title || "Event";
-      cell.appendChild(pill);
-    });
+    // Content container — filled by renderMonthCells
+    const content = document.createElement("div");
+    content.className = "cell-content";
+    cell.appendChild(content);
 
     cell.addEventListener("click", () => openDaySheet(cellDate));
     grid.appendChild(cell);
   }
 
   container.appendChild(grid);
+  renderMonthCells();
 }
 
-// Day detail sheet
+function renderMonthCells() {
+  const cells = document.querySelectorAll(".month-cell");
+  cells.forEach(cell => {
+    const content = cell.querySelector(".cell-content");
+    if (!content) return;
+    const cellDate = new Date(cell.dataset.cellDate);
+    const dk = dateKey(cellDate);
+    const wk = weekKey(getWeekStart(cellDate));
+    const dayIdx = cellDate.getDay();
+    content.innerHTML = "";
+
+    // Meals from cache
+    const weekMeals = monthMealsCache[wk] || {};
+    const dayMeals = weekMeals[`day${dayIdx}`] || {};
+    const dinner = dayMeals.dinner || "";
+    const lunch  = dayMeals.lunch || "";
+
+    if (dinner) {
+      const pill = document.createElement("div");
+      pill.className = "cell-pill meal-pill";
+      pill.textContent = dinner;
+      content.appendChild(pill);
+    }
+
+    // Events
+    const dayEvents = Object.values(eventsData).filter(ev => ev.date === dk);
+    dayEvents.slice(0, 2).forEach(ev => {
+      const pill = document.createElement("div");
+      pill.className = "cell-pill ev-pill";
+      pill.textContent = ev.title || "Event";
+      content.appendChild(pill);
+    });
+
+    // Runs
+    const weekSched = monthScheduleCache[wk] || {};
+    const runs = Object.values(weekSched[`day${dayIdx}`] || {});
+    if (runs.length) {
+      const pill = document.createElement("div");
+      pill.className = "cell-pill run-pill";
+      pill.textContent = runs.length === 1 ? (runs[0].desc || "Run") : `${runs.length} runs`;
+      content.appendChild(pill);
+    }
+
+    // Cook indicator
+    const weekCook = monthCookCache[wk] || {};
+    const cook = weekCook[`day${dayIdx}`] || DEFAULT_COOK[dayIdx];
+    if (dinner && cook !== "flex") {
+      const tag = document.createElement("div");
+      tag.className = `cell-pill cook-pill cook-${cook}`;
+      tag.textContent = cook === "wife" ? "W" : "H";
+      content.appendChild(tag);
+    }
+
+    // Overflow indicator
+    const totalItems = (dinner?1:0) + (lunch?1:0) + dayEvents.length + runs.length;
+    const shown = (dinner?1:0) + Math.min(dayEvents.length,2) + (runs.length?1:0) + (dinner && cook!=="flex"?1:0);
+    if (totalItems > 4 && shown < totalItems) {
+      const more = document.createElement("div");
+      more.className = "cell-more";
+      more.textContent = `+${totalItems - shown} more`;
+      content.appendChild(more);
+    }
+  });
+}
+
+// Day detail sheet — uses monthDataCache so it works for any week
 function openDaySheet(d) {
   const dk = dateKey(d);
   const dayIdx = d.getDay();
@@ -1451,12 +1554,18 @@ function openDaySheet(d) {
   const body = document.getElementById("day-sheet-body");
   body.innerHTML = "";
 
+  // Resolve meal data — prefer current week subscription, fallback to month cache
+  const weekMeals = isCurWeek ? mealsData : (monthMealsCache[wk] || {});
+  const weekSched = isCurWeek ? scheduleData : (monthScheduleCache[wk] || {});
+  const hasMealData = Object.keys(weekMeals).length > 0 || isCurWeek;
+  const hasSchedData = Object.keys(weekSched).length > 0 || isCurWeek;
+
   // Meals section
   const mealSec = document.createElement("div");
   mealSec.className = "sheet-section";
   mealSec.innerHTML = `<div class="sheet-section-title">🍽 Meals</div>`;
-  if (isCurWeek) {
-    const dayMeals = mealsData[`day${dayIdx}`] || {};
+  if (hasMealData) {
+    const dayMeals = weekMeals[`day${dayIdx}`] || {};
     MEAL_SLOTS.forEach(slot => {
       const val = dayMeals[slot.key] || "";
       const row = document.createElement("div");
@@ -1465,7 +1574,8 @@ function openDaySheet(d) {
       mealSec.appendChild(row);
     });
     // Cook tag
-    const cook = getCook(dayIdx);
+    const weekCook = monthCookCache[wk] || (isCurWeek ? cookAssignmentsData[wk] || {} : {});
+    const cook = weekCook[`day${dayIdx}`] || DEFAULT_COOK[dayIdx];
     const cookBg = cook==="wife"?"var(--wife-bg)":cook==="husband"?"var(--husb-bg)":"var(--flex-bg)";
     const cookFg = cook==="wife"?"var(--wife-fg)":cook==="husband"?"var(--husb-fg)":"var(--flex-fg)";
     const cookLabel = cook==="wife"?"Wife cooks":cook==="husband"?"Husband cooks":"Flexible";
@@ -1474,7 +1584,7 @@ function openDaySheet(d) {
     cookEl.textContent = cookLabel;
     mealSec.appendChild(cookEl);
   } else {
-    mealSec.innerHTML += `<p class="sheet-empty">Navigate to this week to see meals.</p>`;
+    mealSec.innerHTML += `<p class="sheet-empty">No meal data for this week yet.</p>`;
   }
   body.appendChild(mealSec);
 
@@ -1499,8 +1609,8 @@ function openDaySheet(d) {
   const runSec = document.createElement("div");
   runSec.className = "sheet-section";
   runSec.innerHTML = `<div class="sheet-section-title">🚗 School Runs</div>`;
-  if (isCurWeek) {
-    const runs = Object.values(scheduleData[`day${dayIdx}`] || {});
+  if (hasSchedData) {
+    const runs = Object.values(weekSched[`day${dayIdx}`] || {});
     if (runs.length) {
       runs.forEach(run => {
         const row = document.createElement("div");
@@ -1512,9 +1622,28 @@ function openDaySheet(d) {
       runSec.innerHTML += `<p class="sheet-empty">No runs scheduled.</p>`;
     }
   } else {
-    runSec.innerHTML += `<p class="sheet-empty">Navigate to this week to see runs.</p>`;
+    runSec.innerHTML += `<p class="sheet-empty">No schedule data for this week yet.</p>`;
   }
   body.appendChild(runSec);
+
+  // "Jump to this week" button if not current week
+  if (!isCurWeek) {
+    const jumpBtn = document.createElement("button");
+    jumpBtn.className = "btn btn-primary btn-sm";
+    jumpBtn.style.cssText = "margin-top:12px;width:100%;justify-content:center;";
+    jumpBtn.textContent = "Switch to this week";
+    jumpBtn.addEventListener("click", () => {
+      currentWeekStart = getWeekStart(d);
+      onWeekChanged();
+      calendarView = "week";
+      document.querySelectorAll(".view-btn").forEach(b=>b.classList.toggle("active",b.dataset.view==="week"));
+      document.getElementById("week-view").style.display = "block";
+      document.getElementById("month-view").style.display = "none";
+      document.getElementById("period-label").textContent = formatPeriodLabel();
+      document.getElementById("day-sheet-overlay").classList.add("hidden");
+    });
+    body.appendChild(jumpBtn);
+  }
 
   document.getElementById("day-sheet-overlay").classList.remove("hidden");
 }
@@ -1695,7 +1824,7 @@ document.getElementById("deal-alerts-toggle").addEventListener("click",()=>{
 // ══════════════════════════
 function subscribeSchedule() {
   const wk=weekKey(currentWeekStart);
-  schedUnsub=dbListen(`schedule/${wk}`,data=>{ scheduleData=data||{}; renderSchedule(); renderConsolidated(); if(calendarView==="month") buildMonthGrid(); });
+  schedUnsub=dbListen(`schedule/${wk}`,data=>{ scheduleData=data||{}; monthScheduleCache[wk]=scheduleData; renderSchedule(); renderConsolidated(); if(calendarView==="month") renderMonthCells(); });
 }
 
 function buildScheduleGrid() {
@@ -1775,7 +1904,7 @@ const EVENT_TYPE_CLASSES = {playdate:"type-playdate",activity:"type-activity",ap
 let editingEventId=null;
 
 function subscribeEvents() {
-  dbListen("events",data=>{ eventsData=data||{}; renderEvents(); renderConsolidated(); if(calendarView==="month") buildMonthGrid(); });
+  dbListen("events",data=>{ eventsData=data||{}; renderEvents(); renderConsolidated(); if(calendarView==="month") renderMonthCells(); });
 }
 
 function renderEvents() {
@@ -2169,11 +2298,18 @@ document.getElementById("accept-all-btn")?.addEventListener("click", () => {
     });
   });
 
-  // Add lunch always-include items
+  // Add lunch always-include items + weekly staples
   const alwaysItems = [
     {name:"Drinkable yogurt (Yop/Kefir)",qty:"5",section:"dairy"},
     {name:"Applesauce pouches",qty:"5",section:"snacks"},
     {name:"Fruit gummies / Dunkaroos",qty:"5",section:"snacks"},
+    // Weekly breakfast & bakery staples
+    {name:"Bread (sliced)",qty:"1 loaf",section:"bakery"},
+    {name:"Bagels",qty:"6-pack",section:"bakery"},
+    {name:"English muffins",qty:"6-pack",section:"bakery"},
+    {name:"Mini muffins / treats (Cobs)",qty:"1 pack",section:"bakery",store:"other"},
+    {name:"Bacon",qty:"1 pack",section:"meat"},
+    {name:"Breakfast sausages",qty:"1 pack",section:"meat"},
   ];
   alwaysItems.forEach(i => {
     const key = `${i.section}__${i.name}`;
@@ -2184,7 +2320,7 @@ document.getElementById("accept-all-btn")?.addEventListener("click", () => {
   let count = 0;
   Object.values(allIngredients).forEach(item => {
     dbPush(`grocery/${item.section}`, {
-      name: item.name, qty: item.qty || "", checked: false, store: "metro",
+      name: item.name, qty: item.qty || "", checked: false, store: item.store || "metro",
       createdAt: isConfigured ? serverTimestamp() : Date.now()
     });
     count++;
