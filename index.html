@@ -55,13 +55,24 @@
     .logo { display: flex; align-items: center; gap: 8px; }
     .logo svg { color: var(--accent); }
     .logo span { font-weight: 700; font-size: 1.05rem; }
-    #sync-indicator {
-      font-size: .72rem; font-weight: 600; padding: 3px 9px;
-      border-radius: 20px; transition: all .3s;
+    .profile-btn {
+      width: 40px; height: 40px; border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      background: var(--surface-2); border: 2px solid var(--border);
+      cursor: pointer; font-size: 1.3rem; transition: all .15s;
+      -webkit-tap-highlight-color: transparent;
     }
-    #sync-indicator.live    { background: #d4edda; color: #1e6b35; }
-    #sync-indicator.saving  { background: var(--warm-light); color: var(--warm); }
-    #sync-indicator.offline { background: #f8d7da; color: #842029; }
+    .profile-btn:hover { background: var(--border); border-color: var(--accent); }
+    .profile-btn:active { transform: scale(.95); }
+    .sync-status {
+      font-size: .65rem; font-weight: 600; padding: 2px 6px;
+      border-radius: 20px; transition: all .3s; position: absolute;
+      top: 2px; right: 2px; width: 14px; height: 14px;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .sync-status.live    { background: #d4edda; color: #1e6b35; }
+    .sync-status.saving  { background: var(--warm-light); color: var(--warm); }
+    .sync-status.offline { background: #f8d7da; color: #842029; }
 
     /* ── Period nav (week/month arrows + label) ── */
     #period-nav {
@@ -177,6 +188,87 @@
     @keyframes slideUp { from { transform: translateY(24px); opacity: 0; } }
     .modal h2 { margin-bottom: 14px; }
     @media (min-width: 600px) { .modal-overlay { align-items: center; } }
+
+    /* ── Setup Overlay (Full screen) ── */
+    #setup-overlay {
+      position: fixed; inset: 0; z-index: 300;
+      background: var(--surface); display: flex; align-items: center; justify-content: center;
+      padding: 16px;
+    }
+    #setup-overlay.hidden { display: none; }
+    .setup-panel {
+      width: 100%; max-width: 360px; text-align: center;
+    }
+    .setup-panel h1 { font-size: 1.5rem; margin-bottom: 12px; font-weight: 700; }
+    .setup-panel p { font-size: .9rem; color: var(--text-muted); margin-bottom: 24px; line-height: 1.6; }
+    .setup-flow { display: none; }
+    .setup-flow.active { display: block; }
+    .setup-flow h3 { font-size: 1rem; margin-bottom: 16px; font-weight: 600; }
+    .setup-input-group { margin-bottom: 14px; }
+    .setup-input-group label { display: block; font-size: .78rem; font-weight: 600; margin-bottom: 6px; color: var(--text-muted); text-align: left; }
+    .setup-input-group input, .setup-input-group select {
+      width: 100%; padding: 12px; border: 1px solid var(--border); border-radius: var(--radius-sm);
+      font-family: var(--font); font-size: .9rem; background: var(--surface); color: var(--text);
+    }
+    .setup-input-group input:focus, .setup-input-group select:focus {
+      border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-light);
+      outline: none;
+    }
+    .emoji-picker { display: flex; gap: 8px; justify-content: center; margin-bottom: 14px; flex-wrap: wrap; }
+    .emoji-option {
+      width: 44px; height: 44px; border-radius: var(--radius-sm); border: 2px solid var(--border);
+      font-size: 1.5rem; display: flex; align-items: center; justify-content: center;
+      cursor: pointer; transition: all .15s; background: var(--surface-2);
+    }
+    .emoji-option.selected { border-color: var(--accent); background: var(--accent-light); }
+    .emoji-option:hover { border-color: var(--accent); }
+    .setup-tabs { display: flex; gap: 8px; margin-bottom: 20px; }
+    .setup-tab-btn {
+      flex: 1; padding: 11px; border-radius: var(--radius-sm); border: 1px solid var(--border);
+      background: var(--surface-2); color: var(--text); cursor: pointer;
+      font-size: .85rem; font-weight: 600; transition: all .15s;
+    }
+    .setup-tab-btn.active {
+      background: var(--accent); color: #fff; border-color: var(--accent);
+    }
+    .setup-actions { display: flex; gap: 8px; margin-top: 16px; }
+    .setup-actions .btn { flex: 1; }
+
+    /* ── Profile Modal ── */
+    #profile-modal {
+      position: fixed; inset: 0; z-index: 250;
+      background: rgba(0,0,0,.4); backdrop-filter: blur(2px);
+      display: flex; align-items: flex-end; justify-content: center; padding: 12px;
+      animation: fadeIn .15s;
+    }
+    #profile-modal.hidden { display: none; }
+    .profile-panel {
+      background: var(--surface); border-radius: var(--radius);
+      width: 100%; max-width: 400px; padding: 20px; animation: slideUp .2s ease;
+    }
+    .profile-panel h2 { margin-bottom: 16px; font-size: 1.1rem; }
+    .profile-info-row {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 12px 0; border-bottom: 1px solid var(--border);
+    }
+    .profile-info-row:last-child { border-bottom: none; }
+    .profile-info-label { font-size: .78rem; font-weight: 600; color: var(--text-muted); }
+    .profile-info-value {
+      font-size: .9rem; color: var(--text); font-weight: 500; display: flex; align-items: center; gap: 6px;
+    }
+    .family-code-display {
+      background: var(--surface-2); padding: 10px 12px; border-radius: var(--radius-sm);
+      font-family: monospace; font-size: .85rem; font-weight: 600; letter-spacing: 1px;
+      display: flex; align-items: center; justify-content: space-between;
+    }
+    .copy-code-btn {
+      width: 28px; height: 28px; border-radius: 4px; border: 1px solid var(--border);
+      background: var(--surface); cursor: pointer; display: flex; align-items: center;
+      justify-content: center; font-size: .8rem; transition: all .15s;
+    }
+    .copy-code-btn:hover { background: var(--border); }
+    .profile-actions { display: flex; gap: 8px; margin-top: 18px; }
+    .profile-actions .btn { flex: 1; }
 
     /* ── Badge ── */
     .badge {
@@ -499,7 +591,72 @@
     /* ════════════════════════════════════════
        SCHEDULE
     ════════════════════════════════════════ */
-    .schedule-grid { display: flex; flex-direction: column; gap: 7px; }
+    /* ── Schedule Consolidated View ── */
+    .schedule-grid { display: flex; flex-direction: column; gap: 0; }
+    .schedule-week-header {
+      padding: 12px 14px; background: var(--surface-2); font-size: .78rem;
+      font-weight: 700; color: var(--text-muted); display: flex; align-items: center; gap: 8px;
+    }
+    .schedule-week-count {
+      background: var(--accent); color: #fff; padding: 2px 8px;
+      border-radius: 20px; font-size: .65rem; font-weight: 700;
+    }
+    .schedule-day-row {
+      display: flex; align-items: center; gap: 10px; padding: 11px 14px;
+      border-bottom: 1px solid var(--border); cursor: pointer;
+      transition: background .12s; -webkit-tap-highlight-color: transparent;
+      background: var(--surface);
+    }
+    .schedule-day-row:hover { background: var(--surface-2); }
+    .schedule-day-row.open { background: var(--surface-2); }
+    .schedule-day-label {
+      flex: 0 0 auto; min-width: 80px;
+    }
+    .schedule-day-name {
+      font-weight: 700; font-size: .88rem; color: var(--text);
+    }
+    .schedule-day-date {
+      font-size: .72rem; color: var(--text-muted); margin-top: 2px;
+    }
+    .schedule-day-row.is-today .schedule-day-name { color: var(--accent); }
+    .schedule-run-count {
+      background: var(--accent-light); color: var(--accent);
+      padding: 3px 10px; border-radius: 20px; font-size: .72rem;
+      font-weight: 700; flex-shrink: 0;
+    }
+    .schedule-day-row:hover .schedule-run-count {
+      background: var(--accent); color: #fff;
+    }
+    .schedule-chevron {
+      flex-shrink: 0; color: var(--text-muted); transition: transform .2s;
+      margin-left: auto; width: 18px; height: 18px;
+    }
+    .schedule-day-row.open .schedule-chevron { transform: rotate(180deg); }
+    .schedule-runs-inline {
+      display: none; padding: 0 14px 10px; background: var(--surface);
+    }
+    .schedule-day-row.open + .schedule-runs-inline { display: block; }
+    .schedule-run-item {
+      padding: 8px 10px; background: var(--surface-2); border-radius: var(--radius-sm);
+      margin-bottom: 7px; cursor: pointer; transition: background .12s;
+      display: flex; align-items: flex-start; gap: 8px;
+    }
+    .schedule-run-item:hover { background: var(--border); }
+    .schedule-run-item:last-child { margin-bottom: 0; }
+    .schedule-run-time {
+      flex-shrink: 0; font-weight: 700; font-size: .82rem; color: var(--text);
+      min-width: 70px;
+    }
+    .schedule-run-details { flex: 1; min-width: 0; }
+    .schedule-run-desc { font-size: .82rem; color: var(--text); font-weight: 500; }
+    .schedule-run-who {
+      font-size: .7rem; font-weight: 600; color: var(--text-muted);
+      text-transform: uppercase; letter-spacing: .3px; margin-top: 2px;
+    }
+    .schedule-empty-msg {
+      font-size: .75rem; color: var(--text-muted);
+      padding: 4px 0; font-style: italic;
+    }
     .schedule-day { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-sm); overflow: hidden; }
     .schedule-day-header { display: flex; align-items: center; justify-content: space-between; padding: 11px 13px; }
     .schedule-day-header .day-info { display: flex; flex-direction: column; gap: 1px; }
@@ -650,6 +807,72 @@
       display:flex; gap:8px; justify-content:center; margin-top:12px;
     }
 
+    /* Locked plan panel */
+    .plan-panel {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: var(--radius); padding: 12px; margin-bottom: 14px;
+    }
+    .plan-panel-title {
+      font-size: .82rem; font-weight: 700; margin-bottom: 8px;
+      display: flex; align-items: center; gap: 6px;
+    }
+    .plan-row {
+      display: flex; align-items: center; gap: 8px; padding: 6px 8px;
+      border-radius: var(--radius-sm); margin-bottom: 3px; font-size: .8rem;
+      min-height: 34px;
+    }
+    .plan-row.locked {
+      background: #dcfce7; border: 1px solid #86efac;
+    }
+    .plan-row.leftover {
+      background: var(--surface-2); color: var(--text-muted); font-style: italic;
+      border: 1px dashed var(--border);
+    }
+    .plan-row.empty {
+      border: 1px dashed var(--border); color: var(--text-muted); font-style: italic;
+    }
+    .plan-row .plan-day {
+      font-weight: 700; font-size: .68rem; text-transform: uppercase;
+      letter-spacing: .3px; min-width: 32px; color: var(--text-muted);
+    }
+    .plan-row .plan-meal { flex: 1; }
+    .plan-row .plan-unlock {
+      cursor: pointer; opacity: .6; font-size: .7rem; padding: 2px 6px;
+      border-radius: 4px; border: 1px solid var(--border); background: var(--surface);
+    }
+    .plan-row .plan-unlock:hover { opacity: 1; }
+
+    .idea-card.accepted {
+      border-color: #86efac; background: #f0fdf4;
+    }
+    .idea-card.covered {
+      opacity: .5; pointer-events: none;
+    }
+    .idea-card .covers-select {
+      padding: 3px 6px; font-size: .72rem; border: 1px solid var(--border);
+      border-radius: var(--radius-sm); background: var(--surface);
+      font-family: var(--font); color: var(--text);
+    }
+    .lunch-card.accepted {
+      border-color: #86efac; background: #f0fdf4;
+    }
+    .lunch-card.covered {
+      opacity: .5; pointer-events: none;
+    }
+
+    /* Finalize bar */
+    .finalize-bar {
+      position: sticky; bottom: calc(var(--tab-h) + 4px);
+      background: var(--accent); color: #fff;
+      border-radius: var(--radius); padding: 12px 16px;
+      box-shadow: 0 -2px 12px rgba(0,0,0,.12);
+      display: flex; flex-wrap: wrap; gap: 8px; justify-content: center;
+      margin-top: 12px;
+    }
+    .finalize-bar .btn { color: #fff; border-color: rgba(255,255,255,.3); }
+    .finalize-bar .btn-ghost { background: rgba(255,255,255,.15); color: #fff; }
+    .finalize-bar .btn-ghost:hover { background: rgba(255,255,255,.25); }
+
     /* ── Demo note ── */
     .demo-note {
       background: #fffbeb; border: 1px solid #fcd34d;
@@ -667,11 +890,16 @@
       <svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
       <span>Family Hub</span>
     </div>
-    <span id="sync-indicator" class="offline">🔴 Offline</span>
+    <div style="display:flex;align-items:center;gap:12px;">
+      <button class="profile-btn" id="profile-btn">👤</button>
+      <div style="position:relative;width:24px;height:24px;display:flex;align-items:center;justify-content:center;">
+        <span id="sync-indicator" class="sync-status offline">●</span>
+      </div>
+    </div>
   </header>
 
   <!-- Period nav -->
-  <div id="period-nav">
+  <div id="period-nav" style="display:none;">
     <button class="period-arrow" id="prev-period">‹</button>
     <span id="period-label">…</span>
     <button class="period-arrow" id="next-period">›</button>
@@ -685,7 +913,7 @@
   <main id="content">
 
     <!-- ── MEALS / CALENDAR ── -->
-    <section class="page active" id="page-meals">
+    <section class="page" id="page-meals">
 
       <!-- WEEK VIEW -->
       <div id="week-view">
@@ -847,7 +1075,7 @@
     </section>
 
     <!-- ── IDEAS ── -->
-    <section class="page" id="page-ideas">
+    <section class="page active" id="page-ideas">
 
       <div class="ideas-header">
         <h2 style="display:flex;align-items:center;gap:7px;">
@@ -883,6 +1111,15 @@
       <!-- Generated results -->
       <div id="ideas-results">
 
+        <!-- Plan panel (shows accepted meals) -->
+        <div class="plan-panel" id="plan-panel" style="display:none;">
+          <div class="plan-panel-title">📋 This Week's Plan <span style="font-size:.68rem;font-weight:500;color:var(--text-muted);margin-left:auto;" id="plan-counter">0/12 set</span></div>
+          <div style="margin-bottom:6px;"><span style="font-size:.72rem;font-weight:700;color:var(--text-muted);">DINNERS</span></div>
+          <div id="plan-dinners"></div>
+          <div style="margin:8px 0 6px;"><span style="font-size:.72rem;font-weight:700;color:var(--text-muted);">KID LUNCHES</span></div>
+          <div id="plan-lunches"></div>
+        </div>
+
         <div id="deal-highlights-section" class="ideas-section" style="display:none;">
           <div class="ideas-section-title">🏷️ Deal-Matched Items</div>
           <div id="deal-highlights"></div>
@@ -903,11 +1140,13 @@
           <div id="seasonal-snacks" class="snack-list"></div>
         </div>
 
-        <div class="accept-all-bar" id="accept-all-bar" style="display:none;">
-          <button class="btn btn-primary" id="accept-all-btn">
+        <div class="finalize-bar" id="finalize-bar" style="display:none;">
+          <button class="btn btn-ghost" id="finalize-btn">
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
-            Accept All &amp; Build Grocery List
+            Finalize &amp; Build Grocery List
           </button>
+          <button class="btn btn-ghost" id="copy-plan-btn">📋 Copy Plan</button>
+          <button class="btn btn-ghost" id="email-plan-btn">📧 Email Plan</button>
           <button class="btn btn-ghost" id="clear-ideas-btn">Clear</button>
         </div>
 
@@ -918,7 +1157,11 @@
 
   <!-- Bottom tabs -->
   <nav id="tabs">
-    <button class="tab-btn active" data-page="meals">
+    <button class="tab-btn active" data-page="ideas">
+      <svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2a7 7 0 0 0-4 12.74V17a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1v-2.26A7 7 0 0 0 12 2z"/><line x1="9" y1="21" x2="15" y2="21"/></svg>
+      <span>Ideas</span>
+    </button>
+    <button class="tab-btn" data-page="meals">
       <svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
       <span>Calendar</span>
     </button>
@@ -933,10 +1176,6 @@
     <button class="tab-btn" data-page="events">
       <svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
       <span>Events</span>
-    </button>
-    <button class="tab-btn" data-page="ideas">
-      <svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2a7 7 0 0 0-4 12.74V17a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1v-2.26A7 7 0 0 0 12 2z"/><line x1="9" y1="21" x2="15" y2="21"/></svg>
-      <span>Ideas</span>
     </button>
   </nav>
 
@@ -1016,6 +1255,112 @@
 
 <div id="toast-container"></div>
 
+<!-- Profile Setup Overlay (shown on first visit) -->
+<div id="setup-overlay" class="hidden">
+  <div class="setup-panel">
+    <h1>👋 Welcome to Family Hub</h1>
+    <p>Let's set up your profile and connect your family.</p>
+
+    <!-- Create Family Flow -->
+    <div class="setup-flow active" id="setup-create">
+      <h3>Create Your Family</h3>
+      <div class="setup-input-group">
+        <label>Your Name</label>
+        <input type="text" id="setup-name-create" placeholder="e.g. Amanda" />
+      </div>
+      <div class="setup-input-group">
+        <label>Your Role</label>
+        <select id="setup-role-create">
+          <option value="Mom">Mom</option>
+          <option value="Dad">Dad</option>
+          <option value="Other">Other</option>
+        </select>
+      </div>
+      <div class="setup-input-group">
+        <label>Pick Your Avatar Emoji</label>
+        <div class="emoji-picker">
+          <div class="emoji-option selected" data-emoji="👩">👩</div>
+          <div class="emoji-option" data-emoji="👨">👨</div>
+          <div class="emoji-option" data-emoji="🧑">🧑</div>
+          <div class="emoji-option" data-emoji="💼">💼</div>
+          <div class="emoji-option" data-emoji="🌟">🌟</div>
+          <div class="emoji-option" data-emoji="🎨">🎨</div>
+        </div>
+      </div>
+      <div class="setup-actions">
+        <button class="btn btn-primary" id="setup-create-btn">Create Family</button>
+        <button class="btn btn-ghost" id="setup-switch-join">Have a code?</button>
+      </div>
+    </div>
+
+    <!-- Join Family Flow -->
+    <div class="setup-flow" id="setup-join">
+      <h3>Join Your Family</h3>
+      <div class="setup-input-group">
+        <label>Your Name</label>
+        <input type="text" id="setup-name-join" placeholder="e.g. Amanda" />
+      </div>
+      <div class="setup-input-group">
+        <label>Your Role</label>
+        <select id="setup-role-join">
+          <option value="Mom">Mom</option>
+          <option value="Dad">Dad</option>
+          <option value="Other">Other</option>
+        </select>
+      </div>
+      <div class="setup-input-group">
+        <label>Pick Your Avatar Emoji</label>
+        <div class="emoji-picker" id="emoji-picker-join">
+          <div class="emoji-option selected" data-emoji="👩">👩</div>
+          <div class="emoji-option" data-emoji="👨">👨</div>
+          <div class="emoji-option" data-emoji="🧑">🧑</div>
+          <div class="emoji-option" data-emoji="💼">💼</div>
+          <div class="emoji-option" data-emoji="🌟">🌟</div>
+          <div class="emoji-option" data-emoji="🎨">🎨</div>
+        </div>
+      </div>
+      <div class="setup-input-group">
+        <label>Family Code (from your partner)</label>
+        <input type="text" id="setup-code-input" placeholder="e.g. ABC123" maxlength="6" style="text-transform:uppercase;letter-spacing:2px;" />
+      </div>
+      <div class="setup-actions">
+        <button class="btn btn-primary" id="setup-join-btn">Join Family</button>
+        <button class="btn btn-ghost" id="setup-switch-create">Create new</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Profile Modal -->
+<div id="profile-modal" class="hidden">
+  <div class="profile-panel">
+    <h2>Your Profile</h2>
+    <div class="profile-info-row">
+      <span class="profile-info-label">Avatar</span>
+      <span class="profile-info-value" id="profile-avatar">👤</span>
+    </div>
+    <div class="profile-info-row">
+      <span class="profile-info-label">Name</span>
+      <span class="profile-info-value" id="profile-name">—</span>
+    </div>
+    <div class="profile-info-row">
+      <span class="profile-info-label">Role</span>
+      <span class="profile-info-value" id="profile-role">—</span>
+    </div>
+    <div class="profile-info-row">
+      <span class="profile-info-label">Family Code</span>
+      <div class="family-code-display">
+        <span id="profile-code">XXXXXX</span>
+        <button class="copy-code-btn" id="copy-code-btn">📋</button>
+      </div>
+    </div>
+    <div class="profile-actions">
+      <button class="btn btn-ghost" id="close-profile-btn">Close</button>
+      <button class="btn btn-danger" id="leave-family-btn">Leave Family</button>
+    </div>
+  </div>
+</div>
+
 <!-- ─────────────────────────────────────
      FIREBASE CONFIG — replace with yours
      See README.md for setup instructions
@@ -1048,6 +1393,15 @@ if (isConfigured) {
   showDemoNote();
 }
 
+// Initialize profile on app load
+document.addEventListener("DOMContentLoaded", () => {
+  if (!loadProfile()) {
+    showSetupOverlay();
+  } else {
+    hideSetupOverlay();
+  }
+});
+
 // ══════════════════════════
 // DATE HELPERS
 // ══════════════════════════
@@ -1078,27 +1432,156 @@ function formatPeriodLabel() {
 }
 
 // ══════════════════════════
+// PROFILE MANAGEMENT
+// ══════════════════════════
+let userProfile = null; // { name, role, emoji, familyCode }
+const PROFILE_KEY = "familyhub_profile";
+
+function generateFamilyCode() {
+  return Math.random().toString(36).substring(2, 8).toUpperCase();
+}
+
+function loadProfile() {
+  const stored = localStorage.getItem(PROFILE_KEY);
+  if (stored) {
+    try {
+      userProfile = JSON.parse(stored);
+      updateProfileButton();
+      return true;
+    } catch (e) {
+      console.error("Profile parse error:", e);
+      return false;
+    }
+  }
+  return false;
+}
+
+function saveProfile() {
+  if (!userProfile) return;
+  localStorage.setItem(PROFILE_KEY, JSON.stringify(userProfile));
+  updateProfileButton();
+}
+
+function updateProfileButton() {
+  if (!userProfile) {
+    document.getElementById("profile-btn").textContent = "👤";
+    return;
+  }
+  document.getElementById("profile-btn").textContent = userProfile.emoji;
+}
+
+function showSetupOverlay() {
+  document.getElementById("setup-overlay").classList.remove("hidden");
+}
+
+function hideSetupOverlay() {
+  document.getElementById("setup-overlay").classList.add("hidden");
+}
+
+function showProfileModal() {
+  if (!userProfile) return;
+  document.getElementById("profile-avatar").textContent = userProfile.emoji;
+  document.getElementById("profile-name").textContent = userProfile.name;
+  document.getElementById("profile-role").textContent = userProfile.role;
+  document.getElementById("profile-code").textContent = userProfile.familyCode;
+  document.getElementById("profile-modal").classList.remove("hidden");
+}
+
+function hideProfileModal() {
+  document.getElementById("profile-modal").classList.add("hidden");
+}
+
+// Setup flows
+document.getElementById("setup-switch-join").addEventListener("click", () => {
+  document.getElementById("setup-create").classList.remove("active");
+  document.getElementById("setup-join").classList.add("active");
+});
+document.getElementById("setup-switch-create").addEventListener("click", () => {
+  document.getElementById("setup-join").classList.remove("active");
+  document.getElementById("setup-create").classList.add("active");
+});
+
+// Emoji selection
+document.querySelectorAll(".emoji-picker .emoji-option").forEach(opt => {
+  opt.addEventListener("click", (e) => {
+    e.target.closest(".emoji-picker").querySelectorAll(".emoji-option").forEach(o => o.classList.remove("selected"));
+    opt.classList.add("selected");
+  });
+});
+
+// Create family
+document.getElementById("setup-create-btn").addEventListener("click", () => {
+  const name = document.getElementById("setup-name-create").value.trim();
+  const role = document.getElementById("setup-role-create").value;
+  const emoji = document.getElementById("setup-create").querySelector(".emoji-picker .emoji-option.selected").dataset.emoji;
+  if (!name) { alert("Please enter your name"); return; }
+  userProfile = { name, role, emoji, familyCode: generateFamilyCode() };
+  saveProfile();
+  hideSetupOverlay();
+  showToast(`Welcome, ${name}!`);
+});
+
+// Join family
+document.getElementById("setup-join-btn").addEventListener("click", () => {
+  const name = document.getElementById("setup-name-join").value.trim();
+  const role = document.getElementById("setup-role-join").value;
+  const code = document.getElementById("setup-code-input").value.trim().toUpperCase();
+  const emoji = document.getElementById("setup-join").querySelector(".emoji-picker .emoji-option.selected").dataset.emoji;
+  if (!name) { alert("Please enter your name"); return; }
+  if (!code || code.length !== 6) { alert("Please enter a valid 6-character family code"); return; }
+  userProfile = { name, role, emoji, familyCode: code };
+  saveProfile();
+  hideSetupOverlay();
+  showToast(`Welcome to the family, ${name}!`);
+});
+
+// Profile modal actions
+document.getElementById("profile-btn").addEventListener("click", showProfileModal);
+document.getElementById("close-profile-btn").addEventListener("click", hideProfileModal);
+document.getElementById("copy-code-btn").addEventListener("click", () => {
+  const code = userProfile.familyCode;
+  navigator.clipboard.writeText(code).then(() => showToast("Family code copied!"));
+});
+document.getElementById("leave-family-btn").addEventListener("click", () => {
+  if (confirm("Leave family? You'll need to set up a new profile.")) {
+    localStorage.removeItem(PROFILE_KEY);
+    userProfile = null;
+    hideProfileModal();
+    location.reload();
+  }
+});
+document.getElementById("profile-modal").addEventListener("click", e => {
+  if (e.target === document.getElementById("profile-modal")) hideProfileModal();
+});
+
+// ══════════════════════════
 // DB HELPERS
 // ══════════════════════════
 function setSyncStatus(s) {
   const el = document.getElementById("sync-indicator");
-  el.className = s;
-  el.textContent = s==="live" ? "🟢 Live" : s==="saving" ? "🟡 Saving…" : "🔴 Offline";
+  el.className = "sync-status " + s;
+  el.textContent = s==="live" ? "●" : s==="saving" ? "●" : "●";
 }
 function saving(p) { setSyncStatus("saving"); return p.then(()=>setSyncStatus("live")).catch(e=>{console.error(e);setSyncStatus("offline");}); }
 
-function dbUpdate(path,val)  { if(!isConfigured){updateLocal(path,val);localNotify(path);return Promise.resolve();} return saving(update(ref(db,path),val)); }
-function dbPush(path,val)    { if(!isConfigured){const r=pushLocal(path,val);localNotify(path);return r;} return saving(push(ref(db,path),val)); }
-function dbRemove(path)      { if(!isConfigured){removeLocal(path);localNotify(path);return Promise.resolve();} return saving(remove(ref(db,path))); }
+function familyPath(path) {
+  if (!userProfile) return path;
+  return `families/${userProfile.familyCode}/${path}`;
+}
+
+function dbUpdate(path,val)  { const p=familyPath(path); if(!isConfigured){updateLocal(p,val);localNotify(p);return Promise.resolve();} return saving(update(ref(db,p),val)); }
+function dbPush(path,val)    { const p=familyPath(path); if(!isConfigured){const r=pushLocal(p,val);localNotify(p);return r;} return saving(push(ref(db,p),val)); }
+function dbRemove(path)      { const p=familyPath(path); if(!isConfigured){removeLocal(p);localNotify(p);return Promise.resolve();} return saving(remove(ref(db,p))); }
 function dbListen(path,cb) {
+  const p=familyPath(path);
   if (!isConfigured) {
     // Event-driven local mode: call once now, then re-call when data under this path changes
-    cb(getLocalAt(path));
-    if (!localListeners[path]) localListeners[path] = [];
-    localListeners[path].push(cb);
-    return () => { localListeners[path] = (localListeners[path]||[]).filter(fn=>fn!==cb); };
+    cb(getLocalAt(p));
+    if (!localListeners[p]) localListeners[p] = [];
+    localListeners[p].push(cb);
+    return () => { localListeners[p] = (localListeners[p]||[]).filter(fn=>fn!==cb); };
   }
-  const r=ref(db,path); const u=onValue(r,s=>cb(s.val())); return u;
+  const r=ref(db,p); const u=onValue(r,s=>cb(s.val())); return u;
 }
 
 // Local fallback — event-driven (no polling)
@@ -1855,39 +2338,87 @@ function subscribeSchedule() {
 
 function buildScheduleGrid() {
   const grid=document.getElementById("schedule-grid"); grid.innerHTML="";
+
+  // Week header
+  const header=document.createElement("div"); header.className="schedule-week-header";
+  const end=new Date(currentWeekStart); end.setDate(end.getDate()+6);
+  header.innerHTML=`This Week <span class="schedule-week-count" id="week-run-count">0</span>`;
+  grid.appendChild(header);
+
+  // Day rows
   for(let i=0;i<7;i++){
     const d=dayOfWeek(currentWeekStart,i),today=isToday(d);
-    const div=document.createElement("div"); div.className="schedule-day"; div.dataset.day=i;
-    if(today) div.style.border="1.5px solid var(--accent)";
-    div.innerHTML=`
-      <div class="schedule-day-header">
-        <div class="day-info">
-          <span class="day-name">${DAY_NAMES[i]}${today?` <span class="badge badge-accent" style="font-size:.62rem;">Today</span>`:""}</span>
-          <span class="day-date">${MONTH_SHORT[d.getMonth()]} ${d.getDate()}</span>
-        </div>
-        <button class="btn btn-ghost btn-sm add-run-btn" data-day="${i}">
-          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg> Add
-        </button>
+
+    // Day row (clickable)
+    const row=document.createElement("div");
+    row.className="schedule-day-row"+(today?" is-today":"");
+    row.dataset.day=i;
+    row.innerHTML=`
+      <div class="schedule-day-label">
+        <div class="schedule-day-name">${DAY_NAMES[i]}</div>
+        <div class="schedule-day-date">${MONTH_SHORT[d.getMonth()]} ${d.getDate()}</div>
       </div>
-      <div class="schedule-runs" data-day="${i}"></div>`;
-    div.querySelector(".add-run-btn").addEventListener("click",()=>openRunModal(i,null));
-    grid.appendChild(div);
+      <span class="schedule-run-count" data-day="${i}">0</span>
+      <svg class="schedule-chevron" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+    `;
+    row.addEventListener("click",()=>row.classList.toggle("open"));
+    grid.appendChild(row);
+
+    // Inline runs container
+    const runsCont=document.createElement("div");
+    runsCont.className="schedule-runs-inline";
+    runsCont.dataset.day=i;
+    grid.appendChild(runsCont);
+
+    // Add run button (in the inline area)
+    const addBtn=document.createElement("div");
+    addBtn.style.cssText="padding:7px 14px;border-top:1px solid var(--border);";
+    addBtn.innerHTML=`<button class="btn btn-primary btn-sm" style="width:100%;" data-day="${i}"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg> Add Run</button>`;
+    addBtn.querySelector("button").addEventListener("click",()=>openRunModal(i,null));
+    runsCont.appendChild(addBtn);
   }
+  renderSchedule();
 }
 
 function renderSchedule() {
+  let totalRuns=0;
   for(let i=0;i<7;i++){
-    const rc=document.querySelector(`.schedule-runs[data-day="${i}"]`); if(!rc)continue;
-    rc.innerHTML="";
+    const rc=document.querySelector(`.schedule-runs-inline[data-day="${i}"]`); if(!rc)continue;
+
+    // Clear previous runs (keep the add button)
+    const children=Array.from(rc.children);
+    for(let j=0;j<children.length-1;j++) children[j].remove();
+
     const runs=Object.entries(scheduleData[`day${i}`]||{}).sort((a,b)=>(a[1].time||"").localeCompare(b[1].time||""));
+    const runsCont=document.createElement("div"); runsCont.style.cssText="padding:7px 14px;";
+
     runs.forEach(([id,run])=>{
-      const row=document.createElement("div"); row.className="run-item"; row.style.cursor="pointer";
-      row.innerHTML=`<span class="run-time">${escHtml(run.time||"")}</span><span class="run-desc">${escHtml(run.desc||"")}</span><span class="run-who ${run.who||""}">${run.who==="wife"?"Wife":run.who==="husband"?"Husband":"Both"}</span>`;
-      row.addEventListener("click",()=>openRunModal(i,id));
-      rc.appendChild(row);
+      const item=document.createElement("div"); item.className="schedule-run-item";
+      item.innerHTML=`
+        <span class="schedule-run-time">${escHtml(run.time||"—")}</span>
+        <div class="schedule-run-details">
+          <div class="schedule-run-desc">${escHtml(run.desc||"")}</div>
+          <div class="schedule-run-who">${run.who==="wife"?"Mom":run.who==="husband"?"Dad":"Both"}</div>
+        </div>
+      `;
+      item.addEventListener("click",e=>{e.stopPropagation();openRunModal(i,id);});
+      runsCont.appendChild(item);
     });
-    if(!runs.length) rc.innerHTML=`<p style="font-size:.75rem;color:var(--text-muted);padding:3px 0 7px;">No runs scheduled</p>`;
+
+    if(!runs.length){
+      const empty=document.createElement("div");
+      empty.className="schedule-empty-msg";
+      empty.textContent="No runs scheduled";
+      runsCont.appendChild(empty);
+    }
+
+    rc.insertBefore(runsCont, rc.firstChild);
+    totalRuns+=runs.length;
+
+    // Update badge
+    document.querySelector(`.schedule-run-count[data-day="${i}"]`).textContent=runs.length;
   }
+  document.getElementById("week-run-count").textContent=totalRuns;
 }
 
 // Run modal
@@ -2093,6 +2624,10 @@ FLYER_STORES.forEach(k => {
 // ══════════════════════════
 let generatedDinners = [];
 let generatedLunches = [];
+let acceptedDinners = {}; // {0: true, 1: true, ...}
+let acceptedLunches = {}; // {0: true, ...}
+let dinnerCovers = {};    // {0: 2, ...} - number of days it covers
+let lunchCovers = {};     // same for lunches
 
 function generateWeekPlan() {
   const season = curSeason();
@@ -2117,52 +2652,95 @@ function generateWeekPlan() {
   // Check flyer deals for deal matching
   const allDeals = Object.values(flyerDealsData).join(" ").toLowerCase();
 
-  // Pick 7 dinners — variety in protein + method
+  // Pick 7 dinners — variety in protein + method — ONLY unlock slots
   const usedProteins = {}, usedMethods = {};
-  generatedDinners = [];
+
+  // Initialize empty dinners array for all unlocked slots
+  const newDinners = [];
+  for (let i = 0; i < 7; i++) {
+    if (acceptedDinners[i]) {
+      // Keep the locked meal
+      newDinners.push(generatedDinners[i]);
+    } else {
+      // This slot will be regenerated
+      newDinners.push(null);
+    }
+    // Count used proteins/methods from locked meals
+    if (acceptedDinners[i] && generatedDinners[i]) {
+      usedProteins[generatedDinners[i].protein] = (usedProteins[generatedDinners[i].protein]||0) + 1;
+      usedMethods[generatedDinners[i].method] = (usedMethods[generatedDinners[i].method]||0) + 1;
+    }
+  }
 
   // Shuffle pool
   pool = pool.sort(() => Math.random() - 0.5);
 
-  // Sunday is prep day — prefer oven/braise/smoke
-  const sundayPool = pool.filter(d => ["Oven","Oven (braise)","Smoke / Low-and-slow"].includes(d.method));
-  if (sundayPool.length) {
-    const pick = sundayPool[0];
-    generatedDinners.push(pick);
-    pool = pool.filter(d => d !== pick);
-    usedProteins[pick.protein] = 1;
-    usedMethods[pick.method] = 1;
-  }
+  // Regenerate only unlocked slots
+  for (let i = 0; i < 7; i++) {
+    if (newDinners[i] !== null) continue; // Already locked
 
-  // Fill Mon–Sat with variety
-  for (let day = 1; day < 7 && pool.length; day++) {
+    let slotPool = pool.filter(d => !newDinners.includes(d));
+    if (!slotPool.length) break;
+
+    // Sunday is prep day
+    if (i === 0) {
+      const sundayPool = slotPool.filter(d => ["Oven","Oven (braise)","Smoke / Low-and-slow"].includes(d.method));
+      slotPool = sundayPool.length ? sundayPool : slotPool;
+    }
+
     // Prefer least-used protein + method
-    pool.sort((a,b) => {
+    slotPool.sort((a,b) => {
       const pa = (usedProteins[a.protein]||0), pb = (usedProteins[b.protein]||0);
       const ma = (usedMethods[a.method]||0), mb = (usedMethods[b.method]||0);
       return (pa + ma) - (pb + mb) + (Math.random() - 0.5);
     });
+
     // Boost items that match deals
-    const dealPool = pool.filter(d => d.ing.some(i => allDeals.includes(i.n.toLowerCase().split(" ")[0])));
-    const pick = dealPool.length > 0 && Math.random() > 0.4 ? dealPool[0] : pool[0];
-    generatedDinners.push(pick);
+    const dealPool = slotPool.filter(d => d.ing.some(x => allDeals.includes(x.n.toLowerCase().split(" ")[0])));
+    const pick = dealPool.length > 0 && Math.random() > 0.4 ? dealPool[0] : slotPool[0];
+    newDinners[i] = pick;
     pool = pool.filter(d => d !== pick);
     usedProteins[pick.protein] = (usedProteins[pick.protein]||0) + 1;
     usedMethods[pick.method] = (usedMethods[pick.method]||0) + 1;
   }
 
-  // Pick 5 kid lunches (Mon-Fri)
-  let lunchPool = [...KID_LUNCHES].sort(() => Math.random() - 0.5);
-  generatedLunches = lunchPool.slice(0, 5);
+  generatedDinners = newDinners;
+
+  // Pick 5 kid lunches (Mon-Fri) — only unlock slots
+  const newLunches = [];
+  for (let i = 0; i < 5; i++) {
+    if (acceptedLunches[i]) {
+      newLunches.push(generatedLunches[i]);
+    } else {
+      newLunches.push(null);
+    }
+  }
+
+  let lunchPool = KID_LUNCHES.filter(l => !newLunches.includes(l)).sort(() => Math.random() - 0.5);
+  for (let i = 0; i < 5; i++) {
+    if (newLunches[i] !== null) continue;
+    if (!lunchPool.length) break;
+    const pick = lunchPool[0];
+    newLunches[i] = pick;
+    lunchPool = lunchPool.filter(l => l !== pick);
+  }
+
+  generatedLunches = newLunches;
+
+  // Update button text
+  const hasLocked = Object.keys(acceptedDinners).length > 0 || Object.keys(acceptedLunches).length > 0;
+  const btnText = hasLocked ? "🔄 Regenerate Open Slots" : "Generate This Week";
+  document.querySelector("#generate-week-btn span:last-child").textContent = btnText;
 
   // Render
   renderDinnerIdeas(allDeals);
   renderLunchIdeas();
   renderSeasonalSnacks();
   renderDealHighlights(allDeals);
+  renderPlanPanel();
+  checkAllAccepted();
 
   document.getElementById("ideas-results").classList.add("visible");
-  document.getElementById("accept-all-bar").style.display = "flex";
   setTimeout(() => btn.classList.remove("loading"), 300);
 }
 
@@ -2193,15 +2771,38 @@ function renderDinnerIdeas(allDeals) {
   const dayShort = ["Sun","Mon","Tue","Wed","Thu","Fri","Sat"];
 
   generatedDinners.forEach((d, i) => {
+    if (!d) return; // Skip empty slots (shouldn't happen but safety)
+
+    // Check if this is a leftover slot
+    const isCovered = Object.keys(dinnerCovers).some(idx => {
+      const idxNum = parseInt(idx);
+      const covers = dinnerCovers[idx];
+      return idxNum < i && i < idxNum + covers;
+    });
+
+    const isAccepted = acceptedDinners[i];
     const deal = findDealMatch(d.ing, allDeals);
     const card = document.createElement("div");
-    card.className = "idea-card";
+    card.className = `idea-card ${isAccepted ? 'accepted' : ''} ${isCovered ? 'covered' : ''}`;
 
     // Build move-to options (other days)
     const moveOpts = dayShort.map((dn,j) => j===i ? "" : `<option value="${j}">${dn}</option>`).filter(Boolean).join("");
 
+    // Covers selector (only show if not covered by another meal)
+    const coversHtml = !isCovered ? `
+      <div style="margin-top:6px;">
+        <label style="font-size:.7rem;color:var(--text-muted);">Covers</label>
+        <select class="covers-select dinner-covers-select" data-idx="${i}" style="width:100%;margin-top:2px;">
+          <option value="1" ${dinnerCovers[i] === 1 || !dinnerCovers[i] ? 'selected' : ''}>1 day</option>
+          <option value="2" ${dinnerCovers[i] === 2 ? 'selected' : ''}>2 days</option>
+          <option value="3" ${dinnerCovers[i] === 3 ? 'selected' : ''}>3 days</option>
+          <option value="4" ${dinnerCovers[i] === 4 ? 'selected' : ''}>4 days</option>
+        </select>
+      </div>
+    ` : '';
+
     card.innerHTML = `
-      <div class="idea-day">${dayNames[i]}</div>
+      <div class="idea-day">${dayNames[i]}${isCovered ? ' <em>(Leftover)</em>' : ''}${isAccepted ? ' 🔒' : ''}</div>
       <div class="idea-name">${escHtml(d.name)}</div>
       <div class="idea-meta">
         <span class="method-tag">${d.method}</span>
@@ -2209,9 +2810,10 @@ function renderDinnerIdeas(allDeals) {
       </div>
       <div class="idea-notes">${escHtml(d.notes)}</div>
       ${deal ? `<div class="idea-deal">🏷️ ${escHtml(deal)}</div>` : ""}
-      <div class="idea-ingredients">🛒 ${d.ing.map(i=>i.n).join(", ")}</div>
-      <div class="idea-actions">
-        <button class="btn btn-primary btn-sm accept-dinner" data-idx="${i}">Accept</button>
+      <div class="idea-ingredients">🛒 ${d.ing.map(x=>x.n).join(", ")}</div>
+      ${coversHtml}
+      <div class="idea-actions" ${isCovered ? 'style="display:none;"' : ''}>
+        <button class="btn ${isAccepted ? 'btn-ghost' : 'btn-primary'} btn-sm accept-dinner" data-idx="${i}">${isAccepted ? '🔒 Locked' : 'Accept'}</button>
         <button class="btn btn-ghost btn-sm swap-dinner" data-idx="${i}">🔄 New Idea</button>
         <select class="move-dinner-select" data-idx="${i}" style="padding:4px 6px;font-size:.74rem;border:1px solid var(--border);border-radius:var(--radius-sm);background:var(--surface);color:var(--text);font-family:var(--font);">
           <option value="">Move to…</option>
@@ -2226,6 +2828,12 @@ function renderDinnerIdeas(allDeals) {
       if (isNaN(target)) return;
       moveDinnerToDay(i, target, allDeals);
     });
+    const coversSelect = card.querySelector(".dinner-covers-select");
+    if (coversSelect) {
+      coversSelect.addEventListener("change", e => {
+        setDinnerCovers(i, parseInt(e.target.value), allDeals);
+      });
+    }
     container.appendChild(card);
   });
 }
@@ -2244,19 +2852,49 @@ function renderLunchIdeas() {
   container.innerHTML = "";
   const days = ["Monday","Tuesday","Wednesday","Thursday","Friday"];
   generatedLunches.forEach((l, i) => {
+    if (!l) return; // Skip empty slots
+
+    // Check if this is a leftover slot
+    const isCovered = Object.keys(lunchCovers).some(idx => {
+      const idxNum = parseInt(idx);
+      const covers = lunchCovers[idx];
+      return idxNum < i && i < idxNum + covers;
+    });
+
+    const isAccepted = acceptedLunches[i];
     const card = document.createElement("div");
-    card.className = "lunch-card";
+    card.className = `lunch-card ${isAccepted ? 'accepted' : ''} ${isCovered ? 'covered' : ''}`;
+
+    const coversHtml = !isCovered ? `
+      <div style="margin-top:6px;">
+        <label style="font-size:.7rem;color:var(--text-muted);">Covers</label>
+        <select class="covers-select lunch-covers-select" data-idx="${i}" style="width:100%;margin-top:2px;">
+          <option value="1" ${lunchCovers[i] === 1 || !lunchCovers[i] ? 'selected' : ''}>1 day</option>
+          <option value="2" ${lunchCovers[i] === 2 ? 'selected' : ''}>2 days</option>
+          <option value="3" ${lunchCovers[i] === 3 ? 'selected' : ''}>3 days</option>
+          <option value="4" ${lunchCovers[i] === 4 ? 'selected' : ''}>4 days</option>
+        </select>
+      </div>
+    ` : '';
+
     card.innerHTML = `
-      <div class="lunch-day">${days[i]}</div>
+      <div class="lunch-day">${days[i]}${isCovered ? ' <em>(Leftover)</em>' : ''}${isAccepted ? ' 🔒' : ''}</div>
       <div class="lunch-main">${escHtml(l.name)}</div>
       <div class="lunch-pack">📦 ${escHtml(l.items)}<br>✅ <em>${LUNCH_ALWAYS.join(" • ")}</em></div>
-      <div class="idea-actions">
-        <button class="btn btn-primary btn-sm accept-lunch" data-idx="${i}">Accept</button>
+      ${coversHtml}
+      <div class="idea-actions" ${isCovered ? 'style="display:none;"' : ''}>
+        <button class="btn ${isAccepted ? 'btn-ghost' : 'btn-primary'} btn-sm accept-lunch" data-idx="${i}">${isAccepted ? '🔒 Locked' : 'Accept'}</button>
         <button class="btn btn-ghost btn-sm swap-lunch" data-idx="${i}">Swap</button>
       </div>
     `;
     card.querySelector(".accept-lunch").addEventListener("click", () => acceptLunch(i));
     card.querySelector(".swap-lunch").addEventListener("click", () => swapLunch(i));
+    const coversSelect = card.querySelector(".lunch-covers-select");
+    if (coversSelect) {
+      coversSelect.addEventListener("change", e => {
+        setLunchCovers(i, parseInt(e.target.value));
+      });
+    }
     container.appendChild(card);
   });
 }
@@ -2286,73 +2924,269 @@ function renderDealHighlights(allDeals) {
 
 // ── Accept / Swap ──
 function acceptDinner(idx) {
+  acceptedDinners[idx] = !acceptedDinners[idx]; // Toggle lock
+  renderDinnerIdeas(Object.values(flyerDealsData).join(" ").toLowerCase());
+  renderPlanPanel();
+  checkAllAccepted();
   const d = generatedDinners[idx];
-  const wk = weekKey(currentWeekStart);
-  dbUpdate(`meals/${wk}/day${idx}`, { dinner: d.name });
-  showToast(`${DAY_NAMES[idx]} dinner set: ${d.name}`);
-  const btn = document.querySelectorAll(".accept-dinner")[idx];
-  if (btn) { btn.textContent = "✓ Added"; btn.disabled = true; btn.style.opacity = ".6"; }
+  const msg = acceptedDinners[idx] ? `${DAY_NAMES[idx]} dinner locked: ${d.name}` : `${DAY_NAMES[idx]} dinner unlocked`;
+  showToast(msg);
 }
 
 function swapDinner(idx, allDeals) {
   const season = curSeason();
-  const current = generatedDinners.map(d=>d.name);
+  const current = generatedDinners.filter(d=>d).map(d=>d.name);
   let pool = DINNERS.filter(d => !current.includes(d.name) && (d.season.includes("all")||d.season.includes(season)));
   if (!pool.length) pool = DINNERS.filter(d=>!current.includes(d.name));
   if (!pool.length) { showToast("No more options!"); return; }
   const pick = pool[Math.floor(Math.random()*pool.length)];
   generatedDinners[idx] = pick;
   renderDinnerIdeas(allDeals || Object.values(flyerDealsData).join(" ").toLowerCase());
+  renderPlanPanel();
   showToast("Swapped!");
 }
 
+function setDinnerCovers(idx, count, allDeals) {
+  dinnerCovers[idx] = count;
+  renderDinnerIdeas(allDeals || Object.values(flyerDealsData).join(" ").toLowerCase());
+  renderPlanPanel();
+  checkAllAccepted();
+  showToast(`${DAY_NAMES[idx]} dinner covers ${count} day${count>1?'s':''}`);
+}
+
 function acceptLunch(idx) {
-  showToast(`${["Mon","Tue","Wed","Thu","Fri"][idx]} lunch set: ${generatedLunches[idx].name}`);
-  const btn = document.querySelectorAll(".accept-lunch")[idx];
-  if (btn) { btn.textContent = "✓ Noted"; btn.disabled = true; btn.style.opacity = ".6"; }
+  acceptedLunches[idx] = !acceptedLunches[idx]; // Toggle lock
+  renderLunchIdeas();
+  renderPlanPanel();
+  checkAllAccepted();
+  const l = generatedLunches[idx];
+  const msg = acceptedLunches[idx] ? `${["Mon","Tue","Wed","Thu","Fri"][idx]} lunch locked: ${l.name}` : `${["Mon","Tue","Wed","Thu","Fri"][idx]} lunch unlocked`;
+  showToast(msg);
 }
 
 function swapLunch(idx) {
-  const current = generatedLunches.map(l=>l.name);
+  const current = generatedLunches.filter(l=>l).map(l=>l.name);
   let pool = KID_LUNCHES.filter(l=>!current.includes(l.name));
   if (!pool.length) { showToast("No more options!"); return; }
   const pick = pool[Math.floor(Math.random()*pool.length)];
   generatedLunches[idx] = pick;
   renderLunchIdeas();
+  renderPlanPanel();
   showToast("Swapped!");
 }
 
-// ── Accept All & Build Grocery List ──
-document.getElementById("accept-all-btn")?.addEventListener("click", () => {
+function setLunchCovers(idx, count) {
+  lunchCovers[idx] = count;
+  renderLunchIdeas();
+  renderPlanPanel();
+  checkAllAccepted();
+  showToast(`${["Mon","Tue","Wed","Thu","Fri"][idx]} lunch covers ${count} day${count>1?'s':''}`);
+}
+
+// ── Plan Panel ──
+function renderPlanPanel() {
+  const panel = document.getElementById("plan-panel");
+  const dinnerDiv = document.getElementById("plan-dinners");
+  const lunchDiv = document.getElementById("plan-lunches");
+  const counter = document.getElementById("plan-counter");
+
+  dinnerDiv.innerHTML = "";
+  lunchDiv.innerHTML = "";
+
+  const dayNames = ["Sun","Mon","Tue","Wed","Thu","Fri","Sat"];
+  let count = 0;
+
+  // Render dinners
+  for (let i = 0; i < 7; i++) {
+    if (!generatedDinners[i]) continue;
+
+    const isCovered = Object.keys(dinnerCovers).some(idx => {
+      const idxNum = parseInt(idx);
+      const covers = dinnerCovers[idx];
+      return idxNum < i && i < idxNum + covers;
+    });
+
+    const isAccepted = acceptedDinners[i];
+    const d = generatedDinners[i];
+
+    if (isCovered) {
+      const sourceIdx = Object.keys(dinnerCovers).find(idx => {
+        const idxNum = parseInt(idx);
+        const covers = dinnerCovers[idx];
+        return idxNum < i && i < idxNum + covers;
+      });
+      const row = document.createElement("div");
+      row.className = "plan-row leftover";
+      row.innerHTML = `<span class="plan-day">${dayNames[i]}</span><span class="plan-meal">← Leftover: ${escHtml(d.name)}</span>`;
+      lunchDiv.appendChild(row);
+      count++;
+    } else if (isAccepted) {
+      const row = document.createElement("div");
+      row.className = "plan-row locked";
+      row.innerHTML = `
+        <span class="plan-day">${dayNames[i]}</span>
+        <span class="plan-meal">🔒 ${escHtml(d.name)}</span>
+        ${dinnerCovers[i] > 1 ? `<span style="font-size:.68rem;color:var(--text-muted);">(+${dinnerCovers[i]-1})</span>` : ''}
+        <button class="plan-unlock" data-type="dinner" data-idx="${i}">Unlock</button>
+      `;
+      dinnerDiv.appendChild(row);
+      row.querySelector(".plan-unlock").addEventListener("click", () => acceptDinner(i));
+      count++;
+    } else {
+      const row = document.createElement("div");
+      row.className = "plan-row empty";
+      row.innerHTML = `<span class="plan-day">${dayNames[i]}</span><span class="plan-meal" style="color:var(--text-muted);">— empty</span>`;
+      dinnerDiv.appendChild(row);
+    }
+  }
+
+  // Render lunches
+  const lunchDays = ["Mon","Tue","Wed","Thu","Fri"];
+  for (let i = 0; i < 5; i++) {
+    if (!generatedLunches[i]) continue;
+
+    const isCovered = Object.keys(lunchCovers).some(idx => {
+      const idxNum = parseInt(idx);
+      const covers = lunchCovers[idx];
+      return idxNum < i && i < idxNum + covers;
+    });
+
+    const isAccepted = acceptedLunches[i];
+    const l = generatedLunches[i];
+
+    if (isCovered) {
+      const row = document.createElement("div");
+      row.className = "plan-row leftover";
+      row.innerHTML = `<span class="plan-day">${lunchDays[i]}</span><span class="plan-meal">← Leftover: ${escHtml(l.name)}</span>`;
+      lunchDiv.appendChild(row);
+      count++;
+    } else if (isAccepted) {
+      const row = document.createElement("div");
+      row.className = "plan-row locked";
+      row.innerHTML = `
+        <span class="plan-day">${lunchDays[i]}</span>
+        <span class="plan-meal">🔒 ${escHtml(l.name)}</span>
+        ${lunchCovers[i] > 1 ? `<span style="font-size:.68rem;color:var(--text-muted);">(+${lunchCovers[i]-1})</span>` : ''}
+        <button class="plan-unlock" data-type="lunch" data-idx="${i}">Unlock</button>
+      `;
+      lunchDiv.appendChild(row);
+      row.querySelector(".plan-unlock").addEventListener("click", () => acceptLunch(i));
+      count++;
+    } else {
+      const row = document.createElement("div");
+      row.className = "plan-row empty";
+      row.innerHTML = `<span class="plan-day">${lunchDays[i]}</span><span class="plan-meal" style="color:var(--text-muted);">— empty</span>`;
+      lunchDiv.appendChild(row);
+    }
+  }
+
+  counter.textContent = `${count}/12 set`;
+
+  // Show panel if any accepted
+  if (count > 0) {
+    panel.style.display = "block";
+  } else {
+    panel.style.display = "none";
+  }
+}
+
+// ── Check if all accepted (show finalize bar) ──
+function checkAllAccepted() {
+  // Count slots accounted for (accepted or covered by leftovers)
+  let dinnerSlots = 0, lunchSlots = 0;
+
+  // Dinners: 7 total
+  for (let i = 0; i < 7; i++) {
+    if (acceptedDinners[i] ||
+        Object.keys(dinnerCovers).some(idx => {
+          const idxNum = parseInt(idx);
+          const covers = dinnerCovers[idx];
+          return idxNum < i && i < idxNum + covers;
+        })) {
+      dinnerSlots++;
+    }
+  }
+
+  // Lunches: 5 total
+  for (let i = 0; i < 5; i++) {
+    if (acceptedLunches[i] ||
+        Object.keys(lunchCovers).some(idx => {
+          const idxNum = parseInt(idx);
+          const covers = lunchCovers[idx];
+          return idxNum < i && i < idxNum + covers;
+        })) {
+      lunchSlots++;
+    }
+  }
+
+  const allDone = dinnerSlots === 7 && lunchSlots === 5;
+  document.getElementById("finalize-bar").style.display = allDone ? "flex" : "none";
+}
+
+// ── Day date helper ──
+function dayDate(dayIdx) {
+  const d = new Date(currentWeekStart);
+  d.setDate(d.getDate() + dayIdx);
+  return d;
+}
+
+// ── Finalize & Calendar ──
+function finalizeWeek() {
   const wk = weekKey(currentWeekStart);
 
   // Push all dinners to meal planner
   generatedDinners.forEach((d, i) => {
-    dbUpdate(`meals/${wk}/day${i}`, { dinner: d.name });
+    if (d) dbUpdate(`meals/${wk}/day${i}`, { dinner: d.name });
   });
 
-  // Build grocery list from all ingredients
+  // Push all lunches
+  generatedLunches.forEach((l, i) => {
+    if (l) dbUpdate(`meals/${wk}/day${i+1}`, { lunch: l.name });
+  });
+
+  // Build grocery list from all accepted meals (ignore leftovers)
   const allIngredients = {};
-  generatedDinners.forEach(d => {
-    d.ing.forEach(i => {
-      const key = `${i.s}__${i.n}`;
-      if (!allIngredients[key]) allIngredients[key] = { name: i.n, qty: i.q, section: i.s };
-      // Don't duplicate
+  const seenForDinner = new Set();
+
+  for (let i = 0; i < 7; i++) {
+    if (!generatedDinners[i]) continue;
+    // Skip if this slot is a leftover
+    const isCovered = Object.keys(dinnerCovers).some(idx => {
+      const idxNum = parseInt(idx);
+      const covers = dinnerCovers[idx];
+      return idxNum < i && i < idxNum + covers;
     });
-  });
-  generatedLunches.forEach(l => {
-    (l.ing||[]).forEach(i => {
-      const key = `${i.s}__${i.n}`;
-      if (!allIngredients[key]) allIngredients[key] = { name: i.n, qty: i.q, section: i.s };
+    if (isCovered) continue;
+
+    const d = generatedDinners[i];
+    d.ing.forEach(x => {
+      const key = `${x.s}__${x.n}`;
+      if (!allIngredients[key]) allIngredients[key] = { name: x.n, qty: x.q, section: x.s };
     });
-  });
+    seenForDinner.add(d.name);
+  }
+
+  for (let i = 0; i < 5; i++) {
+    if (!generatedLunches[i]) continue;
+    const isCovered = Object.keys(lunchCovers).some(idx => {
+      const idxNum = parseInt(idx);
+      const covers = lunchCovers[idx];
+      return idxNum < i && i < idxNum + covers;
+    });
+    if (isCovered) continue;
+
+    const l = generatedLunches[i];
+    (l.ing||[]).forEach(x => {
+      const key = `${x.s}__${x.n}`;
+      if (!allIngredients[key]) allIngredients[key] = { name: x.n, qty: x.q, section: x.s };
+    });
+  }
 
   // Add lunch always-include items + weekly staples
   const alwaysItems = [
     {name:"Drinkable yogurt (Yop/Kefir)",qty:"5",section:"dairy"},
     {name:"Applesauce pouches",qty:"5",section:"snacks"},
     {name:"Fruit gummies / Dunkaroos",qty:"5",section:"snacks"},
-    // Weekly breakfast & bakery staples
     {name:"Bread (sliced)",qty:"1 loaf",section:"bakery"},
     {name:"Bagels",qty:"6-pack",section:"bakery"},
     {name:"English muffins",qty:"6-pack",section:"bakery"},
@@ -2375,15 +3209,99 @@ document.getElementById("accept-all-btn")?.addEventListener("click", () => {
     count++;
   });
 
-  showToast(`✓ ${generatedDinners.length} dinners set + ${count} grocery items added!`);
+  showToast(`✓ Week finalized! ${count} grocery items added!`);
 
-  document.getElementById("accept-all-bar").style.display = "none";
-});
+  document.getElementById("finalize-bar").style.display = "none";
+  document.getElementById("plan-panel").style.display = "none";
+}
+
+function buildMealPlanText() {
+  const dayNames = ["Sunday","Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"];
+  const lunchDays = ["Monday","Tuesday","Wednesday","Thursday","Friday"];
+
+  let text = "🍽️ This Week's Meal Plan\n\n";
+
+  for (let i = 0; i < 7; i++) {
+    if (!generatedDinners[i]) continue;
+    const d = generatedDinners[i];
+    const cover = dinnerCovers[i] || 1;
+    text += `${dayNames[i]}: ${d.name}`;
+    if (cover > 1) text += ` (covers ${cover} days)`;
+    text += `\n`;
+  }
+
+  text += "\nKid Lunches:\n";
+  for (let i = 0; i < 5; i++) {
+    if (!generatedLunches[i]) continue;
+    const l = generatedLunches[i];
+    const cover = lunchCovers[i] || 1;
+    text += `${lunchDays[i]}: ${l.name}`;
+    if (cover > 1) text += ` (covers ${cover} days)`;
+    text += `\n`;
+  }
+
+  return text;
+}
+
+function copyPlanToClipboard() {
+  const text = buildMealPlanText();
+  navigator.clipboard.writeText(text).then(() => {
+    showToast("Plan copied to clipboard!");
+  }).catch(() => {
+    showToast("Copy failed — try again");
+  });
+}
+
+function emailPlan() {
+  const text = encodeURIComponent(buildMealPlanText());
+  const subject = encodeURIComponent("🍽️ This Week's Meal Plan");
+  window.open(`mailto:?subject=${subject}&body=${text}`, "_blank");
+}
+
+function addToCalendar() {
+  const dayNames = ["Sunday","Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"];
+  const events = [];
+
+  // Dinners at 5:30 PM - 7:00 PM
+  for (let i = 0; i < 7; i++) {
+    if (!generatedDinners[i]) continue;
+    const d = generatedDinners[i];
+    const date = dayDate(i);
+    const startDate = new Date(date);
+    startDate.setHours(17, 30, 0);
+    const endDate = new Date(date);
+    endDate.setHours(19, 0, 0);
+
+    const startStr = startDate.toISOString().replace(/[-:]/g,"").split(".")[0] + "Z";
+    const endStr = endDate.toISOString().replace(/[-:]/g,"").split(".")[0] + "Z";
+
+    const url = `https://calendar.google.com/calendar/render?action=TEMPLATE&text=Dinner: ${encodeURIComponent(d.name)}&dates=${startStr}/${endStr}&details=${encodeURIComponent(d.notes||"")}`;
+    events.push(url);
+  }
+
+  // Open first event
+  if (events.length > 0) {
+    window.open(events[0], "_blank");
+    showToast(`Opened calendar for ${DAY_NAMES[0]} dinner. Create other events manually.`);
+  }
+}
+
+// ── Event Listeners ──
+document.getElementById("finalize-btn")?.addEventListener("click", finalizeWeek);
+document.getElementById("copy-plan-btn")?.addEventListener("click", copyPlanToClipboard);
+document.getElementById("email-plan-btn")?.addEventListener("click", emailPlan);
 
 document.getElementById("clear-ideas-btn")?.addEventListener("click", () => {
   document.getElementById("ideas-results").classList.remove("visible");
-  document.getElementById("accept-all-bar").style.display = "none";
+  document.getElementById("finalize-bar").style.display = "none";
+  document.getElementById("plan-panel").style.display = "none";
   document.getElementById("season-banner").style.display = "none";
+  acceptedDinners = {};
+  acceptedLunches = {};
+  dinnerCovers = {};
+  lunchCovers = {};
+  generatedDinners = [];
+  generatedLunches = [];
   showToast("Ideas cleared");
 });
 
